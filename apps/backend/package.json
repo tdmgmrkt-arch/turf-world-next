@@ -1,0 +1,32 @@
+{
+  "name": "@turf-world/backend",
+  "version": "0.0.1",
+  "description": "Turf World - Medusa 2.x Backend",
+  "license": "MIT",
+  "scripts": {
+    "dev": "medusa develop",
+    "start": "medusa start",
+    "build": "medusa build",
+    "seed": "medusa exec ./src/scripts/seed.ts",
+    "db:migrate": "medusa db:migrate",
+    "db:generate": "medusa db:generate"
+  },
+  "dependencies": {
+    "@medusajs/admin-sdk": "^2.13.0",
+    "@medusajs/cli": "^2.13.1",
+    "@medusajs/file-s3": "^2.13.0",
+    "@medusajs/framework": "^2.13.0",
+    "@medusajs/medusa": "^2.13.0",
+    "@medusajs/payment-stripe": "^2.13.0",
+    "awilix": "^11.0.0",
+    "pg": "^8.13.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

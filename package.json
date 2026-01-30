@@ -1,0 +1,29 @@
+{
+  "name": "turf-world",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Turf World - Professional-grade artificial grass e-commerce platform",
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev:backend": "npm run dev --workspace=@turf-world/backend",
+    "dev:storefront": "npm run dev --workspace=@turf-world/storefront",
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:storefront\"",
+    "build:backend": "npm run build --workspace=@turf-world/backend",
+    "build:storefront": "npm run build --workspace=@turf-world/storefront",
+    "build": "npm run build:backend && npm run build:storefront",
+    "seed": "npm run seed --workspace=@turf-world/backend",
+    "test:e2e": "npm run test:e2e --workspace=@turf-world/storefront"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "dependencies": {
+    "@medusajs/draft-order": "^2.13.1",
+    "ts-node": "^10.9.2"
+  }
+}

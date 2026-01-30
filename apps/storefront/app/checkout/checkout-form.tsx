@@ -1,0 +1,953 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import {
+  PaymentElement,
+  useStripe,
+  useElements,
+} from "@stripe/react-stripe-js";
+import {
+  CreditCard,
+  Truck,
+  User,
+  Check,
+  ShoppingBag,
+  Lock,
+  AlertCircle,
+  Loader2,
+  ArrowRight,
+  Package,
+  Sparkles,
+  Award,
+  MapPin,
+  Mail,
+  Phone,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { StripeProvider } from "@/components/stripe-provider";
+import { useCartStore } from "@/lib/store";
+import { useMedusaCart } from "@/hooks/use-medusa-cart";
+import { formatPrice, cn } from "@/lib/utils";
+
+type Step = "information" | "shipping" | "payment" | "confirmation";
+
+const STEPS: { id: Step; label: string; icon: React.ReactNode }[] = [
+  { id: "information", label: "Information", icon: <User className="h-4 w-4" /> },
+  { id: "shipping", label: "Shipping", icon: <Truck className="h-4 w-4" /> },
+  { id: "payment", label: "Payment", icon: <CreditCard className="h-4 w-4" /> },
+  { id: "confirmation", label: "Confirmed", icon: <Check className="h-4 w-4" /> },
+];
+
+// Shipping options
+const SHIPPING_OPTIONS = [
+  {
+    id: "freight",
+    name: "LTL Freight",
+    description: "For turf rolls - delivered to your driveway",
+    price: 0,
+    estimatedDays: "5-10 business days",
+    note: "Free for orders over $1,500",
+    icon: Truck,
+  },
+  {
+    id: "expedited",
+    name: "Expedited Freight",
+    description: "Faster delivery for urgent projects",
+    price: 29900,
+    estimatedDays: "3-5 business days",
+    note: null,
+    icon: Package,
+  },
+];
+
+// Inner payment form component (uses Stripe hooks)
+function PaymentForm({
+  onSuccess,
+  onBack,
+  total,
+  isProcessing,
+  setIsProcessing,
+}: {
+  onSuccess: (orderId: string) => void;
+  onBack: () => void;
+  total: number;
+  isProcessing: boolean;
+  setIsProcessing: (v: boolean) => void;
+}) {
+  const stripe = useStripe();
+  const elements = useElements();
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const { completeCheckout } = useMedusaCart();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!stripe || !elements) {
+      return;
+    }
+
+    setIsProcessing(true);
+    setErrorMessage(null);
+
+    try {
+      const { error: stripeError, paymentIntent } = await stripe.confirmPayment({
+        elements,
+        confirmParams: {
+          return_url: `${window.location.origin}/order-confirmation`,
+        },
+        redirect: "if_required",
+      });
+
+      if (stripeError) {
+        setErrorMessage(stripeError.message || "Payment failed");
+        setIsProcessing(false);
+        return;
+      }
+
+      if (paymentIntent && paymentIntent.status === "succeeded") {
+        const order = await completeCheckout();
+        if (order) {
+          onSuccess(order.id);
+        } else {
+          onSuccess(paymentIntent.id);
+        }
+      }
+    } catch (err) {
+      console.error("Payment error:", err);
+      setErrorMessage("An unexpected error occurred");
+      setIsProcessing(false);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div className="bg-gradient-to-r from-slate-900 to-slate-800 px-6 py-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
+              <CreditCard className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <h2 className="text-lg font-bold text-white">Payment Details</h2>
+              <p className="text-sm text-white/60">All transactions are secure and encrypted</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="p-6 space-y-4">
+          <div className="rounded-xl border border-slate-200 p-4 bg-slate-50">
+            <PaymentElement options={{ layout: "tabs" }} />
+          </div>
+
+          {errorMessage && (
+            <div className="flex items-center gap-2 text-sm text-red-600 bg-red-50 p-4 rounded-xl border border-red-100">
+              <AlertCircle className="h-4 w-4 flex-shrink-0" />
+              {errorMessage}
+            </div>
+          )}
+
+          <div className="flex gap-3 pt-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onBack}
+              disabled={isProcessing}
+              className="h-12 px-6 rounded-xl"
+            >
+              Back
+            </Button>
+            <Button
+              type="submit"
+              className="flex-1 h-12 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-base font-semibold"
+              disabled={!stripe || !elements || isProcessing}
+            >
+              {isProcessing ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Processing...
+                </>
+              ) : (
+                <>
+                  <Lock className="mr-2 h-4 w-4" />
+                  Pay {formatPrice(total)}
+                </>
+              )}
+            </Button>
+          </div>
+        </div>
+      </div>
+    </form>
+  );
+}
+
+export function CheckoutForm() {
+  const { items, getSubtotal, clearCart } = useCartStore();
+  const {
+    updateShippingAddress,
+    createPaymentSession,
+  } = useMedusaCart();
+
+  const [currentStep, setCurrentStep] = useState<Step>("information");
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [clientSecret, setClientSecret] = useState<string | null>(null);
+  const [isInitializingPayment, setIsInitializingPayment] = useState(false);
+  const [orderId, setOrderId] = useState<string | null>(null);
+  const [completedOrder, setCompletedOrder] = useState<{
+    items: typeof items;
+    subtotal: number;
+    shippingCost: number;
+    tax: number;
+    total: number;
+  } | null>(null);
+
+  // Form state
+  const [contact, setContact] = useState({ email: "", phone: "" });
+  const [shipping, setShipping] = useState({
+    firstName: "",
+    lastName: "",
+    company: "",
+    address: "",
+    apartment: "",
+    city: "",
+    state: "",
+    zip: "",
+  });
+  const [selectedShipping, setSelectedShipping] = useState(SHIPPING_OPTIONS[0].id);
+
+  // Scroll to top when step changes (mobile UX improvement)
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [currentStep]);
+
+  const subtotal = getSubtotal();
+  const shippingCost = SHIPPING_OPTIONS.find((o) => o.id === selectedShipping)?.price || 0;
+  const tax = Math.round(subtotal * 0.0725);
+  const total = subtotal + shippingCost + tax;
+
+  // Initialize payment session when reaching payment step
+  useEffect(() => {
+    if (currentStep === "payment" && !clientSecret && !isInitializingPayment) {
+      initializePayment();
+    }
+  }, [currentStep, clientSecret, isInitializingPayment]);
+
+  const initializePayment = async () => {
+    setIsInitializingPayment(true);
+    try {
+      await updateShippingAddress({
+        first_name: shipping.firstName,
+        last_name: shipping.lastName,
+        address_1: shipping.address,
+        address_2: shipping.apartment || undefined,
+        city: shipping.city,
+        province: shipping.state,
+        postal_code: shipping.zip,
+        country_code: "us",
+        phone: contact.phone || undefined,
+      });
+
+      const secret = await createPaymentSession();
+      if (secret) {
+        setClientSecret(secret);
+      }
+    } catch (err) {
+      console.error("Failed to initialize payment:", err);
+    } finally {
+      setIsInitializingPayment(false);
+    }
+  };
+
+  const handlePaymentSuccess = (newOrderId: string) => {
+    // Store order data before clearing cart
+    setCompletedOrder({
+      items: [...items],
+      subtotal,
+      shippingCost,
+      tax,
+      total,
+    });
+    setOrderId(newOrderId);
+    setCurrentStep("confirmation");
+    clearCart();
+  };
+
+  // Empty Cart State (but not if we have a completed order to show)
+  if (items.length === 0 && !completedOrder) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16 text-center">
+        <div className="relative">
+          <div className="h-24 w-24 rounded-full bg-slate-100 flex items-center justify-center">
+            <ShoppingBag className="h-12 w-12 text-slate-300" />
+          </div>
+          <div className="absolute -bottom-1 -right-1 h-8 w-8 rounded-full bg-emerald-100 flex items-center justify-center">
+            <Sparkles className="h-4 w-4 text-emerald-600" />
+          </div>
+        </div>
+        <h2 className="mt-6 text-2xl font-bold text-slate-900">Your cart is empty</h2>
+        <p className="mt-2 text-muted-foreground max-w-sm">
+          Add some premium artificial turf to your cart before checking out.
+        </p>
+        <Button className="mt-6 h-12 px-8 rounded-xl" asChild>
+          <Link href="/products">
+            Browse Products
+            <ArrowRight className="ml-2 h-4 w-4" />
+          </Link>
+        </Button>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      {/* Step Indicator - Full Width */}
+      <div className="mb-8 flex items-center justify-between">
+        {STEPS.map((step, index) => {
+          const stepIndex = STEPS.findIndex((s) => s.id === currentStep);
+          const isActive = step.id === currentStep;
+          const isCompleted = stepIndex > index;
+
+          return (
+            <div key={step.id} className="flex items-center flex-1">
+              <button
+                onClick={() => isCompleted && setCurrentStep(step.id)}
+                disabled={!isCompleted}
+                className={cn(
+                  "flex items-center gap-2 text-sm font-medium transition-colors",
+                  isActive && "text-emerald-600",
+                  isCompleted && !isActive && "text-emerald-600 hover:text-emerald-700",
+                  !isActive && !isCompleted && "text-slate-400"
+                )}
+              >
+                <span className={cn(
+                  "flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold border-2 transition-colors",
+                  isActive && "border-emerald-600 bg-emerald-600 text-white",
+                  isCompleted && "border-emerald-600 bg-emerald-600 text-white",
+                  !isActive && !isCompleted && "border-slate-300 text-slate-400"
+                )}>
+                  {isCompleted ? <Check className="h-3.5 w-3.5" /> : index + 1}
+                </span>
+                <span className="hidden sm:inline">{step.label}</span>
+              </button>
+              {index < STEPS.length - 1 && (
+                <div className={cn(
+                  "flex-1 h-px mx-4",
+                  isCompleted ? "bg-emerald-600" : "bg-slate-200"
+                )} />
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Content Grid */}
+      <div className="grid gap-8 lg:grid-cols-5">
+        {/* Left: Form */}
+        <div className="lg:col-span-3">
+          {/* Step Content */}
+        {currentStep === "information" && (
+          <div className="bg-white rounded-xl sm:rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+            {/* Section Header */}
+            <div className="bg-gradient-to-r from-slate-900 to-slate-800 px-4 py-3 sm:px-6 sm:py-4">
+              <div className="flex items-center gap-2 sm:gap-3">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-white/10 flex items-center justify-center">
+                  <User className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-base sm:text-lg font-bold text-white">Contact Information</h2>
+                  <p className="text-xs sm:text-sm text-white/60">We&apos;ll use this to send order updates</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
+              {/* Contact Fields */}
+              <div className="grid gap-3 sm:gap-4 sm:grid-cols-2">
+                <div className="space-y-1 sm:space-y-2">
+                  <Label htmlFor="email" className="text-xs sm:text-sm font-medium flex items-center gap-1.5 sm:gap-2">
+                    <Mail className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-400" />
+                    Email Address
+                  </Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={contact.email}
+                    onChange={(e) => setContact({ ...contact, email: e.target.value })}
+                    placeholder="john@example.com"
+                    required
+                    className="h-10 sm:h-12 rounded-lg sm:rounded-xl border-slate-200 focus:border-emerald-500 focus:ring-emerald-500"
+                  />
+                </div>
+                <div className="space-y-1 sm:space-y-2">
+                  <Label htmlFor="phone" className="text-xs sm:text-sm font-medium flex items-center gap-1.5 sm:gap-2">
+                    <Phone className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-400" />
+                    Phone Number
+                  </Label>
+                  <Input
+                    id="phone"
+                    type="tel"
+                    value={contact.phone}
+                    onChange={(e) => setContact({ ...contact, phone: e.target.value })}
+                    placeholder="(555) 123-4567"
+                    required
+                    className="h-10 sm:h-12 rounded-lg sm:rounded-xl border-slate-200 focus:border-emerald-500 focus:ring-emerald-500"
+                  />
+                </div>
+              </div>
+
+              {/* Shipping Address Section */}
+              <div className="pt-4 sm:pt-6 border-t border-slate-100">
+                <div className="flex items-center gap-2 mb-3 sm:mb-4">
+                  <MapPin className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-500" />
+                  <h3 className="text-sm sm:text-base font-bold text-slate-900">Shipping Address</h3>
+                </div>
+
+                <div className="space-y-3 sm:space-y-4">
+                  <div className="grid gap-3 sm:gap-4 sm:grid-cols-2">
+                    <div className="space-y-1 sm:space-y-2">
+                      <Label htmlFor="firstName" className="text-xs sm:text-sm font-medium">First Name</Label>
+                      <Input
+                        id="firstName"
+                        value={shipping.firstName}
+                        onChange={(e) => setShipping({ ...shipping, firstName: e.target.value })}
+                        required
+                        className="h-10 sm:h-12 rounded-lg sm:rounded-xl border-slate-200"
+                      />
+                    </div>
+                    <div className="space-y-1 sm:space-y-2">
+                      <Label htmlFor="lastName" className="text-xs sm:text-sm font-medium">Last Name</Label>
+                      <Input
+                        id="lastName"
+                        value={shipping.lastName}
+                        onChange={(e) => setShipping({ ...shipping, lastName: e.target.value })}
+                        required
+                        className="h-10 sm:h-12 rounded-lg sm:rounded-xl border-slate-200"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Combined address row on mobile: Company + Apt (both optional) */}
+                  <div className="grid gap-3 sm:gap-4 grid-cols-2 sm:grid-cols-1">
+                    <div className="space-y-1 sm:space-y-2">
+                      <Label htmlFor="company" className="text-xs sm:text-sm font-medium text-slate-500">Company</Label>
+                      <Input
+                        id="company"
+                        value={shipping.company}
+                        onChange={(e) => setShipping({ ...shipping, company: e.target.value })}
+                        placeholder="Optional"
+                        className="h-10 sm:h-12 rounded-lg sm:rounded-xl border-slate-200"
+                      />
+                    </div>
+                    <div className="space-y-1 sm:space-y-2 sm:hidden">
+                      <Label htmlFor="apartment-mobile" className="text-xs font-medium text-slate-500">Apt/Suite</Label>
+                      <Input
+                        id="apartment-mobile"
+                        value={shipping.apartment}
+                        onChange={(e) => setShipping({ ...shipping, apartment: e.target.value })}
+                        placeholder="Optional"
+                        className="h-10 rounded-lg border-slate-200"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-1 sm:space-y-2">
+                    <Label htmlFor="address" className="text-xs sm:text-sm font-medium">Street Address</Label>
+                    <Input
+                      id="address"
+                      value={shipping.address}
+                      onChange={(e) => setShipping({ ...shipping, address: e.target.value })}
+                      placeholder="123 Main St"
+                      required
+                      className="h-10 sm:h-12 rounded-lg sm:rounded-xl border-slate-200"
+                    />
+                  </div>
+
+                  <div className="hidden sm:block space-y-2">
+                    <Label htmlFor="apartment" className="text-sm font-medium text-slate-500">Apt, suite, etc. (optional)</Label>
+                    <Input
+                      id="apartment"
+                      value={shipping.apartment}
+                      onChange={(e) => setShipping({ ...shipping, apartment: e.target.value })}
+                      className="h-12 rounded-xl border-slate-200"
+                    />
+                  </div>
+
+                  <div className="grid gap-3 sm:gap-4 grid-cols-3 sm:grid-cols-3">
+                    <div className="space-y-1 sm:space-y-2">
+                      <Label htmlFor="city" className="text-xs sm:text-sm font-medium">City</Label>
+                      <Input
+                        id="city"
+                        value={shipping.city}
+                        onChange={(e) => setShipping({ ...shipping, city: e.target.value })}
+                        required
+                        className="h-10 sm:h-12 rounded-lg sm:rounded-xl border-slate-200"
+                      />
+                    </div>
+                    <div className="space-y-1 sm:space-y-2">
+                      <Label htmlFor="state" className="text-xs sm:text-sm font-medium">State</Label>
+                      <Input
+                        id="state"
+                        value={shipping.state}
+                        onChange={(e) => setShipping({ ...shipping, state: e.target.value })}
+                        maxLength={2}
+                        placeholder="CA"
+                        required
+                        className="h-10 sm:h-12 rounded-lg sm:rounded-xl border-slate-200"
+                      />
+                    </div>
+                    <div className="space-y-1 sm:space-y-2">
+                      <Label htmlFor="zip" className="text-xs sm:text-sm font-medium">ZIP</Label>
+                      <Input
+                        id="zip"
+                        value={shipping.zip}
+                        onChange={(e) => setShipping({ ...shipping, zip: e.target.value })}
+                        required
+                        className="h-10 sm:h-12 rounded-lg sm:rounded-xl border-slate-200"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <Button
+                className="w-full h-12 sm:h-14 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-sm sm:text-base font-semibold"
+                onClick={() => setCurrentStep("shipping")}
+                disabled={
+                  !contact.email ||
+                  !shipping.firstName ||
+                  !shipping.lastName ||
+                  !shipping.address ||
+                  !shipping.city ||
+                  !shipping.state ||
+                  !shipping.zip
+                }
+              >
+                Continue to Shipping
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {currentStep === "shipping" && (
+          <div className="bg-white rounded-xl sm:rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+            {/* Section Header */}
+            <div className="bg-gradient-to-r from-slate-900 to-slate-800 px-4 py-3 sm:px-6 sm:py-4">
+              <div className="flex items-center gap-2 sm:gap-3">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-white/10 flex items-center justify-center">
+                  <Truck className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-base sm:text-lg font-bold text-white">Shipping Method</h2>
+                  <p className="text-xs sm:text-sm text-white/60">Choose your preferred delivery option</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="p-4 sm:p-6 space-y-3 sm:space-y-4">
+              {/* Freight notice */}
+              <div className="flex items-start gap-2 sm:gap-3 rounded-lg sm:rounded-xl border border-amber-200 bg-gradient-to-r from-amber-50 to-orange-50 p-3 sm:p-4">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-md sm:rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0">
+                  <Package className="h-4 w-4 sm:h-5 sm:w-5 text-amber-600" />
+                </div>
+                <div>
+                  <p className="text-sm sm:text-base font-semibold text-amber-900">Turf ships via LTL Freight</p>
+                  <p className="mt-0.5 sm:mt-1 text-xs sm:text-sm text-amber-800">
+                    Due to roll size and weight, all orders ship via freight carrier.
+                  </p>
+                </div>
+              </div>
+
+              {/* Shipping options */}
+              <div className="space-y-2 sm:space-y-3">
+                {SHIPPING_OPTIONS.map((option) => (
+                  <label
+                    key={option.id}
+                    className={cn(
+                      "flex cursor-pointer items-start gap-3 sm:gap-4 rounded-lg sm:rounded-xl border-2 p-3 sm:p-5 transition-all",
+                      selectedShipping === option.id
+                        ? "border-emerald-500 bg-emerald-50/50 shadow-lg shadow-emerald-500/10"
+                        : "border-slate-200 hover:border-slate-300 hover:bg-slate-50"
+                    )}
+                  >
+                    <div className={cn(
+                      "mt-0.5 h-4 w-4 sm:h-5 sm:w-5 rounded-full border-2 flex items-center justify-center transition-colors flex-shrink-0",
+                      selectedShipping === option.id
+                        ? "border-emerald-500 bg-emerald-500"
+                        : "border-slate-300"
+                    )}>
+                      {selectedShipping === option.id && (
+                        <Check className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-white" />
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-1.5 sm:gap-2">
+                          <option.icon className={cn(
+                            "h-4 w-4 sm:h-5 sm:w-5",
+                            selectedShipping === option.id ? "text-emerald-600" : "text-slate-400"
+                          )} />
+                          <span className="text-sm sm:text-base font-bold text-slate-900">{option.name}</span>
+                        </div>
+                        <span className={cn(
+                          "text-sm sm:text-lg font-bold flex-shrink-0",
+                          option.price === 0 ? "text-emerald-600" : "text-slate-900"
+                        )}>
+                          {option.price === 0 ? "FREE" : formatPrice(option.price)}
+                        </span>
+                      </div>
+                      <p className="mt-0.5 sm:mt-1 text-xs sm:text-sm text-slate-600">{option.description}</p>
+                      <p className="text-xs sm:text-sm text-slate-500">{option.estimatedDays}</p>
+                      {option.note && (
+                        <p className="mt-1.5 sm:mt-2 inline-flex items-center gap-1 text-xs font-semibold text-emerald-600 bg-emerald-100 px-2 py-0.5 sm:py-1 rounded-full">
+                          <Sparkles className="h-3 w-3" />
+                          {option.note}
+                        </p>
+                      )}
+                    </div>
+                    <input
+                      type="radio"
+                      name="shipping"
+                      value={option.id}
+                      checked={selectedShipping === option.id}
+                      onChange={() => setSelectedShipping(option.id)}
+                      className="sr-only"
+                    />
+                  </label>
+                ))}
+              </div>
+
+              <div className="flex gap-2 sm:gap-3 pt-3 sm:pt-4">
+                <Button
+                  variant="outline"
+                  onClick={() => setCurrentStep("information")}
+                  className="h-10 sm:h-12 px-4 sm:px-6 rounded-lg sm:rounded-xl text-sm"
+                >
+                  Back
+                </Button>
+                <Button
+                  className="flex-1 h-12 sm:h-14 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-sm sm:text-base font-semibold"
+                  onClick={() => setCurrentStep("payment")}
+                >
+                  Continue to Payment
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {currentStep === "payment" && (
+          <>
+            {isInitializingPayment ? (
+              <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                <div className="py-16">
+                  <div className="flex flex-col items-center justify-center gap-4">
+                    <div className="w-16 h-16 rounded-full bg-emerald-100 flex items-center justify-center">
+                      <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
+                    </div>
+                    <div className="text-center">
+                      <p className="font-semibold text-slate-900">Initializing secure payment...</p>
+                      <p className="text-sm text-slate-500 mt-1">This will only take a moment</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : clientSecret ? (
+              <StripeProvider clientSecret={clientSecret}>
+                <PaymentForm
+                  onSuccess={handlePaymentSuccess}
+                  onBack={() => setCurrentStep("shipping")}
+                  total={total}
+                  isProcessing={isProcessing}
+                  setIsProcessing={setIsProcessing}
+                />
+              </StripeProvider>
+            ) : (
+              <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                {/* Section Header */}
+                <div className="bg-gradient-to-r from-slate-900 to-slate-800 px-6 py-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
+                      <CreditCard className="w-5 h-5 text-white" />
+                    </div>
+                    <div>
+                      <h2 className="text-lg font-bold text-white">Payment (Demo Mode)</h2>
+                      <p className="text-sm text-white/60">Test the checkout experience</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-6 space-y-4">
+                  <div className="flex items-start gap-3 rounded-xl border border-amber-200 bg-gradient-to-r from-amber-50 to-orange-50 p-4">
+                    <div className="w-10 h-10 rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0">
+                      <AlertCircle className="h-5 w-5 text-amber-600" />
+                    </div>
+                    <div>
+                      <p className="font-semibold text-amber-900">Demo Mode Active</p>
+                      <p className="mt-1 text-sm text-amber-800">
+                        Stripe is not configured. Click below to simulate a successful order for testing.
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Fake card input for visual */}
+                  <div className="rounded-xl border border-slate-200 p-5 bg-slate-50">
+                    <div className="space-y-4">
+                      <div>
+                        <Label className="text-sm font-medium text-slate-500">Card Number</Label>
+                        <Input
+                          placeholder="4242 4242 4242 4242"
+                          disabled
+                          className="h-12 mt-1.5 bg-white rounded-xl border-slate-200"
+                        />
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <Label className="text-sm font-medium text-slate-500">Expiry Date</Label>
+                          <Input placeholder="12/28" disabled className="h-12 mt-1.5 bg-white rounded-xl border-slate-200" />
+                        </div>
+                        <div>
+                          <Label className="text-sm font-medium text-slate-500">CVC</Label>
+                          <Input placeholder="123" disabled className="h-12 mt-1.5 bg-white rounded-xl border-slate-200" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-3 pt-4">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setCurrentStep("shipping")}
+                      disabled={isProcessing}
+                      className="h-12 px-6 rounded-xl"
+                    >
+                      Back
+                    </Button>
+                    <Button
+                      className="flex-1 h-14 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-base font-semibold"
+                      disabled={isProcessing}
+                      onClick={async () => {
+                        setIsProcessing(true);
+                        await new Promise((resolve) => setTimeout(resolve, 2000));
+                        const demoOrderId = `demo-${Date.now()}`;
+                        handlePaymentSuccess(demoOrderId);
+                      }}
+                    >
+                      {isProcessing ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Processing...
+                        </>
+                      ) : (
+                        <>
+                          <Lock className="mr-2 h-4 w-4" />
+                          Place Order (Demo) - {formatPrice(total)}
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </>
+        )}
+
+        {/* Confirmation */}
+        {currentStep === "confirmation" && orderId && (
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+            {/* Success Header */}
+            <div className="bg-gradient-to-r from-emerald-500 to-emerald-600 px-6 py-8 text-center">
+              <div className="mx-auto mb-4 h-16 w-16 rounded-full bg-white flex items-center justify-center">
+                <Check className="h-8 w-8 text-emerald-600" />
+              </div>
+              <h2 className="text-2xl font-bold text-white">Order Confirmed!</h2>
+              <p className="text-emerald-100 mt-2">Thank you for your purchase</p>
+              <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/20">
+                <span className="text-sm text-white/80">Order number:</span>
+                <span className="font-mono font-bold text-white">{orderId}</span>
+              </div>
+            </div>
+
+            <div className="p-6 space-y-6">
+              {/* What's Next */}
+              <div>
+                <h3 className="font-bold text-slate-900 mb-4">What Happens Next</h3>
+                <div className="space-y-3">
+                  <div className="flex items-start gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center flex-shrink-0">
+                      <Mail className="w-4 h-4 text-emerald-600" />
+                    </div>
+                    <div>
+                      <p className="font-medium text-slate-900">Confirmation Email</p>
+                      <p className="text-sm text-slate-500">You&apos;ll receive a receipt within a few minutes</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center flex-shrink-0">
+                      <Package className="w-4 h-4 text-emerald-600" />
+                    </div>
+                    <div>
+                      <p className="font-medium text-slate-900">Order Processing</p>
+                      <p className="text-sm text-slate-500">We&apos;ll prepare your turf in 1-2 business days</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center flex-shrink-0">
+                      <Truck className="w-4 h-4 text-emerald-600" />
+                    </div>
+                    <div>
+                      <p className="font-medium text-slate-900">Freight Delivery</p>
+                      <p className="text-sm text-slate-500">The carrier will call to schedule delivery</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Shipping Address */}
+              <div className="pt-4 border-t border-slate-200">
+                <h3 className="font-bold text-slate-900 mb-2">Shipping To</h3>
+                <p className="text-slate-600">
+                  {shipping.firstName} {shipping.lastName}<br />
+                  {shipping.address}{shipping.apartment && `, ${shipping.apartment}`}<br />
+                  {shipping.city}, {shipping.state} {shipping.zip}
+                </p>
+              </div>
+
+              {/* Actions */}
+              <div className="pt-4 border-t border-slate-200 flex flex-col sm:flex-row gap-3">
+                <Button className="flex-1 h-12 rounded-xl" asChild>
+                  <Link href="/products">
+                    Continue Shopping
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Right: Order Summary */}
+      <div className="lg:col-span-2">
+        <div className="sticky top-24 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          {/* Summary Header */}
+          <div className={cn(
+            "px-6 py-4",
+            completedOrder ? "bg-gradient-to-r from-emerald-500 to-emerald-600" : "bg-gradient-to-r from-slate-900 to-slate-800"
+          )}>
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
+                {completedOrder ? (
+                  <Check className="w-5 h-5 text-white" />
+                ) : (
+                  <ShoppingBag className="w-5 h-5 text-white" />
+                )}
+              </div>
+              <div>
+                <h2 className="text-lg font-bold text-white">
+                  {completedOrder ? "Order Complete" : "Order Summary"}
+                </h2>
+                <p className="text-sm text-white/60">
+                  {(completedOrder?.items || items).length} {(completedOrder?.items || items).length === 1 ? "item" : "items"}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="p-6 space-y-4">
+            {/* Items */}
+            <div className="space-y-3 max-h-64 overflow-y-auto">
+              {(completedOrder?.items || items).map((item) => (
+                <div key={item.id} className="flex gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
+                  <div className="h-16 w-16 flex-shrink-0 rounded-lg bg-white overflow-hidden border border-slate-200">
+                    {item.thumbnail ? (
+                      <Image
+                        src={item.thumbnail}
+                        alt={item.title}
+                        width={64}
+                        height={64}
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <div className="h-full w-full flex items-center justify-center">
+                        <Package className="h-6 w-6 text-slate-300" />
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-slate-900 truncate">{item.title}</p>
+                    {item.dimensions && (
+                      <p className="text-xs text-slate-500 mt-0.5">
+                        {item.dimensions.widthFeet}&apos; × {item.dimensions.lengthFeet}&apos;
+                        <span className="mx-1">•</span>
+                        {item.dimensions.squareFeet} sq ft
+                      </p>
+                    )}
+                    <div className="flex items-center justify-between mt-2">
+                      <span className="text-xs text-slate-500">Qty: {item.quantity}</span>
+                      <span className="text-sm font-bold text-slate-900">
+                        {formatPrice(item.unitPrice * item.quantity)}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Totals */}
+            <div className="pt-4 border-t border-slate-200 space-y-3">
+              <div className="flex justify-between text-sm">
+                <span className="text-slate-500">Subtotal</span>
+                <span className="font-medium">{formatPrice(completedOrder?.subtotal ?? subtotal)}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-slate-500">Shipping</span>
+                <span className={cn("font-medium", (completedOrder?.shippingCost ?? shippingCost) === 0 && "text-emerald-600")}>
+                  {(completedOrder?.shippingCost ?? shippingCost) === 0 ? "FREE" : formatPrice(completedOrder?.shippingCost ?? shippingCost)}
+                </span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-slate-500">Tax (CA 7.25%)</span>
+                <span className="font-medium">{formatPrice(completedOrder?.tax ?? tax)}</span>
+              </div>
+              <div className="flex justify-between pt-3 border-t border-slate-200">
+                <span className="text-lg font-bold text-slate-900">Total</span>
+                <span className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-emerald-500">
+                  {formatPrice(completedOrder?.total ?? total)}
+                </span>
+              </div>
+            </div>
+
+            {/* Trust badges */}
+            <div className="pt-4 border-t border-slate-200 space-y-3">
+              <div className="flex items-center gap-3 text-sm">
+                <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center flex-shrink-0">
+                  <Lock className="h-4 w-4 text-emerald-600" />
+                </div>
+                <span className="text-slate-600">Secure 256-bit SSL encryption</span>
+              </div>
+              <div className="flex items-center gap-3 text-sm">
+                <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center flex-shrink-0">
+                  <Award className="h-4 w-4 text-emerald-600" />
+                </div>
+                <span className="text-slate-600">15-year warranty included</span>
+              </div>
+              <div className="flex items-center gap-3 text-sm">
+                <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center flex-shrink-0">
+                  <Truck className="h-4 w-4 text-emerald-600" />
+                </div>
+                <span className="text-slate-600">Free shipping on orders over $1,500</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      </div>
+    </div>
+  );
+}

@@ -1,0 +1,66 @@
+# Turf World: AI Context
+
+## Identity
+Turf World is a direct-to-consumer supplier of professional-grade artificial grass. We compete on transparency (instant pricing) and quality (US-made).
+
+## Product Knowledge Graph
+
+### Turf Categories
+- **K9 Series (Pet Turf):** 100% permeable backing for pet urine drainage. Antimicrobial treated. High drainage rate (100+ gal/min/sqft).
+- **ProPutt:** Nylon texturized turf for golf putting greens (Stimp speed 10-12).
+- **EcoLush:** Recycled backing, 108oz face weight for luxury residential lawns.
+- **Landscape Series:** Standard residential turf, 59-93oz face weight options.
+
+### Key Specifications
+- **Roll Width:** All turf is sold in 15ft widths (industry standard)
+- **Face Weight:** 59oz (budget) to 130oz (premium) - higher = more durable
+- **Pile Height:** 1.5" to 2.5" - taller = softer, more realistic
+- **Yarn Types:** C4 (budget polyethylene), C8 (premium polyethylene), Nylon (putting greens)
+- **Backing:** Solid, Perforated, or Permeable (best for pets)
+
+### Trust Certifications
+- Class-A Fire Rated (highest safety standard)
+- PFAS Free (no forever chemicals)
+- Lead Free (safe for children)
+- 15-Year Manufacturer Warranty
+
+## Key Routes
+- `/` - Homepage
+- `/products` - Product catalog (filterable by use case)
+- `/products/[handle]` - Product detail page with calculator
+- `/calculator` - Standalone project estimator
+- `/samples` - Order free swatch kits (3 samples)
+- `/supplies` - Infill, seam tape, adhesive
+- `/installers` - Directory of certified installation pros
+- `/locations/[city]` - Local SEO landing pages
+
+## Calculator Logic
+The project calculator solves: "I have X sq ft, how many rolls do I need?"
+
+**Inputs:** Width (ft), Length (ft)
+**Outputs:**
+- Rolls needed (based on 15ft width constraint)
+- Linear feet to order
+- Seam tape (linear feet)
+- Infill bags (50lb each, 1-1.5 lbs/sqft)
+- Waste percentage
+
+**Formula:**
+```
+rollsAcross = ceil(projectWidth / 15)
+linearFeetTotal = rollsAcross * projectLength
+seamCount = rollsAcross - 1 (if > 1)
+seamTapeFeet = seamCount * projectLength
+infillLbs = squareFeet * (isPetTurf ? 1.5 : 1.0)
+```
+
+## Pricing Model
+- All prices are per square foot (e.g., $2.99/sqft)
+- No hidden fees or minimum orders
+- Shipping: LTL Freight for turf rolls, Standard Parcel for samples/supplies
+- Regional tax: California 7.25% base rate
+
+## Contact & Support
+- Email: support@turfworld.com
+- Phone: 1-800-TURF-WORLD
+- Hours: Mon-Fri 8am-5pm PST

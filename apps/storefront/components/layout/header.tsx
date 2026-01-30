@@ -1,0 +1,607 @@
+"use client";
+
+import Link from "next/link";
+import Image from "next/image";
+import { ShoppingCart, Menu, Calculator, Sparkles, ChevronDown, X, ArrowRight, Phone, Truck, Shield, Clock, CheckCircle2, Package } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useCartStore } from "@/lib/store";
+import { cn } from "@/lib/utils";
+import { useState, useRef, useEffect } from "react";
+
+const turfCategories = [
+  {
+    title: "Residential Turf",
+    href: "/products?use=landscape",
+    description: "Lawns, yards & landscaping",
+    image: "/residential.avif",
+    priceFrom: "$1.30",
+  },
+  {
+    title: "Pet & Dog Turf",
+    href: "/products?use=pet",
+    description: "Antimicrobial/high-drainage",
+    image: "/pets.avif",
+    priceFrom: "$1.85",
+  },
+  {
+    title: "Putting Greens",
+    href: "/products?use=putting",
+    description: "Pro-grade performance",
+    image: "/golf.avif",
+    priceFrom: "$3.75",
+  },
+  {
+    title: "Commercial Turf",
+    href: "/products?use=commercial",
+    description: "Heavy-duty & safe",
+    image: "/commercial.avif",
+    priceFrom: "$1.65",
+  },
+];
+
+const supplyCategories = [
+  {
+    title: "Infill",
+    href: "/supplies#infill",
+    description: "Weight, support & odor control",
+    image: "/products/infill.webp",
+  },
+  {
+    title: "Seaming",
+    href: "/supplies#seaming",
+    description: "Join turf pieces seamlessly",
+    image: "/products/seamtape.webp",
+  },
+  {
+    title: "Installation",
+    href: "/supplies#installation",
+    description: "Nails, weed barrier & more",
+    image: "/products/weedbarrier.webp",
+  },
+  {
+    title: "Tools",
+    href: "/supplies#tools",
+    description: "Finishing touches",
+    image: "/products/nails.webp",
+  },
+];
+
+const navLinks = [
+  { name: "Calculator", href: "/calculator", icon: Calculator },
+  { name: "Locations", href: "/locations" },
+  { name: "Wholesale", href: "/broker" },
+  { name: "About", href: "/about" },
+  { name: "Contact", href: "/contact" },
+];
+
+export function Header() {
+  const { openCart, getItemCount } = useCartStore();
+  const itemCount = getItemCount();
+  const [turfMenuOpen, setTurfMenuOpen] = useState(false);
+  const [suppliesMenuOpen, setSuppliesMenuOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const turfTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const suppliesTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const handleTurfEnter = () => {
+    if (turfTimeoutRef.current) clearTimeout(turfTimeoutRef.current);
+    setSuppliesMenuOpen(false);
+    setTurfMenuOpen(true);
+  };
+
+  const handleTurfLeave = () => {
+    turfTimeoutRef.current = setTimeout(() => setTurfMenuOpen(false), 100);
+  };
+
+  const handleSuppliesEnter = () => {
+    if (suppliesTimeoutRef.current) clearTimeout(suppliesTimeoutRef.current);
+    setTurfMenuOpen(false);
+    setSuppliesMenuOpen(true);
+  };
+
+  const handleSuppliesLeave = () => {
+    suppliesTimeoutRef.current = setTimeout(() => setSuppliesMenuOpen(false), 100);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (turfTimeoutRef.current) clearTimeout(turfTimeoutRef.current);
+      if (suppliesTimeoutRef.current) clearTimeout(suppliesTimeoutRef.current);
+    };
+  }, []);
+
+  return (
+    <>
+      <header className="sticky top-0 z-50 w-full bg-white border-b">
+        <div className="container">
+          <div className="flex h-16 items-center justify-between">
+            {/* Logo */}
+            <Link href="/" className="flex-shrink-0">
+              <div className="relative h-10 w-[180px]">
+                <Image
+                  src="/turf.world.alternate.header.logo.png"
+                  alt="Turf World"
+                  fill
+                  className="object-contain"
+                  priority
+                />
+              </div>
+            </Link>
+
+            {/* Desktop Navigation */}
+            <nav className="hidden lg:flex items-center gap-1">
+              {/* Shop Turf - Mega Menu Trigger */}
+              <div
+                onMouseEnter={handleTurfEnter}
+                onMouseLeave={handleTurfLeave}
+              >
+                <button
+                  className={cn(
+                    "flex items-center gap-1.5 px-4 py-2 text-sm font-medium transition-colors rounded-md",
+                    turfMenuOpen ? "text-primary bg-primary/5" : "hover:text-primary"
+                  )}
+                >
+                  Shop Turf
+                  <ChevronDown className={cn("w-4 h-4 transition-transform", turfMenuOpen && "rotate-180")} />
+                </button>
+              </div>
+
+              {/* Shop Supplies - Mega Menu Trigger */}
+              <div
+                onMouseEnter={handleSuppliesEnter}
+                onMouseLeave={handleSuppliesLeave}
+              >
+                <button
+                  className={cn(
+                    "flex items-center gap-1.5 px-4 py-2 text-sm font-medium transition-colors rounded-md",
+                    suppliesMenuOpen ? "text-primary bg-primary/5" : "hover:text-primary"
+                  )}
+                >
+                  Shop Supplies
+                  <ChevronDown className={cn("w-4 h-4 transition-transform", suppliesMenuOpen && "rotate-180")} />
+                </button>
+              </div>
+
+              {navLinks.map((link) => (
+                <Link
+                  key={link.name}
+                  href={link.href}
+                  className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium hover:text-primary transition-colors"
+                >
+                  {link.icon && <link.icon className="w-4 h-4" />}
+                  {link.name}
+                </Link>
+              ))}
+
+              <Link href="/samples">
+                <Button size="sm" className="ml-3 bg-primary hover:bg-primary/90">
+                  <Sparkles className="w-4 h-4 mr-1.5" />
+                  Free Samples
+                </Button>
+              </Link>
+            </nav>
+
+            {/* Right Side */}
+            <div className="flex items-center gap-3">
+              <a href="tel:1-800-TURF-WLD" className="hidden xl:flex items-center gap-2 text-sm font-medium hover:text-primary transition-colors">
+                <Phone className="w-4 h-4" />
+                1-800-TURF-WLD
+              </a>
+
+              <Button
+                variant="ghost"
+                size="icon"
+                className="relative"
+                onClick={openCart}
+              >
+                <ShoppingCart className="h-5 w-5" />
+                {itemCount > 0 && (
+                  <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-white">
+                    {itemCount}
+                  </span>
+                )}
+              </Button>
+
+              <Button
+                variant="ghost"
+                size="icon"
+                className="lg:hidden"
+                onClick={() => setMobileMenuOpen(true)}
+              >
+                <Menu className="h-5 w-5" />
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        {/* Turf Mega Menu */}
+        <div
+          className={cn(
+            "absolute left-0 right-0 top-full bg-white border-t shadow-2xl transition-all duration-200",
+            turfMenuOpen ? "opacity-100 visible" : "opacity-0 invisible pointer-events-none"
+          )}
+          onMouseEnter={handleTurfEnter}
+          onMouseLeave={handleTurfLeave}
+        >
+          {/* Promo Banner */}
+          <div className="bg-gradient-to-r from-emerald-600 to-emerald-700 text-white">
+            <div className="container py-2.5 flex items-center justify-between text-sm">
+              <div className="flex items-center gap-6">
+                <span className="flex items-center gap-1.5 font-medium">
+                  <Truck className="w-4 h-4" />
+                  Free Shipping on Orders $1,500+
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <Shield className="w-4 h-4" />
+                  15-Year Warranty
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <Clock className="w-4 h-4" />
+                  Ships in 2-3 Days
+                </span>
+              </div>
+              <Link href="/samples" className="flex items-center gap-1.5 font-semibold hover:underline underline-offset-2">
+                Get Free Samples
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
+          </div>
+
+          <div className="container py-8">
+            <div className="grid grid-cols-12 gap-10">
+              {/* Category Cards */}
+              <div className="col-span-8">
+                <div className="grid grid-cols-4 gap-4">
+                  {turfCategories.map((cat) => (
+                    <Link
+                      key={cat.title}
+                      href={cat.href}
+                      className="group relative rounded-xl overflow-hidden bg-slate-100 aspect-[3/4]"
+                    >
+                      <Image
+                        src={cat.image}
+                        alt={cat.title}
+                        fill
+                        className="object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                      <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
+                        <h3 className="font-bold text-lg leading-tight">{cat.title}</h3>
+                        <p className="text-white/80 text-sm mt-0.5">{cat.description}</p>
+                        <div className="mt-3 flex items-center justify-between">
+                          <span className="text-sm">
+                            From <span className="font-bold text-emerald-400">{cat.priceFrom}</span>/sf
+                          </span>
+                          <span className="flex items-center gap-1 text-xs font-medium text-white/90 group-hover:text-emerald-400 transition-colors">
+                            Shop Now
+                            <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
+                          </span>
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+
+                {/* View All Link */}
+                <div className="mt-6 flex items-center justify-between">
+                  <Link
+                    href="/products"
+                    className="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:underline underline-offset-2"
+                  >
+                    View All Turf Options
+                    <ArrowRight className="w-4 h-4" />
+                  </Link>
+                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                    <span className="flex items-center gap-1.5">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                      PFAS-Free
+                    </span>
+                    <span className="flex items-center gap-1.5">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                      Lead-Free
+                    </span>
+                    <span className="flex items-center gap-1.5">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                      Made in USA
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Sidebar */}
+              <div className="col-span-4 border-l pl-10">
+                {/* Quick Actions */}
+                <div className="space-y-3">
+                  <Link
+                    href="/calculator"
+                    className="flex items-center gap-3 p-4 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors group"
+                  >
+                    <div className="w-10 h-10 rounded-lg bg-white shadow-sm flex items-center justify-center">
+                      <Calculator className="w-5 h-5 text-primary" />
+                    </div>
+                    <div className="flex-1">
+                      <span className="font-semibold block group-hover:text-primary transition-colors">Project Calculator</span>
+                      <span className="text-sm text-muted-foreground">Get exact sq ft & pricing</span>
+                    </div>
+                    <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                  </Link>
+
+                  <Link
+                    href="/samples"
+                    className="flex items-center gap-3 p-4 rounded-xl bg-emerald-50 hover:bg-emerald-100 transition-colors group border border-emerald-100"
+                  >
+                    <div className="w-10 h-10 rounded-lg bg-white shadow-sm flex items-center justify-center">
+                      <Sparkles className="w-5 h-5 text-emerald-600" />
+                    </div>
+                    <div className="flex-1">
+                      <span className="font-semibold block text-emerald-900">Free Sample Kit</span>
+                      <span className="text-sm text-emerald-700">See & feel before you buy</span>
+                    </div>
+                    <ArrowRight className="w-4 h-4 text-emerald-600" />
+                  </Link>
+                </div>
+
+                {/* Contact */}
+                <div className="mt-6 pt-6 border-t">
+                  <p className="text-sm text-muted-foreground mb-2">Questions? We&apos;re here to help.</p>
+                  <a
+                    href="tel:1-800-TURF-WLD"
+                    className="flex items-center gap-2 text-lg font-bold text-primary hover:underline"
+                  >
+                    <Phone className="w-5 h-5" />
+                    1-800-TURF-WLD
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Supplies Mega Menu */}
+        <div
+          className={cn(
+            "absolute left-0 right-0 top-full bg-white border-t shadow-2xl transition-all duration-200",
+            suppliesMenuOpen ? "opacity-100 visible" : "opacity-0 invisible pointer-events-none"
+          )}
+          onMouseEnter={handleSuppliesEnter}
+          onMouseLeave={handleSuppliesLeave}
+        >
+          {/* Promo Banner */}
+          <div className="bg-gradient-to-r from-slate-700 to-slate-800 text-white">
+            <div className="container py-2.5 flex items-center justify-between text-sm">
+              <div className="flex items-center gap-6">
+                <span className="flex items-center gap-1.5 font-medium">
+                  <Package className="w-4 h-4" />
+                  Ships With Your Turf Order
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <Shield className="w-4 h-4" />
+                  Quality Guaranteed
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <Truck className="w-4 h-4" />
+                  Fast Shipping
+                </span>
+              </div>
+              <Link href="/calculator" className="flex items-center gap-1.5 font-semibold hover:underline underline-offset-2">
+                Calculate What You Need
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
+          </div>
+
+          <div className="container py-8">
+            <div className="grid grid-cols-12 gap-10">
+              {/* Category Cards */}
+              <div className="col-span-8">
+                <div className="grid grid-cols-4 gap-4">
+                  {supplyCategories.map((cat) => (
+                    <Link
+                      key={cat.title}
+                      href={cat.href}
+                      className="group relative rounded-xl overflow-hidden border border-slate-200 aspect-[3/4] hover:border-primary/40 hover:shadow-xl transition-all duration-300"
+                    >
+                      {/* Background Image */}
+                      <Image
+                        src={cat.image}
+                        alt={cat.title}
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+
+                      {/* Content */}
+                      <div className="absolute bottom-0 left-0 right-0 p-4">
+                        <h3 className="font-bold text-base text-white">{cat.title}</h3>
+                        <p className="text-white/70 text-sm mt-0.5">{cat.description}</p>
+                        <div className="mt-2 flex items-center text-xs font-semibold text-emerald-400 group-hover:underline">
+                          Shop Now
+                          <ArrowRight className="w-3.5 h-3.5 ml-1 group-hover:translate-x-1 transition-transform" />
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+
+                {/* View All Link */}
+                <div className="mt-6 flex items-center justify-between">
+                  <Link
+                    href="/supplies"
+                    className="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:underline underline-offset-2"
+                  >
+                    View All Supplies
+                    <ArrowRight className="w-4 h-4" />
+                  </Link>
+                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                    <span className="flex items-center gap-1.5">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                      Pro-Grade Quality
+                    </span>
+                    <span className="flex items-center gap-1.5">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                      Competitive Pricing
+                    </span>
+                    <span className="flex items-center gap-1.5">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                      Bundle & Save
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Sidebar */}
+              <div className="col-span-4 border-l pl-10">
+                {/* Quick Actions */}
+                <div className="space-y-3">
+                  <Link
+                    href="/calculator"
+                    className="flex items-center gap-3 p-4 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors group"
+                  >
+                    <div className="w-10 h-10 rounded-lg bg-white shadow-sm flex items-center justify-center">
+                      <Calculator className="w-5 h-5 text-primary" />
+                    </div>
+                    <div className="flex-1">
+                      <span className="font-semibold block group-hover:text-primary transition-colors">Project Calculator</span>
+                      <span className="text-sm text-muted-foreground">Know exactly what you need</span>
+                    </div>
+                    <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                  </Link>
+
+                  <Link
+                    href="/products"
+                    className="flex items-center gap-3 p-4 rounded-xl bg-emerald-50 hover:bg-emerald-100 transition-colors group border border-emerald-100"
+                  >
+                    <div className="w-10 h-10 rounded-lg bg-white shadow-sm flex items-center justify-center">
+                      <Package className="w-5 h-5 text-emerald-600" />
+                    </div>
+                    <div className="flex-1">
+                      <span className="font-semibold block text-emerald-900">Shop Turf First</span>
+                      <span className="text-sm text-emerald-700">Bundle turf + supplies</span>
+                    </div>
+                    <ArrowRight className="w-4 h-4 text-emerald-600" />
+                  </Link>
+                </div>
+
+                {/* Contact */}
+                <div className="mt-6 pt-6 border-t">
+                  <p className="text-sm text-muted-foreground mb-2">Need help choosing supplies?</p>
+                  <a
+                    href="tel:1-800-TURF-WLD"
+                    className="flex items-center gap-2 text-lg font-bold text-primary hover:underline"
+                  >
+                    <Phone className="w-5 h-5" />
+                    1-800-TURF-WLD
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Mobile Menu */}
+      <div
+        className={cn(
+          "fixed inset-0 z-50 lg:hidden transition-all duration-300",
+          mobileMenuOpen ? "opacity-100 visible" : "opacity-0 invisible pointer-events-none"
+        )}
+      >
+        <div className="absolute inset-0 bg-black/50" onClick={() => setMobileMenuOpen(false)} />
+
+        <div className={cn(
+          "absolute top-0 right-0 h-full w-full max-w-sm bg-white shadow-xl transition-transform duration-300",
+          mobileMenuOpen ? "translate-x-0" : "translate-x-full"
+        )}>
+          <div className="flex flex-col h-full">
+            <div className="flex items-center justify-between p-4 border-b">
+              <span className="font-semibold">Menu</span>
+              <Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(false)}>
+                <X className="w-5 h-5" />
+              </Button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto">
+              {/* Turf Categories */}
+              <div className="p-4">
+                <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">Shop Turf</p>
+                <div className="grid grid-cols-2 gap-2">
+                  {turfCategories.map((cat) => (
+                    <Link
+                      key={cat.title}
+                      href={cat.href}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="relative rounded-lg overflow-hidden aspect-square"
+                    >
+                      <Image src={cat.image} alt={cat.title} fill className="object-cover" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+                      <div className="absolute bottom-2 left-2 right-2 text-white">
+                        <span className="font-semibold text-sm block">{cat.title}</span>
+                        <span className="text-xs text-white/80">From {cat.priceFrom}/sf</span>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+
+              {/* Supplies Categories */}
+              <div className="p-4 border-t">
+                <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">Shop Supplies</p>
+                <div className="grid grid-cols-2 gap-2">
+                  {supplyCategories.map((cat) => (
+                    <Link
+                      key={cat.title}
+                      href={cat.href}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="relative rounded-lg overflow-hidden aspect-square border border-slate-200"
+                    >
+                      <Image
+                        src={cat.image}
+                        alt={cat.title}
+                        fill
+                        className="object-cover"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                      <div className="absolute bottom-0 left-0 right-0 p-2">
+                        <span className="font-semibold text-sm block text-white">{cat.title}</span>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+
+              {/* Links */}
+              <div className="p-4 border-t">
+                <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">Resources</p>
+                {navLinks.map((link) => (
+                  <Link
+                    key={link.name}
+                    href={link.href}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center gap-3 py-3 font-medium hover:text-primary transition-colors"
+                  >
+                    {link.icon && <link.icon className="w-5 h-5 text-muted-foreground" />}
+                    {link.name}
+                  </Link>
+                ))}
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="p-4 border-t bg-slate-50">
+              <a href="tel:1-800-TURF-WLD" className="flex items-center justify-center gap-2 mb-3 text-sm font-medium">
+                <Phone className="w-4 h-4" />
+                1-800-TURF-WLD
+              </a>
+              <Link href="/samples" onClick={() => setMobileMenuOpen(false)}>
+                <Button className="w-full bg-primary hover:bg-primary/90" size="lg">
+                  <Sparkles className="w-4 h-4 mr-2" />
+                  Get Free Samples
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}

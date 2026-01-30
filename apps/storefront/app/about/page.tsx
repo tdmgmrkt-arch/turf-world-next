@@ -1,0 +1,240 @@
+import { Metadata } from "next";
+import Link from "next/link";
+import Image from "next/image";
+import {
+  ArrowRight,
+  Award,
+  Shield,
+  Leaf,
+  Truck,
+  CheckCircle,
+  Sparkles,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Breadcrumb } from "@/components/ui/breadcrumb";
+
+export const metadata: Metadata = {
+  title: "About Us | Turf World",
+  description:
+    "At Turf World, we're dedicated to providing the highest quality artificial turf products at wholesale prices. Learn about our mission and values.",
+  keywords: [
+    "about turf world",
+    "artificial turf company",
+    "wholesale turf",
+    "premium artificial grass",
+  ],
+};
+
+const values = [
+  {
+    icon: Award,
+    title: "Uncompromising Quality",
+    description:
+      "Every product in our catalog meets rigorous quality standards. We use only C8 commercial-grade yarn and UV-stabilized materials for lasting performance.",
+  },
+  {
+    icon: Shield,
+    title: "Industry-Leading Warranties",
+    description:
+      "We stand behind our products with warranties up to 16 years. Your investment is protected with comprehensive coverage against defects and UV degradation.",
+  },
+  {
+    icon: Leaf,
+    title: "Eco-Friendly Solutions",
+    description:
+      "Our turf products are 100% lead-free and help conserve water. Choose sustainable landscaping without sacrificing beauty or durability.",
+  },
+  {
+    icon: Truck,
+    title: "Free Nationwide Shipping",
+    description:
+      "We offer free freight shipping on all orders across the United States. Large orders ship via liftgate delivery right to your location.",
+  },
+];
+
+const benefits = [
+  "Wholesale pricing on all products",
+  "Expert guidance on product selection",
+  "Free samples before you buy",
+  "Fast processing and shipping",
+  "Dedicated customer support",
+  "Flexible roll sizes cut to your length",
+];
+
+const stats = [
+  { value: "27+", label: "Premium Products" },
+  { value: "16", label: "Year Warranty" },
+  { value: "100%", label: "Lead-Free" },
+  { value: "FREE", label: "Nationwide Shipping" },
+];
+
+export default function AboutPage() {
+  return (
+    <div className="min-h-screen">
+      <Breadcrumb items={[{ label: "About Us" }]} />
+
+      {/* Hero Section */}
+      <section className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 py-12 sm:py-16 md:py-24 lg:py-28">
+        {/* Decorative blur effects - hidden on mobile for performance */}
+        <div className="hidden sm:block absolute top-1/4 left-10 w-72 h-72 bg-primary/30 rounded-full blur-[120px] animate-pulse" />
+        <div className="hidden sm:block absolute bottom-1/4 right-10 w-96 h-96 bg-emerald-500/20 rounded-full blur-[140px] animate-pulse" style={{ animationDelay: "1s" }} />
+
+        <div className="container px-4 sm:px-6 relative z-10">
+          <div className="grid gap-8 sm:gap-10 lg:gap-12 lg:grid-cols-2 items-center">
+            <div>
+              <span className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold text-[#34CE95] uppercase tracking-wider mb-3 sm:mb-4">
+                Our Mission
+              </span>
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white tracking-tight">
+                Transforming Outdoor Spaces with{" "}
+                <span className="text-[#34CE95]">Premium Turf</span>
+              </h1>
+              <p className="mt-4 sm:mt-6 text-base sm:text-lg text-white/70 leading-relaxed">
+                At Turf World, we&apos;re dedicated to providing the highest quality
+                artificial turf products at wholesale prices. Our mission is to
+                make premium, eco-friendly turf accessible to contractors,
+                landscapers, and homeowners across the nation.
+              </p>
+              <p className="mt-3 sm:mt-4 text-base sm:text-lg text-white/70 leading-relaxed">
+                We believe that every outdoor space deserves to look its best
+                year-round, without the hassle and environmental impact of
+                traditional grass maintenance. That&apos;s why we source only the
+                finest C8 commercial-grade turf with industry-leading warranties.
+              </p>
+            </div>
+            <div className="relative order-first lg:order-last">
+              <div className="relative aspect-[4/3] rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl">
+                <Image
+                  src="/hero1.webp"
+                  alt="Turf World premium artificial turf installation"
+                  fill
+                  className="object-cover"
+                  priority
+                />
+              </div>
+              <div className="absolute -bottom-4 -left-4 sm:-bottom-6 sm:-left-6 w-24 h-24 sm:w-32 sm:h-32 rounded-xl sm:rounded-2xl bg-[#34CE95] flex items-center justify-center shadow-xl">
+                <div className="text-center text-white">
+                  <p className="text-2xl sm:text-3xl font-bold">16</p>
+                  <p className="text-xs sm:text-sm">Year Warranty</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Values Section */}
+      <section className="py-12 sm:py-16 md:py-24 lg:py-28 bg-white">
+        <div className="container px-4 sm:px-6">
+          <div className="text-center mb-10 sm:mb-16">
+            <span className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold text-[#34CE95] uppercase tracking-wider mb-3 sm:mb-4">
+              Our Values
+            </span>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight">
+              What Sets Us Apart
+            </h2>
+          </div>
+
+          <div className="grid gap-4 sm:gap-6 md:gap-8 grid-cols-2 lg:grid-cols-4">
+            {values.map((value) => (
+              <div
+                key={value.title}
+                className="p-4 sm:p-6 md:p-8 rounded-xl sm:rounded-2xl md:rounded-3xl bg-muted/30 border border-border/50 hover:shadow-lg hover:border-[#34CE95]/30 transition-all duration-300"
+              >
+                <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-xl sm:rounded-2xl bg-gradient-to-br from-[#34CE95] to-emerald-600 flex items-center justify-center text-white shadow-lg mb-3 sm:mb-4 md:mb-6">
+                  <value.icon className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7" />
+                </div>
+                <h3 className="text-base sm:text-lg md:text-xl font-bold mb-2 sm:mb-3">{value.title}</h3>
+                <p className="text-xs sm:text-sm md:text-base text-muted-foreground leading-relaxed">
+                  {value.description}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Why Choose Us Section */}
+      <section className="py-12 sm:py-16 md:py-24 lg:py-28 bg-muted/30">
+        <div className="container px-4 sm:px-6">
+          <div className="grid gap-8 sm:gap-10 lg:gap-12 lg:grid-cols-2 items-center">
+            <div>
+              <span className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold text-[#34CE95] uppercase tracking-wider mb-3 sm:mb-4">
+                Why Choose Us
+              </span>
+              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-4 sm:mb-6">
+                Your Success is Our Priority
+              </h2>
+              <p className="text-base sm:text-lg text-muted-foreground leading-relaxed mb-6 sm:mb-8">
+                Whether you&apos;re a contractor working on a large commercial
+                project or a homeowner looking to transform your backyard, we
+                provide the same level of dedication and service to every
+                customer.
+              </p>
+              <ul className="space-y-3 sm:space-y-4">
+                {benefits.map((benefit) => (
+                  <li key={benefit} className="flex items-center gap-2 sm:gap-3">
+                    <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-[#34CE95]/10 flex items-center justify-center flex-shrink-0">
+                      <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 text-[#34CE95]" />
+                    </div>
+                    <span className="text-sm sm:text-base text-foreground">{benefit}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div className="grid grid-cols-2 gap-3 sm:gap-4 md:gap-6">
+              {stats.map((stat) => (
+                <div
+                  key={stat.label}
+                  className="p-4 sm:p-6 md:p-8 rounded-xl sm:rounded-2xl md:rounded-3xl bg-white border border-border/50 shadow-sm text-center"
+                >
+                  <p className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-[#34CE95] mb-1 sm:mb-2">
+                    {stat.value}
+                  </p>
+                  <p className="text-xs sm:text-sm md:text-base text-muted-foreground font-medium">
+                    {stat.label}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-12 sm:py-16 md:py-24 lg:py-28 bg-gradient-to-br from-[#34CE95] to-emerald-600">
+        <div className="container px-4 sm:px-6">
+          <div className="mx-auto max-w-3xl text-center">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white tracking-tight mb-4 sm:mb-6">
+              Ready to Get Started?
+            </h2>
+            <p className="text-base sm:text-lg text-white/90 mb-8 sm:mb-10">
+              Browse our selection of premium artificial turf or request free
+              samples to see the quality for yourself.
+            </p>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
+              <Button
+                size="lg"
+                className="w-full sm:w-auto h-12 sm:h-14 px-6 sm:px-8 bg-white text-[#34CE95] hover:bg-white/90 rounded-xl"
+                asChild
+              >
+                <Link href="/products">
+                  Shop All Products
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Link>
+              </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                className="w-full sm:w-auto h-12 sm:h-14 px-6 sm:px-8 border-white/30 text-white hover:bg-white/10 rounded-xl"
+                asChild
+              >
+                <Link href="/samples">Request Free Samples</Link>
+              </Button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}
