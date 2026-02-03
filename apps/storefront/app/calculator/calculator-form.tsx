@@ -13,7 +13,11 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { Scissors as LucideScissors } from "lucide-react";
 import { useTurfLogic } from "@/hooks/use-turf-logic";
+
+// Cast Lucide icons to work around React 19 JSX type incompatibility
+const Scissors = LucideScissors as any;
 
 // Cast to work around React 19 JSX type incompatibility with Radix UI / Shadcn / Next.js
 const SafeTooltipProvider = TooltipProvider as any;
@@ -339,7 +343,7 @@ export function CalculatorForm() {
             <div className="p-3 sm:p-4">
               <div className="flex items-center gap-2 sm:gap-3 mb-3">
                 <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-gradient-to-br from-primary to-emerald-600 flex items-center justify-center">
-                  <span className="text-white text-sm sm:text-base">✂️</span>
+                  <Scissors className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                 </div>
                 <div>
                   <h3 className="text-base sm:text-lg font-bold">Your Cuts</h3>

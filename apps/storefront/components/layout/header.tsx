@@ -330,7 +330,7 @@ export function Header() {
                   <Clock className="h-4 w-4" /> Ships in 2-3 Days
                 </span>
               </div>
-              <Link href="/samples" className="flex items-center gap-1.5 font-semibold hover:underline underline-offset-2">
+              <Link href="/samples" onClick={() => setTurfMenuOpen(false)} className="flex items-center gap-1.5 font-semibold hover:underline underline-offset-2">
                 Get Free Samples →
               </Link>
             </div>
@@ -345,6 +345,7 @@ export function Header() {
                     <Link
                       key={cat.title}
                       href={cat.href}
+                      onClick={() => setTurfMenuOpen(false)}
                       className="group relative rounded-xl overflow-hidden bg-slate-100 aspect-[3/4]"
                     >
                       <Image
@@ -374,6 +375,7 @@ export function Header() {
                 <div className="mt-6 flex items-center justify-between">
                   <Link
                     href="/products"
+                    onClick={() => setTurfMenuOpen(false)}
                     className="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:underline underline-offset-2"
                   >
                     View All Turf Options →
@@ -398,6 +400,7 @@ export function Header() {
                 <div className="space-y-3">
                   <Link
                     href="/calculator"
+                    onClick={() => setTurfMenuOpen(false)}
                     className="flex items-center gap-3 p-4 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors group"
                   >
                     <div className="w-10 h-10 rounded-lg bg-white shadow-sm flex items-center justify-center text-primary">
@@ -412,6 +415,7 @@ export function Header() {
 
                   <Link
                     href="/samples"
+                    onClick={() => setTurfMenuOpen(false)}
                     className="flex items-center gap-3 p-4 rounded-xl bg-emerald-50 hover:bg-emerald-100 transition-colors group border border-emerald-100"
                   >
                     <div className="w-10 h-10 rounded-lg bg-white shadow-sm flex items-center justify-center text-emerald-600">
@@ -463,7 +467,7 @@ export function Header() {
                   <Truck className="h-4 w-4" /> Fast Shipping
                 </span>
               </div>
-              <Link href="/calculator" className="flex items-center gap-1.5 font-semibold hover:underline underline-offset-2">
+              <Link href="/calculator" onClick={() => setSuppliesMenuOpen(false)} className="flex items-center gap-1.5 font-semibold hover:underline underline-offset-2">
                 Calculate What You Need →
               </Link>
             </div>
@@ -478,6 +482,7 @@ export function Header() {
                     <Link
                       key={cat.title}
                       href={cat.href}
+                      onClick={() => setSuppliesMenuOpen(false)}
                       className="group relative rounded-xl overflow-hidden border border-slate-200 aspect-[3/4] hover:border-primary/40 hover:shadow-xl transition-all duration-300"
                     >
                       {/* Background Image */}
@@ -505,6 +510,7 @@ export function Header() {
                 <div className="mt-6 flex items-center justify-between">
                   <Link
                     href="/supplies"
+                    onClick={() => setSuppliesMenuOpen(false)}
                     className="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:underline underline-offset-2"
                   >
                     View All Supplies →
@@ -529,6 +535,7 @@ export function Header() {
                 <div className="space-y-3">
                   <Link
                     href="/calculator"
+                    onClick={() => setSuppliesMenuOpen(false)}
                     className="flex items-center gap-3 p-4 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors group"
                   >
                     <div className="w-10 h-10 rounded-lg bg-white shadow-sm flex items-center justify-center text-primary">
@@ -543,6 +550,7 @@ export function Header() {
 
                   <Link
                     href="/products"
+                    onClick={() => setSuppliesMenuOpen(false)}
                     className="flex items-center gap-3 p-4 rounded-xl bg-emerald-50 hover:bg-emerald-100 transition-colors group border border-emerald-100"
                   >
                     <div className="w-10 h-10 rounded-lg bg-white shadow-sm flex items-center justify-center text-emerald-600">
@@ -589,6 +597,7 @@ export function Header() {
                     <Link
                       key={cat.title}
                       href={cat.href}
+                      onClick={() => setAboutMenuOpen(false)}
                       className="group relative rounded-xl overflow-hidden bg-slate-100 aspect-[3/4]"
                     >
                       <Image
@@ -632,6 +641,7 @@ export function Header() {
                 <div className="space-y-3">
                   <Link
                     href="/samples"
+                    onClick={() => setAboutMenuOpen(false)}
                     className="flex items-center gap-3 p-4 rounded-xl bg-emerald-50 hover:bg-emerald-100 transition-colors group border border-emerald-100"
                   >
                     <div className="w-10 h-10 rounded-lg bg-white shadow-sm flex items-center justify-center text-emerald-600">
@@ -646,6 +656,7 @@ export function Header() {
 
                   <Link
                     href="/calculator"
+                    onClick={() => setAboutMenuOpen(false)}
                     className="flex items-center gap-3 p-4 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors group"
                   >
                     <div className="w-10 h-10 rounded-lg bg-white shadow-sm flex items-center justify-center text-primary">
