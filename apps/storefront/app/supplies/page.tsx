@@ -311,7 +311,7 @@ export default function SuppliesPage() {
                     <ArrowRight className="ml-2 h-5 w-5" />
                   </Link>
                 </Button>
-                <Button variant="outline" size="lg" className="w-full sm:w-auto h-12 sm:h-14 px-6 sm:px-8 text-sm sm:text-base border-white/20 text-white hover:bg-white/10 rounded-xl" asChild>
+                <Button variant="ghost" size="lg" className="w-full sm:w-auto h-12 sm:h-14 px-6 sm:px-8 text-sm sm:text-base border-2 border-white/40 text-white bg-white/10 hover:bg-white/20 hover:text-white rounded-xl" asChild>
                   <Link href="/samples">
                     Get Free Samples
                   </Link>

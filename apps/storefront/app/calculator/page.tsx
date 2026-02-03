@@ -9,7 +9,10 @@ import {
   ArrowRight as LucideArrowRight,
 } from "lucide-react";
 import { CalculatorForm } from "./calculator-form";
-import { Button } from "@/components/ui/button";
+import { Button as ShadcnButton } from "@/components/ui/button";
+
+// Cast Button to work around React 19 JSX type incompatibility
+const Button = ShadcnButton as any;
 import { Breadcrumb } from "@/components/ui/breadcrumb";
 
 // Cast Lucide icons to work around React 19 JSX type incompatibility
@@ -239,8 +242,8 @@ export default function CalculatorPage() {
               </Button>
               <Button
                 size="lg"
-                variant="outline"
-                className="border-white/30 text-white hover:bg-white/10"
+                variant="ghost"
+                className="border-2 border-white/40 text-white bg-white/10 hover:bg-white/20 hover:text-white"
                 asChild
               >
                 <Link href="/products">Browse Products</Link>

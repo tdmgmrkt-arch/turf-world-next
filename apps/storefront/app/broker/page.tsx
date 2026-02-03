@@ -410,8 +410,8 @@ export default function BrokerPage() {
               </Button>
               <Button
                 size="lg"
-                variant="outline"
-                className="h-14 px-8 border-white/30 text-white hover:bg-white/10 rounded-xl"
+                variant="ghost"
+                className="h-14 px-8 border-2 border-white/40 text-white bg-white/10 hover:bg-white/20 hover:text-white rounded-xl"
                 asChild
               >
                 <Link href="/samples">Request Free Samples</Link>

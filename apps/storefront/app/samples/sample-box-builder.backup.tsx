@@ -219,9 +219,9 @@ export function SampleBoxBuilder() {
         </div>
       )}
 
-      <div className="grid gap-6 lg:grid-cols-5 pb-24 lg:pb-0">
+      <div className="grid gap-8 lg:grid-cols-3 pb-24 lg:pb-0">
         {/* Left: Sample Selection / Form */}
-        <div className="lg:col-span-4">
+        <div className="lg:col-span-2">
         {step === "select" ? (
           <div className="space-y-6">
             {/* Header */}
@@ -253,7 +253,7 @@ export function SampleBoxBuilder() {
             </div>
 
             {/* Sample Grid */}
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {PRODUCTS.map((product) => {
                 const isSelected = selectedSamples.includes(product.id);
 
@@ -485,17 +485,15 @@ export function SampleBoxBuilder() {
             {/* Content */}
             <div className="p-6">
               {selectedSamples.length === 0 ? (
-                <div className="h-[550px] flex items-center justify-center">
-                  <div className="text-center">
-                    <div className="w-16 h-16 mx-auto rounded-full bg-white/10 flex items-center justify-center mb-4">
-                      <Sparkles className="w-8 h-8 text-white/40" />
-                    </div>
-                    <p className="text-white/60">No samples selected</p>
-                    <p className="text-white/40 text-sm mt-1">Click on the turf samples you want</p>
+                <div className="text-center py-8">
+                  <div className="w-16 h-16 mx-auto rounded-full bg-white/10 flex items-center justify-center mb-4">
+                    <Sparkles className="w-8 h-8 text-white/40" />
                   </div>
+                  <p className="text-white/60">No samples selected</p>
+                  <p className="text-white/40 text-sm mt-1">Click on the turf samples you want</p>
                 </div>
               ) : (
-                <ul className="space-y-2 h-[550px] overflow-y-auto">
+                <ul className="space-y-2 max-h-64 overflow-y-auto">
                   {selectedProducts.map((product) => (
                     <li
                       key={product.id}

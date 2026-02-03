@@ -221,9 +221,9 @@ export function CalculatorForm() {
         )}
       </div>
 
-      <div className="grid gap-4 sm:gap-6 lg:gap-8 lg:grid-cols-3">
-        {/* Left: Inputs + Cuts - creative grid layout */}
-        <div className="lg:col-span-2 grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+      <div className="grid gap-4 sm:gap-6 lg:gap-8 lg:grid-cols-2">
+        {/* Left: Inputs */}
+        <div className="space-y-4 sm:space-y-6">
           {/* Dimensions Card */}
           <div className="group relative overflow-hidden rounded-xl sm:rounded-2xl bg-white border border-border/50 shadow-lg transition-all duration-300 hover:shadow-xl">
             {/* Decorative gradient */}
@@ -334,66 +334,8 @@ export function CalculatorForm() {
             </div>
           </div>
 
-          {/* Cuts Breakdown Card - side by side with Dimensions */}
-          <div className="group relative overflow-hidden rounded-xl sm:rounded-2xl bg-white border border-border/50 shadow-lg">
-            <div className="p-3 sm:p-4">
-              <div className="flex items-center gap-2 sm:gap-3 mb-3">
-                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-gradient-to-br from-primary to-emerald-600 flex items-center justify-center">
-                  <span className="text-white text-sm sm:text-base">✂️</span>
-                </div>
-                <div>
-                  <h3 className="text-base sm:text-lg font-bold">Your Cuts</h3>
-                  <p className="text-[10px] sm:text-xs text-muted-foreground">
-                    {cuts.length} cut{cuts.length !== 1 ? "s" : ""} from {rollsNeeded} roll{rollsNeeded !== 1 ? "s" : ""}
-                  </p>
-                </div>
-              </div>
-
-              {/* Cuts list - fixed height fits 2 cuts, 3rd triggers scroll */}
-              <div className="space-y-1 sm:space-y-1.5 mb-3 h-[88px] overflow-y-auto">
-                {cuts.map((cut, index) => (
-                  <div
-                    key={cut.id}
-                    className="flex items-center justify-between p-1.5 sm:p-2 rounded-lg bg-muted/50 border border-border/50"
-                  >
-                    <div className="flex items-center gap-1.5 sm:gap-2">
-                      <span className="text-[10px] sm:text-xs font-bold text-muted-foreground w-4 sm:w-5">
-                        #{index + 1}
-                      </span>
-                      <span className="text-xs sm:text-sm font-semibold">
-                        15′ × {cut.length}′
-                      </span>
-                      <span className="text-muted-foreground text-[10px] sm:text-xs">
-                        ({cut.squareFeet.toLocaleString()} sf)
-                      </span>
-                    </div>
-                    <span className="text-xs sm:text-sm font-bold text-primary">
-                      {formatPrice(cut.squareFeet * selectedTurf.pricePerSqFtCents)}
-                    </span>
-                  </div>
-                ))}
-              </div>
-
-              {/* Summary stats */}
-              <div className="space-y-1 pt-2 border-t text-[10px] sm:text-xs">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">You Need</span>
-                  <span className="font-semibold">{squareFeet.toLocaleString()} sq ft</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">You Get</span>
-                  <span className="font-semibold text-primary">{totalCutSquareFeet.toLocaleString()} sq ft</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Rolls Required</span>
-                  <span className="font-semibold">{rollsNeeded} roll{rollsNeeded !== 1 ? "s" : ""}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Turf Selection - spans full width */}
-          <div className="lg:col-span-2 group relative rounded-xl sm:rounded-2xl bg-white border border-border/50 shadow-lg transition-all duration-300 hover:shadow-xl">
+          {/* Turf Selection */}
+          <div className="group relative rounded-xl sm:rounded-2xl bg-white border border-border/50 shadow-lg transition-all duration-300 hover:shadow-xl">
 
             <div className="relative p-3 sm:p-4">
               <div className="flex items-center gap-2 sm:gap-3 mb-3">
@@ -644,14 +586,70 @@ export function CalculatorForm() {
               </div>
             </div>
           </div>
-
         </div>
 
-        {/* Right: Materials List (sticky like sample box) */}
-        <div>
-          <div className="sticky top-24">
-            {/* Materials Breakdown */}
-            <div className="relative overflow-hidden rounded-xl sm:rounded-2xl bg-gradient-to-br from-slate-900 to-slate-800 p-4 sm:p-6 shadow-2xl">
+        {/* Right: Results */}
+        <div className="space-y-4 sm:space-y-6">
+          {/* Cuts Breakdown Card */}
+          <div className="group relative overflow-hidden rounded-xl sm:rounded-2xl bg-white border border-border/50 shadow-lg">
+            <div className="p-3 sm:p-4">
+              <div className="flex items-center gap-2 sm:gap-3 mb-3">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-gradient-to-br from-primary to-emerald-600 flex items-center justify-center">
+                  <span className="text-white text-sm sm:text-base">✂️</span>
+                </div>
+                <div>
+                  <h3 className="text-base sm:text-lg font-bold">Your Cuts</h3>
+                  <p className="text-[10px] sm:text-xs text-muted-foreground">
+                    {cuts.length} cut{cuts.length !== 1 ? "s" : ""} from {rollsNeeded} roll{rollsNeeded !== 1 ? "s" : ""}
+                  </p>
+                </div>
+              </div>
+
+              {/* Cuts list - fixed height fits 2 cuts, 3rd triggers scroll */}
+              <div className="space-y-1 sm:space-y-1.5 mb-3 h-[88px] overflow-y-auto">
+                {cuts.map((cut, index) => (
+                  <div
+                    key={cut.id}
+                    className="flex items-center justify-between p-1.5 sm:p-2 rounded-lg bg-muted/50 border border-border/50"
+                  >
+                    <div className="flex items-center gap-1.5 sm:gap-2">
+                      <span className="text-[10px] sm:text-xs font-bold text-muted-foreground w-4 sm:w-5">
+                        #{index + 1}
+                      </span>
+                      <span className="text-xs sm:text-sm font-semibold">
+                        15′ × {cut.length}′
+                      </span>
+                      <span className="text-muted-foreground text-[10px] sm:text-xs">
+                        ({cut.squareFeet.toLocaleString()} sf)
+                      </span>
+                    </div>
+                    <span className="text-xs sm:text-sm font-bold text-primary">
+                      {formatPrice(cut.squareFeet * selectedTurf.pricePerSqFtCents)}
+                    </span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Summary stats */}
+              <div className="space-y-1 pt-2 border-t text-[10px] sm:text-xs">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">You Need</span>
+                  <span className="font-semibold">{squareFeet.toLocaleString()} sq ft</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">You Get</span>
+                  <span className="font-semibold text-primary">{totalCutSquareFeet.toLocaleString()} sq ft</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Rolls Required</span>
+                  <span className="font-semibold">{rollsNeeded} roll{rollsNeeded !== 1 ? "s" : ""}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Materials Breakdown */}
+          <div className="relative overflow-hidden rounded-xl sm:rounded-2xl bg-gradient-to-br from-slate-900 to-slate-800 p-4 sm:p-6 shadow-2xl">
             {/* Decorative elements */}
             <div className="absolute top-0 right-0 w-32 sm:w-40 h-32 sm:h-40 bg-primary/20 rounded-full blur-3xl" />
             <div className="absolute bottom-0 left-0 w-24 sm:w-32 h-24 sm:h-32 bg-emerald-500/20 rounded-full blur-3xl" />
@@ -667,8 +665,7 @@ export function CalculatorForm() {
                 </div>
               </div>
 
-              {/* Fixed height container for 4 materials - blank space appears when fewer materials */}
-              <div className="space-y-2 h-[240px]">
+              <div className="space-y-2">
                 {/* Turf */}
                 <MaterialRow
                   emoji="📦"
@@ -707,10 +704,9 @@ export function CalculatorForm() {
                     price={infillCostCents}
                   />
                 )}
-              </div>
 
-              {/* Divider & Total - outside fixed container so it stays in place */}
-              <div className="border-t border-white/10 pt-3 sm:pt-4 mt-3 sm:mt-4">
+                {/* Divider & Total */}
+                <div className="border-t border-white/10 pt-3 sm:pt-4 mt-3 sm:mt-4">
                   <div className="flex items-center justify-between">
                     <span className="text-white/80 font-medium text-sm sm:text-base">Estimated Total</span>
                     <div className="text-right">
@@ -747,8 +743,8 @@ export function CalculatorForm() {
                     <span>4.9/5 Rating</span>
                   </div>
                 </div>
+              </div>
             </div>
-          </div>
           </div>
         </div>
       </div>

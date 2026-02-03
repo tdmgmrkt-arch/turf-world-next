@@ -17,6 +17,8 @@ import {
   Shield as LucideShield,
   Clock as LucideClock,
   Package as LucidePackage,
+  Star as LucideStar,
+  Heart as LucideHeart,
 } from "lucide-react";
 
 // Cast Lucide icons to work around React 19 JSX type incompatibility
@@ -30,6 +32,8 @@ const Truck = LucideTruck as any;
 const Shield = LucideShield as any;
 const Clock = LucideClock as any;
 const Package = LucidePackage as any;
+const Star = LucideStar as any;
+const Heart = LucideHeart as any;
 
 // Cast to work around React 19 JSX type incompatibility
 const Link = NextLink as any;
@@ -94,12 +98,37 @@ const supplyCategories = [
   },
 ];
 
+const aboutCategories = [
+  {
+    title: "About Us",
+    href: "/about",
+    description: "Our story & mission",
+    image: "/aboutus.card.webp",
+  },
+  {
+    title: "Turf Talk",
+    href: "/blog",
+    description: "Tips, guides & news",
+    image: "/installation.guide.card.webp",
+  },
+  {
+    title: "Project Gallery",
+    href: "/gallery",
+    description: "See our installations",
+    image: "/project.gallery.card.webp",
+  },
+  {
+    title: "Reviews",
+    href: "/reviews",
+    description: "Customer testimonials",
+    image: "/reviews.card.webp",
+  },
+];
+
 const navLinks = [
   { name: "Calculator", href: "/calculator" },
   { name: "Locations", href: "/locations" },
   { name: "Wholesale", href: "/broker" },
-  { name: "About", href: "/about" },
-  { name: "Contact", href: "/contact" },
 ];
 
 export function Header() {
@@ -107,13 +136,16 @@ export function Header() {
   const itemCount = getItemCount();
   const [turfMenuOpen, setTurfMenuOpen] = useState(false);
   const [suppliesMenuOpen, setSuppliesMenuOpen] = useState(false);
+  const [aboutMenuOpen, setAboutMenuOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const turfTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const suppliesTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const aboutTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const handleTurfEnter = () => {
     if (turfTimeoutRef.current) clearTimeout(turfTimeoutRef.current);
     setSuppliesMenuOpen(false);
+    setAboutMenuOpen(false);
     setTurfMenuOpen(true);
   };
 
@@ -124,6 +156,7 @@ export function Header() {
   const handleSuppliesEnter = () => {
     if (suppliesTimeoutRef.current) clearTimeout(suppliesTimeoutRef.current);
     setTurfMenuOpen(false);
+    setAboutMenuOpen(false);
     setSuppliesMenuOpen(true);
   };
 
@@ -131,10 +164,22 @@ export function Header() {
     suppliesTimeoutRef.current = setTimeout(() => setSuppliesMenuOpen(false), 100);
   };
 
+  const handleAboutEnter = () => {
+    if (aboutTimeoutRef.current) clearTimeout(aboutTimeoutRef.current);
+    setTurfMenuOpen(false);
+    setSuppliesMenuOpen(false);
+    setAboutMenuOpen(true);
+  };
+
+  const handleAboutLeave = () => {
+    aboutTimeoutRef.current = setTimeout(() => setAboutMenuOpen(false), 100);
+  };
+
   useEffect(() => {
     return () => {
       if (turfTimeoutRef.current) clearTimeout(turfTimeoutRef.current);
       if (suppliesTimeoutRef.current) clearTimeout(suppliesTimeoutRef.current);
+      if (aboutTimeoutRef.current) clearTimeout(aboutTimeoutRef.current);
     };
   }, []);
 
@@ -199,6 +244,29 @@ export function Header() {
                   {link.name}
                 </Link>
               ))}
+
+              {/* About - Mega Menu Trigger */}
+              <div
+                onMouseEnter={handleAboutEnter}
+                onMouseLeave={handleAboutLeave}
+              >
+                <button
+                  className={cn(
+                    "flex items-center gap-1.5 px-4 py-2 text-sm font-medium transition-colors rounded-md",
+                    aboutMenuOpen ? "text-primary bg-primary/5" : "hover:text-primary"
+                  )}
+                >
+                  About
+                  <span className={cn("text-xs transition-transform", aboutMenuOpen && "rotate-180")}>▼</span>
+                </button>
+              </div>
+
+              <Link
+                href="/contact"
+                className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium hover:text-primary transition-colors"
+              >
+                Contact
+              </Link>
 
               <Link href="/samples">
                 <Button size="sm" className="ml-3 bg-primary hover:bg-primary/90">
@@ -502,6 +570,109 @@ export function Header() {
             </div>
           </div>
         </div>
+
+        {/* About Mega Menu */}
+        <div
+          className={cn(
+            "absolute left-0 right-0 top-full bg-white border-t shadow-2xl transition-all duration-200",
+            aboutMenuOpen ? "opacity-100 visible" : "opacity-0 invisible pointer-events-none"
+          )}
+          onMouseEnter={handleAboutEnter}
+          onMouseLeave={handleAboutLeave}
+        >
+          <div className="container py-8">
+            <div className="grid grid-cols-12 gap-10">
+              {/* About Cards */}
+              <div className="col-span-8">
+                <div className="grid grid-cols-4 gap-4">
+                  {aboutCategories.map((cat) => (
+                    <Link
+                      key={cat.title}
+                      href={cat.href}
+                      className="group relative rounded-xl overflow-hidden bg-slate-100 aspect-[3/4]"
+                    >
+                      <Image
+                        src={cat.image}
+                        alt={cat.title}
+                        fill
+                        className="object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                      <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
+                        <h3 className="font-bold text-lg leading-tight">{cat.title}</h3>
+                        <p className="text-white/80 text-sm mt-0.5">{cat.description}</p>
+                        <span className="inline-flex items-center text-xs font-semibold text-emerald-400 mt-2 group-hover:underline">
+                          Learn More →
+                        </span>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+
+                {/* Why Turf World row */}
+                <div className="mt-6 flex items-center justify-between">
+                  <span className="text-sm font-semibold text-muted-foreground">Why Turf World?     →</span>
+                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                    <span className="flex items-center gap-1.5">
+                      <Heart className="h-4 w-4 text-primary" /> Family-owned since 2015
+                    </span>
+                    <span className="flex items-center gap-1.5">
+                      <Shield className="h-4 w-4 text-primary" /> 15-Year Warranty
+                    </span>
+                    <span className="flex items-center gap-1.5">
+                      <Star className="h-4 w-4 text-amber-500" /> 4.9/5 Customer Rating
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Sidebar */}
+              <div className="col-span-4 border-l pl-10">
+                {/* Quick Actions */}
+                <div className="space-y-3">
+                  <Link
+                    href="/samples"
+                    className="flex items-center gap-3 p-4 rounded-xl bg-emerald-50 hover:bg-emerald-100 transition-colors group border border-emerald-100"
+                  >
+                    <div className="w-10 h-10 rounded-lg bg-white shadow-sm flex items-center justify-center text-emerald-600">
+                      <Sparkles className="h-5 w-5" />
+                    </div>
+                    <div className="flex-1">
+                      <span className="font-semibold block text-emerald-900">Free Sample Kit</span>
+                      <span className="text-sm text-emerald-700">See & feel before you buy</span>
+                    </div>
+                    <span className="text-emerald-600">→</span>
+                  </Link>
+
+                  <Link
+                    href="/calculator"
+                    className="flex items-center gap-3 p-4 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors group"
+                  >
+                    <div className="w-10 h-10 rounded-lg bg-white shadow-sm flex items-center justify-center text-primary">
+                      <Calculator className="h-5 w-5" />
+                    </div>
+                    <div className="flex-1">
+                      <span className="font-semibold block group-hover:text-primary transition-colors">Project Calculator</span>
+                      <span className="text-sm text-muted-foreground">Get exact sq ft & pricing</span>
+                    </div>
+                    <span className="text-muted-foreground group-hover:text-primary transition-colors">→</span>
+                  </Link>
+                </div>
+
+                {/* Contact */}
+                <div className="mt-6 pt-6 border-t">
+                  <p className="text-sm text-muted-foreground mb-2">Questions? We&apos;re here to help.</p>
+                  <a
+                    href="tel:(909) 491-2203"
+                    className="flex items-center gap-2 text-lg font-bold text-primary hover:underline"
+                  >
+                    <Phone className="h-5 w-5" /> (909) 491-2203
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </header>
 
       {/* Mobile Menu */}
@@ -574,6 +745,28 @@ export function Header() {
                 </div>
               </div>
 
+              {/* About */}
+              <div className="p-4 border-t">
+                <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">About</p>
+                <div className="grid grid-cols-2 gap-2">
+                  {aboutCategories.map((cat) => (
+                    <Link
+                      key={cat.title}
+                      href={cat.href}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="relative rounded-lg overflow-hidden aspect-square"
+                    >
+                      <Image src={cat.image} alt={cat.title} fill className="object-cover" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+                      <div className="absolute bottom-2 left-2 right-2 text-white">
+                        <span className="font-semibold text-sm block">{cat.title}</span>
+                        <span className="text-xs text-white/80">{cat.description}</span>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+
               {/* Links */}
               <div className="p-4 border-t">
                 <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">Resources</p>
@@ -587,6 +780,13 @@ export function Header() {
                     {link.name}
                   </Link>
                 ))}
+                <Link
+                  href="/contact"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center gap-3 py-3 font-medium hover:text-primary transition-colors"
+                >
+                  Contact
+                </Link>
               </div>
             </div>
 
