@@ -35,7 +35,7 @@ const footerLinks = {
     links: [
       { name: "All Products", href: "/products" },
       { name: "Pet Turf", href: "/products?use=pet" },
-      { name: "Landscape", href: "/products?use=landscape" },
+      { name: "Residential", href: "/products?use=residential" },
       { name: "Putting Greens", href: "/products?use=putting" },
       { name: "Supplies", href: "/supplies" },
     ],

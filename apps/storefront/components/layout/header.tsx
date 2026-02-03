@@ -43,7 +43,7 @@ const Button = ShadcnButton as any;
 const turfCategories = [
   {
     title: "Residential Turf",
-    href: "/products?use=landscape",
+    href: "/products?use=residential",
     description: "Lawns, yards & landscaping",
     image: "/residential.avif",
     priceFrom: "$1.30",

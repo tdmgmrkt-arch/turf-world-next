@@ -30,7 +30,7 @@ export const metadata: Metadata = {
 
 const USE_FILTERS: { label: string; value: ProductUse | "all"; icon?: string }[] = [
   { label: "All Products", value: "all" },
-  { label: "Landscape", value: "landscape" },
+  { label: "Residential", value: "residential" },
   { label: "Pet Turf", value: "pet" },
   { label: "Putting Green", value: "putting" },
   { label: "Playground", value: "playground" },
@@ -121,11 +121,11 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
             <div className="absolute inset-0 bg-slate-900/60" />
           </>
         )}
-        {useFilter === "landscape" && (
+        {useFilter === "residential" && (
           <>
             <Image
               src="/landscape.hero.webp"
-              alt="Landscape turf"
+              alt="Residential turf"
               fill
               className="object-cover object-[center_75%]"
               priority
@@ -375,7 +375,7 @@ function ProductCard({ product, index }: { product: Product; index: number }) {
         <div className="p-3 sm:p-4 md:p-5">
           {/* Category tag */}
           <span className="text-[9px] sm:text-[10px] font-semibold uppercase tracking-wider text-primary">
-            {product.category === "pet" ? "Pet Turf" : product.category === "putting" ? "Putting Green" : "Landscape"}
+            {product.category === "pet" ? "Pet Turf" : product.category === "putting" ? "Putting Green" : "Residential"}
           </span>
 
           {/* Title */}

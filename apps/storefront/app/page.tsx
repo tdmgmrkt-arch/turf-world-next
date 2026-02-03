@@ -51,7 +51,7 @@ const categories = [
     title: "Landscape",
     description: "Lush, realistic lawns that stay green 365 days a year.",
     icon: Leaf,
-    href: "/products?use=landscape",
+    href: "/products?use=residential",
     image: "/residential.avif",
     gradient: "from-emerald-500/20 to-green-500/20",
     iconBg: "bg-emerald-500",

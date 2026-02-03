@@ -114,7 +114,7 @@ const testimonials = [
 ];
 
 const productCategories = [
-  { name: "Residential Lawns", icon: Home, href: "/products?use=landscape" },
+  { name: "Residential Lawns", icon: Home, href: "/products?use=residential" },
   { name: "Commercial Landscapes", icon: Building2, href: "/products?use=commercial" },
   { name: "Pet-Friendly Turf", icon: Dog, href: "/products?use=pet" },
   { name: "Sports Fields", icon: Trophy, href: "/products?use=putting" },
