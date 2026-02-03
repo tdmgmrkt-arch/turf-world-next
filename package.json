@@ -25,5 +25,9 @@
   "dependencies": {
     "@medusajs/draft-order": "^2.13.1",
     "ts-node": "^10.9.2"
+  },
+  "overrides": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
   }
 }

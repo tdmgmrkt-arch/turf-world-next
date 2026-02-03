@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Link from "next/link";
-import Image from "next/image";
+import NextLink from "next/link";
+import NextImage from "next/image";
 import {
   PaymentElement,
   useStripe,
@@ -25,13 +25,20 @@ import {
   Mail,
   Phone,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Button as ShadcnButton } from "@/components/ui/button";
+import { Input as ShadcnInput } from "@/components/ui/input";
+import { Label as ShadcnLabel } from "@/components/ui/label";
 import { StripeProvider } from "@/components/stripe-provider";
 import { useCartStore } from "@/lib/store";
 import { useMedusaCart } from "@/hooks/use-medusa-cart";
 import { formatPrice, cn } from "@/lib/utils";
+
+// Cast to work around React 19 JSX type incompatibility with Radix UI / Shadcn / Next.js
+const Button = ShadcnButton as any;
+const Input = ShadcnInput as any;
+const Label = ShadcnLabel as any;
+const Link = NextLink as any;
+const Image = NextImage as any;
 
 type Step = "information" | "shipping" | "payment" | "confirmation";
 
@@ -375,7 +382,7 @@ export function CheckoutForm() {
                     id="email"
                     type="email"
                     value={contact.email}
-                    onChange={(e) => setContact({ ...contact, email: e.target.value })}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setContact({ ...contact, email: e.target.value })}
                     placeholder="john@example.com"
                     required
                     className="h-10 sm:h-12 rounded-lg sm:rounded-xl border-slate-200 focus:border-emerald-500 focus:ring-emerald-500"
@@ -390,7 +397,7 @@ export function CheckoutForm() {
                     id="phone"
                     type="tel"
                     value={contact.phone}
-                    onChange={(e) => setContact({ ...contact, phone: e.target.value })}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setContact({ ...contact, phone: e.target.value })}
                     placeholder="(555) 123-4567"
                     required
                     className="h-10 sm:h-12 rounded-lg sm:rounded-xl border-slate-200 focus:border-emerald-500 focus:ring-emerald-500"
@@ -412,7 +419,7 @@ export function CheckoutForm() {
                       <Input
                         id="firstName"
                         value={shipping.firstName}
-                        onChange={(e) => setShipping({ ...shipping, firstName: e.target.value })}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setShipping({ ...shipping, firstName: e.target.value })}
                         required
                         className="h-10 sm:h-12 rounded-lg sm:rounded-xl border-slate-200"
                       />
@@ -422,7 +429,7 @@ export function CheckoutForm() {
                       <Input
                         id="lastName"
                         value={shipping.lastName}
-                        onChange={(e) => setShipping({ ...shipping, lastName: e.target.value })}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setShipping({ ...shipping, lastName: e.target.value })}
                         required
                         className="h-10 sm:h-12 rounded-lg sm:rounded-xl border-slate-200"
                       />
@@ -436,7 +443,7 @@ export function CheckoutForm() {
                       <Input
                         id="company"
                         value={shipping.company}
-                        onChange={(e) => setShipping({ ...shipping, company: e.target.value })}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setShipping({ ...shipping, company: e.target.value })}
                         placeholder="Optional"
                         className="h-10 sm:h-12 rounded-lg sm:rounded-xl border-slate-200"
                       />
@@ -446,7 +453,7 @@ export function CheckoutForm() {
                       <Input
                         id="apartment-mobile"
                         value={shipping.apartment}
-                        onChange={(e) => setShipping({ ...shipping, apartment: e.target.value })}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setShipping({ ...shipping, apartment: e.target.value })}
                         placeholder="Optional"
                         className="h-10 rounded-lg border-slate-200"
                       />
@@ -458,7 +465,7 @@ export function CheckoutForm() {
                     <Input
                       id="address"
                       value={shipping.address}
-                      onChange={(e) => setShipping({ ...shipping, address: e.target.value })}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setShipping({ ...shipping, address: e.target.value })}
                       placeholder="123 Main St"
                       required
                       className="h-10 sm:h-12 rounded-lg sm:rounded-xl border-slate-200"
@@ -470,7 +477,7 @@ export function CheckoutForm() {
                     <Input
                       id="apartment"
                       value={shipping.apartment}
-                      onChange={(e) => setShipping({ ...shipping, apartment: e.target.value })}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setShipping({ ...shipping, apartment: e.target.value })}
                       className="h-12 rounded-xl border-slate-200"
                     />
                   </div>
@@ -481,7 +488,7 @@ export function CheckoutForm() {
                       <Input
                         id="city"
                         value={shipping.city}
-                        onChange={(e) => setShipping({ ...shipping, city: e.target.value })}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setShipping({ ...shipping, city: e.target.value })}
                         required
                         className="h-10 sm:h-12 rounded-lg sm:rounded-xl border-slate-200"
                       />
@@ -491,7 +498,7 @@ export function CheckoutForm() {
                       <Input
                         id="state"
                         value={shipping.state}
-                        onChange={(e) => setShipping({ ...shipping, state: e.target.value })}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setShipping({ ...shipping, state: e.target.value })}
                         maxLength={2}
                         placeholder="CA"
                         required
@@ -503,7 +510,7 @@ export function CheckoutForm() {
                       <Input
                         id="zip"
                         value={shipping.zip}
-                        onChange={(e) => setShipping({ ...shipping, zip: e.target.value })}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setShipping({ ...shipping, zip: e.target.value })}
                         required
                         className="h-10 sm:h-12 rounded-lg sm:rounded-xl border-slate-200"
                       />

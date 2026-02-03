@@ -1,5 +1,11 @@
-import Link from "next/link";
-import { ChevronRight } from "lucide-react";
+"use client";
+
+import NextLink from "next/link";
+import { ChevronRight as LucideChevronRight } from "lucide-react";
+
+// Cast to work around React 19 JSX type incompatibility
+const Link = NextLink as any;
+const ChevronRight = LucideChevronRight as any;
 
 export interface BreadcrumbItem {
   label: string;

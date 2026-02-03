@@ -1,23 +1,41 @@
 "use client";
 
-import Link from "next/link";
-import Image from "next/image";
+import NextLink from "next/link";
+import NextImage from "next/image";
 import {
-  ArrowRight,
-  Calculator,
-  Dog,
-  Leaf,
-  Trophy,
-  Shield,
-  Award,
-  Truck,
-  Star,
-  Play,
-  CheckCircle2,
-  Sparkles,
-  Gift,
+  ArrowRight as LucideArrowRight,
+  Calculator as LucideCalculator,
+  Dog as LucideDog,
+  Leaf as LucideLeaf,
+  Trophy as LucideTrophy,
+  Shield as LucideShield,
+  Award as LucideAward,
+  Truck as LucideTruck,
+  Star as LucideStar,
+  Play as LucidePlay,
+  CheckCircle2 as LucideCheckCircle2,
+  Sparkles as LucideSparkles,
+  Gift as LucideGift,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button as ShadcnButton } from "@/components/ui/button";
+
+// Cast to work around React 19 JSX type incompatibility
+const Link = NextLink as any;
+const Image = NextImage as any;
+const Button = ShadcnButton as any;
+const ArrowRight = LucideArrowRight as any;
+const Calculator = LucideCalculator as any;
+const Dog = LucideDog as any;
+const Leaf = LucideLeaf as any;
+const Trophy = LucideTrophy as any;
+const Shield = LucideShield as any;
+const Award = LucideAward as any;
+const Truck = LucideTruck as any;
+const Star = LucideStar as any;
+const Play = LucidePlay as any;
+const CheckCircle2 = LucideCheckCircle2 as any;
+const Sparkles = LucideSparkles as any;
+const Gift = LucideGift as any;
 
 const categories = [
   {

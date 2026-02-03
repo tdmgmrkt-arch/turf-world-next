@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
-import Link from "next/link";
+import NextImage from "next/image";
+import NextLink from "next/link";
 import { notFound, useParams } from "next/navigation";
 import {
   ArrowRight,
@@ -18,7 +18,7 @@ import {
   ShoppingCart,
   Info,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button as ShadcnButton } from "@/components/ui/button";
 import { Breadcrumb } from "@/components/ui/breadcrumb";
 import { formatPrice, cn } from "@/lib/utils";
 import {
@@ -28,6 +28,11 @@ import {
   type Accessory,
 } from "@/lib/products";
 import { useCartStore } from "@/lib/store";
+
+// Cast to work around React 19 JSX type incompatibility with Radix UI / Shadcn / Next.js
+const Button = ShadcnButton as any;
+const Image = NextImage as any;
+const Link = NextLink as any;
 
 function SupplyDetailPage() {
   const params = useParams();
@@ -39,6 +44,7 @@ function SupplyDetailPage() {
   const { addItem } = useCartStore();
 
   const handleAddToCart = () => {
+    if (!accessory) return;
     addItem({
       id: `${accessory.id}-${Date.now()}`,
       productId: accessory.id,

@@ -2,21 +2,35 @@
 
 import { useState } from "react";
 import { Calculator, Info, ShoppingCart, Scissors, Package } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Button as ShadcnButton } from "@/components/ui/button";
+import { Input as ShadcnInput } from "@/components/ui/input";
+import { Label as ShadcnLabel } from "@/components/ui/label";
+import { Card as ShadcnCard, CardContent as ShadcnCardContent, CardHeader as ShadcnCardHeader, CardTitle as ShadcnCardTitle } from "@/components/ui/card";
+import { Badge as ShadcnBadge } from "@/components/ui/badge";
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
+  Tooltip as ShadcnTooltip,
+  TooltipContent as ShadcnTooltipContent,
+  TooltipProvider as ShadcnTooltipProvider,
+  TooltipTrigger as ShadcnTooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useTurfLogic } from "@/hooks/use-turf-logic";
 import { useCartStore } from "@/lib/store";
 import { formatPrice } from "@/lib/utils";
 import { cn } from "@/lib/utils";
+
+// Cast to work around React 19 JSX type incompatibility with Radix UI / Shadcn / Next.js
+const Button = ShadcnButton as any;
+const Input = ShadcnInput as any;
+const Label = ShadcnLabel as any;
+const Card = ShadcnCard as any;
+const CardContent = ShadcnCardContent as any;
+const CardHeader = ShadcnCardHeader as any;
+const CardTitle = ShadcnCardTitle as any;
+const Badge = ShadcnBadge as any;
+const Tooltip = ShadcnTooltip as any;
+const TooltipContent = ShadcnTooltipContent as any;
+const TooltipProvider = ShadcnTooltipProvider as any;
+const TooltipTrigger = ShadcnTooltipTrigger as any;
 
 interface TurfCalculatorProps {
   productId: string;
@@ -118,7 +132,7 @@ export function TurfCalculator({
                 min={1}
                 max={500}
                 value={widthFeet}
-                onChange={(e) => setWidthFeet(Number(e.target.value))}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setWidthFeet(Number(e.target.value))}
                 aria-label="Project width in feet"
               />
             </div>
@@ -141,7 +155,7 @@ export function TurfCalculator({
                 min={1}
                 max={500}
                 value={lengthFeet}
-                onChange={(e) => setLengthFeet(Number(e.target.value))}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setLengthFeet(Number(e.target.value))}
                 aria-label="Project length in feet"
               />
             </div>
@@ -220,7 +234,7 @@ export function TurfCalculator({
                     type="checkbox"
                     id="include-infill"
                     checked={includeInfill}
-                    onChange={(e) => setIncludeInfill(e.target.checked)}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setIncludeInfill(e.target.checked)}
                     className="h-4 w-4 rounded border-gray-300"
                     aria-label="Include infill in order"
                   />

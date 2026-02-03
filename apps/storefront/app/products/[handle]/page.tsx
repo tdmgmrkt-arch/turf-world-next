@@ -343,6 +343,7 @@ function ProductDetailPage() {
   };
 
   const handleAddToCart = () => {
+    if (!product) return;
     // Add each cut as a separate cart item
     const timestamp = Date.now();
     cuts.forEach((cut, index) => {

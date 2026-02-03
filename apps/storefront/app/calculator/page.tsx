@@ -1,16 +1,24 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import {
-  Calculator,
-  Sparkles,
-  Ruler,
-  Scissors,
-  Package,
-  ArrowRight,
+  Calculator as LucideCalculator,
+  Sparkles as LucideSparkles,
+  Ruler as LucideRuler,
+  Scissors as LucideScissors,
+  Package as LucidePackage,
+  ArrowRight as LucideArrowRight,
 } from "lucide-react";
 import { CalculatorForm } from "./calculator-form";
 import { Button } from "@/components/ui/button";
 import { Breadcrumb } from "@/components/ui/breadcrumb";
+
+// Cast Lucide icons to work around React 19 JSX type incompatibility
+const Calculator = LucideCalculator as any;
+const Sparkles = LucideSparkles as any;
+const Ruler = LucideRuler as any;
+const Scissors = LucideScissors as any;
+const Package = LucidePackage as any;
+const ArrowRight = LucideArrowRight as any;
 
 export const metadata: Metadata = {
   title: "Project Calculator | How Much Turf Do I Need?",
@@ -27,17 +35,17 @@ export const metadata: Metadata = {
 
 const features = [
   {
-    icon: Ruler,
+    iconName: "Ruler",
     title: "Precise Measurements",
     description: "Accounts for 15ft roll widths and optimal seam placement",
   },
   {
-    icon: Scissors,
+    iconName: "Scissors",
     title: "Waste Calculation",
     description: "Includes realistic waste estimates for clean edges",
   },
   {
-    icon: Package,
+    iconName: "Package",
     title: "Complete Materials List",
     description: "Seam tape, infill, adhesive - everything you need",
   },
@@ -99,7 +107,7 @@ export default function CalculatorPage() {
                           Project Calculator
                         </h1>
                         <p className="text-xs sm:text-sm text-white/60">
-                          Enter dimensions → Get your materials list
+                          Enter dimensions → Select Your Turf → Get your materials list
                         </p>
                       </div>
                     </div>
@@ -110,7 +118,9 @@ export default function CalculatorPage() {
                           key={feature.title}
                           className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 border border-white/10"
                         >
-                          <feature.icon className="w-3.5 h-3.5 text-primary" />
+                          {feature.iconName === "Ruler" && <Ruler className="w-3.5 h-3.5 text-primary" />}
+                          {feature.iconName === "Scissors" && <Scissors className="w-3.5 h-3.5 text-primary" />}
+                          {feature.iconName === "Package" && <Package className="w-3.5 h-3.5 text-primary" />}
                           <span className="text-xs font-medium text-white/80">{feature.title}</span>
                         </div>
                       ))}

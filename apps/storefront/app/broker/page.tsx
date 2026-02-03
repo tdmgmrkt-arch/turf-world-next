@@ -17,8 +17,10 @@ import {
   Building2,
   Dog,
   Trophy,
+  Shield,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Breadcrumb } from "@/components/ui/breadcrumb";
 
 export const metadata: Metadata = {
   title: "Wholesale Partner Program | Turf World",
@@ -144,8 +146,10 @@ const partnerBenefits = [
 export default function BrokerPage() {
   return (
     <div className="min-h-screen">
+      <Breadcrumb items={[{ label: "Wholesale" }]} />
+
       {/* Hero Section */}
-      <section className="relative overflow-hidden py-20 md:py-32">
+      <section className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 py-12 sm:py-16 md:py-24">
         <Image
           src="/broker-program-hero.webp"
           alt="Wholesale partner program"
@@ -155,30 +159,37 @@ export default function BrokerPage() {
         />
         <div className="absolute inset-0 bg-slate-900/70" />
 
-        <div className="container relative z-10">
-          <div className="mx-auto max-w-4xl text-center">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/10 text-sm text-white/80 mb-6">
-              <Users className="w-4 h-4 text-[#34CE95]" />
+        <div className="container px-4 sm:px-6 relative z-10">
+          <div className="max-w-3xl mx-auto text-center">
+            <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/10 text-xs sm:text-sm text-white/80 mb-4 sm:mb-6">
+              <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#34CE95]" />
               <span>Wholesale Partner Program</span>
             </div>
 
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white tracking-tight">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white tracking-tight">
               Grow Your Business with{" "}
               <span className="text-[#34CE95]">Turf World</span>
             </h1>
 
-            <p className="mt-6 text-lg sm:text-xl text-white/70 max-w-2xl mx-auto leading-relaxed">
+            <p className="mt-4 sm:mt-6 text-base sm:text-lg md:text-xl text-white/70 max-w-2xl mx-auto leading-relaxed">
               Join 5,000+ happy landscapers and contractors who trust Turf World
               for premium artificial turf at exclusive wholesale prices.
             </p>
 
-            <div className="mt-10">
-              <Button variant="premium" size="lg" className="h-14 px-8 text-lg" asChild>
-                <Link href="#apply">
-                  Apply for Wholesale Pricing
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Link>
-              </Button>
+            {/* Trust indicators */}
+            <div className="flex flex-wrap justify-center gap-4 sm:gap-6 mt-6 sm:mt-8">
+              <div className="flex items-center gap-2 text-white/60">
+                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-primary/20 flex items-center justify-center">
+                  <Truck className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary" />
+                </div>
+                <span className="text-xs sm:text-sm">Free Shipping</span>
+              </div>
+              <div className="flex items-center gap-2 text-white/60">
+                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-primary/20 flex items-center justify-center">
+                  <Shield className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary" />
+                </div>
+                <span className="text-xs sm:text-sm">16-Year Warranty</span>
+              </div>
             </div>
           </div>
         </div>

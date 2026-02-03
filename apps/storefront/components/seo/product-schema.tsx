@@ -143,7 +143,7 @@ export function OrganizationSchema() {
     },
     contactPoint: {
       "@type": "ContactPoint",
-      telephone: "+1-800-TURF-WLD",
+      telephone: "+(909) 491-2203",
       contactType: "customer service",
       availableLanguage: "English",
     },

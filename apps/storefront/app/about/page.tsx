@@ -74,49 +74,45 @@ export default function AboutPage() {
       <Breadcrumb items={[{ label: "About Us" }]} />
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 py-12 sm:py-16 md:py-24 lg:py-28">
-        {/* Decorative blur effects - hidden on mobile for performance */}
-        <div className="hidden sm:block absolute top-1/4 left-10 w-72 h-72 bg-primary/30 rounded-full blur-[120px] animate-pulse" />
-        <div className="hidden sm:block absolute bottom-1/4 right-10 w-96 h-96 bg-emerald-500/20 rounded-full blur-[140px] animate-pulse" style={{ animationDelay: "1s" }} />
+      <section className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 py-12 sm:py-16 md:py-24">
+        <Image
+          src="/hero1.webp"
+          alt="Turf World premium artificial turf"
+          fill
+          className="object-cover object-center"
+          priority
+        />
+        <div className="absolute inset-0 bg-slate-900/70" />
 
         <div className="container px-4 sm:px-6 relative z-10">
-          <div className="grid gap-8 sm:gap-10 lg:gap-12 lg:grid-cols-2 items-center">
-            <div>
-              <span className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold text-[#34CE95] uppercase tracking-wider mb-3 sm:mb-4">
-                Our Mission
-              </span>
-              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white tracking-tight">
-                Transforming Outdoor Spaces with{" "}
-                <span className="text-[#34CE95]">Premium Turf</span>
-              </h1>
-              <p className="mt-4 sm:mt-6 text-base sm:text-lg text-white/70 leading-relaxed">
-                At Turf World, we&apos;re dedicated to providing the highest quality
-                artificial turf products at wholesale prices. Our mission is to
-                make premium, eco-friendly turf accessible to contractors,
-                landscapers, and homeowners across the nation.
-              </p>
-              <p className="mt-3 sm:mt-4 text-base sm:text-lg text-white/70 leading-relaxed">
-                We believe that every outdoor space deserves to look its best
-                year-round, without the hassle and environmental impact of
-                traditional grass maintenance. That&apos;s why we source only the
-                finest C8 commercial-grade turf with industry-leading warranties.
-              </p>
+          <div className="max-w-3xl mx-auto text-center">
+            <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/10 text-xs sm:text-sm text-white/80 mb-4 sm:mb-6">
+              <Award className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#34CE95]" />
+              <span>Our Mission</span>
             </div>
-            <div className="relative order-first lg:order-last">
-              <div className="relative aspect-[4/3] rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl">
-                <Image
-                  src="/hero1.webp"
-                  alt="Turf World premium artificial turf installation"
-                  fill
-                  className="object-cover"
-                  priority
-                />
-              </div>
-              <div className="absolute -bottom-4 -left-4 sm:-bottom-6 sm:-left-6 w-24 h-24 sm:w-32 sm:h-32 rounded-xl sm:rounded-2xl bg-[#34CE95] flex items-center justify-center shadow-xl">
-                <div className="text-center text-white">
-                  <p className="text-2xl sm:text-3xl font-bold">16</p>
-                  <p className="text-xs sm:text-sm">Year Warranty</p>
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white tracking-tight">
+              Transforming Outdoor Spaces with{" "}
+              <span className="text-[#34CE95]">Premium Turf</span>
+            </h1>
+            <p className="mt-4 sm:mt-6 text-base sm:text-lg md:text-xl text-white/70 max-w-2xl mx-auto leading-relaxed">
+              At Turf World, we&apos;re dedicated to providing the highest quality
+              artificial turf products at wholesale prices, making premium turf
+              accessible to everyone.
+            </p>
+
+            {/* Trust indicators */}
+            <div className="flex flex-wrap justify-center gap-4 sm:gap-6 mt-6 sm:mt-8">
+              <div className="flex items-center gap-2 text-white/60">
+                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-primary/20 flex items-center justify-center">
+                  <Truck className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary" />
                 </div>
+                <span className="text-xs sm:text-sm">Free Shipping</span>
+              </div>
+              <div className="flex items-center gap-2 text-white/60">
+                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-primary/20 flex items-center justify-center">
+                  <Shield className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary" />
+                </div>
+                <span className="text-xs sm:text-sm">16-Year Warranty</span>
               </div>
             </div>
           </div>

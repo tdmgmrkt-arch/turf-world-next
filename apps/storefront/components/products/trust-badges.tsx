@@ -1,15 +1,27 @@
+"use client";
+
 import {
-  Flame,
-  Leaf,
-  Shield,
-  Dog,
-  Award,
-  Droplets,
-  Sun,
-  CheckCircle,
+  Flame as LucideFlame,
+  Leaf as LucideLeaf,
+  Shield as LucideShield,
+  Dog as LucideDog,
+  Award as LucideAward,
+  Droplets as LucideDroplets,
+  Sun as LucideSun,
+  CheckCircle as LucideCheckCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { TurfAttributes } from "@/types";
+
+// Cast to work around React 19 JSX type incompatibility
+const Flame = LucideFlame as any;
+const Leaf = LucideLeaf as any;
+const Shield = LucideShield as any;
+const Dog = LucideDog as any;
+const Award = LucideAward as any;
+const Droplets = LucideDroplets as any;
+const Sun = LucideSun as any;
+const CheckCircle = LucideCheckCircle as any;
 
 interface TrustBadgeProps {
   icon: React.ReactNode;

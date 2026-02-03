@@ -4,15 +4,17 @@ import * as React from "react";
 import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 import { cn } from "@/lib/utils";
 
-const TooltipProvider = TooltipPrimitive.Provider;
-const Tooltip = TooltipPrimitive.Root;
-const TooltipTrigger = TooltipPrimitive.Trigger;
+// Cast to work around React 19 JSX type incompatibility with Radix UI
+const TooltipProvider = TooltipPrimitive.Provider as any;
+const Tooltip = TooltipPrimitive.Root as any;
+const TooltipTrigger = TooltipPrimitive.Trigger as any;
+const TooltipContentPrimitive = TooltipPrimitive.Content as any;
 
 const TooltipContent = React.forwardRef<
-  React.ElementRef<typeof TooltipPrimitive.Content>,
-  React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Content>
+  HTMLDivElement,
+  React.ComponentPropsWithoutRef<"div"> & { sideOffset?: number }
 >(({ className, sideOffset = 4, ...props }, ref) => (
-  <TooltipPrimitive.Content
+  <TooltipContentPrimitive
     ref={ref}
     sideOffset={sideOffset}
     className={cn(
@@ -22,6 +24,6 @@ const TooltipContent = React.forwardRef<
     {...props}
   />
 ));
-TooltipContent.displayName = TooltipPrimitive.Content.displayName;
+TooltipContent.displayName = "TooltipContent";
 
 export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider };

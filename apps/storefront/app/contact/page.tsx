@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
-import Image from "next/image";
+import NextLink from "next/link";
+import NextImage from "next/image";
 import {
   Phone,
   Mail,
@@ -18,11 +18,19 @@ import {
   Gift,
   Calculator,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
+import { Button as ShadcnButton } from "@/components/ui/button";
+import { Input as ShadcnInput } from "@/components/ui/input";
+import { Textarea as ShadcnTextarea } from "@/components/ui/textarea";
+import { Label as ShadcnLabel } from "@/components/ui/label";
 import { Breadcrumb } from "@/components/ui/breadcrumb";
+
+// Cast to work around React 19 JSX type incompatibility with Radix UI / Shadcn / Next.js
+const Button = ShadcnButton as any;
+const Input = ShadcnInput as any;
+const Textarea = ShadcnTextarea as any;
+const Label = ShadcnLabel as any;
+const Link = NextLink as any;
+const Image = NextImage as any;
 
 const faqs = [
   {
@@ -160,7 +168,7 @@ export default function ContactPage() {
                             placeholder="Your name"
                             required
                             value={formData.name}
-                            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, name: e.target.value })}
                             className="h-12 rounded-xl"
                           />
                         </div>
@@ -172,7 +180,7 @@ export default function ContactPage() {
                             placeholder="you@example.com"
                             required
                             value={formData.email}
-                            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, email: e.target.value })}
                             className="h-12 rounded-xl"
                           />
                         </div>
@@ -185,7 +193,7 @@ export default function ContactPage() {
                             type="tel"
                             placeholder="(555) 123-4567"
                             value={formData.phone}
-                            onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, phone: e.target.value })}
                             className="h-12 rounded-xl"
                           />
                         </div>
@@ -196,7 +204,7 @@ export default function ContactPage() {
                             placeholder="How can we help?"
                             required
                             value={formData.subject}
-                            onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, subject: e.target.value })}
                             className="h-12 rounded-xl"
                           />
                         </div>
@@ -209,7 +217,7 @@ export default function ContactPage() {
                           required
                           rows={5}
                           value={formData.message}
-                          onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                          onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setFormData({ ...formData, message: e.target.value })}
                           className="rounded-xl resize-none"
                         />
                       </div>
@@ -257,7 +265,7 @@ export default function ContactPage() {
                   {/* Contact Methods */}
                   <div className="space-y-3 sm:space-y-4">
                     <a
-                      href="tel:1-800-TURF-WLD"
+                      href="tel:(909) 491-2203"
                       className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-xl bg-muted/50 hover:bg-muted transition-colors group"
                     >
                       <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
@@ -265,7 +273,7 @@ export default function ContactPage() {
                       </div>
                       <div>
                         <p className="font-semibold text-sm sm:text-base group-hover:text-primary transition-colors">
-                          1-800-TURF-WLD
+                          (909) 491-2203
                         </p>
                         <p className="text-xs sm:text-sm text-muted-foreground">Call us anytime</p>
                       </div>

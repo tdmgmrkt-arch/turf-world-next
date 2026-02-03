@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Link from "next/link";
-import Image from "next/image";
+import NextLink from "next/link";
+import NextImage from "next/image";
 import {
   Check,
   X,
@@ -19,11 +19,18 @@ import {
   Phone,
   CheckSquare,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Button as ShadcnButton } from "@/components/ui/button";
+import { Input as ShadcnInput } from "@/components/ui/input";
+import { Label as ShadcnLabel } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { PRODUCTS } from "@/lib/products";
+
+// Cast to work around React 19 JSX type incompatibility with Radix UI / Shadcn / Next.js
+const Button = ShadcnButton as any;
+const Input = ShadcnInput as any;
+const Label = ShadcnLabel as any;
+const Link = NextLink as any;
+const Image = NextImage as any;
 
 type Step = "select" | "details" | "confirm";
 
@@ -340,7 +347,7 @@ export function SampleBoxBuilder() {
                   <Input
                     id="firstName"
                     value={formData.firstName}
-                    onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, firstName: e.target.value })}
                     placeholder="John"
                     className="h-12 rounded-xl border-border/50"
                     required
@@ -353,7 +360,7 @@ export function SampleBoxBuilder() {
                   <Input
                     id="lastName"
                     value={formData.lastName}
-                    onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, lastName: e.target.value })}
                     placeholder="Smith"
                     className="h-12 rounded-xl border-border/50"
                     required
@@ -370,7 +377,7 @@ export function SampleBoxBuilder() {
                 <Input
                   id="address"
                   value={formData.address}
-                  onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, address: e.target.value })}
                   placeholder="123 Main St"
                   className="h-12 rounded-xl border-border/50"
                   required
@@ -384,7 +391,7 @@ export function SampleBoxBuilder() {
                   <Input
                     id="city"
                     value={formData.city}
-                    onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, city: e.target.value })}
                     placeholder="Los Angeles"
                     className="h-12 rounded-xl border-border/50"
                     required
@@ -395,7 +402,7 @@ export function SampleBoxBuilder() {
                   <Input
                     id="state"
                     value={formData.state}
-                    onChange={(e) => setFormData({ ...formData, state: e.target.value })}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, state: e.target.value })}
                     placeholder="CA"
                     maxLength={2}
                     className="h-12 rounded-xl border-border/50"
@@ -407,7 +414,7 @@ export function SampleBoxBuilder() {
                   <Input
                     id="postalCode"
                     value={formData.postalCode}
-                    onChange={(e) => setFormData({ ...formData, postalCode: e.target.value })}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, postalCode: e.target.value })}
                     placeholder="90210"
                     className="h-12 rounded-xl border-border/50"
                     required
@@ -426,7 +433,7 @@ export function SampleBoxBuilder() {
                     id="email"
                     type="email"
                     value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, email: e.target.value })}
                     placeholder="john@example.com"
                     className="h-12 rounded-xl border-border/50"
                     required
@@ -441,7 +448,7 @@ export function SampleBoxBuilder() {
                     id="phone"
                     type="tel"
                     value={formData.phone}
-                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, phone: e.target.value })}
                     placeholder="(555) 123-4567"
                     className="h-12 rounded-xl border-border/50"
                     required

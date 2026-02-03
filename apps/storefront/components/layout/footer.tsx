@@ -1,11 +1,33 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
-import Image from "next/image";
-import { Mail, Phone, MapPin, Facebook, Instagram, Youtube, Twitter, ChevronDown } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import NextLink from "next/link";
+import NextImage from "next/image";
+import { Button as ShadcnButton } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import {
+  Phone as LucidePhone,
+  Mail as LucideMail,
+  MapPin as LucideMapPin,
+  Facebook as LucideFacebook,
+  Instagram as LucideInstagram,
+  Youtube as LucideYoutube,
+  Twitter as LucideTwitter,
+} from "lucide-react";
+
+// Cast Lucide icons to work around React 19 JSX type incompatibility
+const Phone = LucidePhone as any;
+const Mail = LucideMail as any;
+const MapPin = LucideMapPin as any;
+const Facebook = LucideFacebook as any;
+const Instagram = LucideInstagram as any;
+const Youtube = LucideYoutube as any;
+const Twitter = LucideTwitter as any;
+
+// Cast to work around React 19 JSX type incompatibility
+const Link = NextLink as any;
+const Image = NextImage as any;
+const Button = ShadcnButton as any;
 
 const footerLinks = {
   shop: {
@@ -51,10 +73,10 @@ const footerLinks = {
 };
 
 const socialLinks = [
-  { name: "Facebook", icon: Facebook, href: "https://facebook.com/turfworld" },
-  { name: "Instagram", icon: Instagram, href: "https://instagram.com/turfworld" },
-  { name: "YouTube", icon: Youtube, href: "https://youtube.com/turfworld" },
-  { name: "Twitter", icon: Twitter, href: "https://twitter.com/turfworld" },
+  { name: "Facebook", href: "https://facebook.com/turfworld" },
+  { name: "Instagram", href: "https://instagram.com/turfworld" },
+  { name: "YouTube", href: "https://youtube.com/turfworld" },
+  { name: "Twitter", href: "https://twitter.com/turfworld" },
 ];
 
 export function Footer() {
@@ -113,21 +135,21 @@ export function Footer() {
 
             <div className="mt-4 md:mt-6 space-y-2 md:space-y-3">
               <a
-                href="tel:1-800-TURF-WLD"
+                href="tel:(909) 491-2203"
                 className="flex items-center gap-3 text-sm hover:text-white transition-colors"
               >
-                <Phone className="w-4 h-4 text-primary" />
-                1-800-TURF-WLD
+                <Phone className="h-4 w-4 text-primary" />
+                (909) 491-2203
               </a>
               <a
                 href="mailto:hello@turfworld.com"
                 className="flex items-center gap-3 text-sm hover:text-white transition-colors"
               >
-                <Mail className="w-4 h-4 text-primary" />
+                <Mail className="h-4 w-4 text-primary" />
                 hello@turfworld.com
               </a>
               <div className="flex items-center gap-3 text-sm">
-                <MapPin className="w-4 h-4 text-primary" />
+                <MapPin className="h-4 w-4 text-primary" />
                 Ships Nationwide
               </div>
             </div>
@@ -140,10 +162,13 @@ export function Footer() {
                   href={social.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-primary hover:text-white transition-all"
+                  className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-primary hover:text-white transition-all text-sm"
                   aria-label={social.name}
                 >
-                  <social.icon className="w-4 h-4" />
+                  {social.name === "Facebook" && <Facebook className="h-4 w-4" />}
+                  {social.name === "Instagram" && <Instagram className="h-4 w-4" />}
+                  {social.name === "YouTube" && <Youtube className="h-4 w-4" />}
+                  {social.name === "Twitter" && <Twitter className="h-4 w-4" />}
                 </a>
               ))}
             </div>
@@ -159,12 +184,14 @@ export function Footer() {
                 aria-expanded={openSection === key}
               >
                 <h4 className="font-semibold text-white text-sm">{section.title}</h4>
-                <ChevronDown
+                <span
                   className={cn(
-                    "w-4 h-4 text-white/60 transition-transform duration-200",
+                    "text-white/60 transition-transform duration-200",
                     openSection === key && "rotate-180"
                   )}
-                />
+                >
+                  ▼
+                </span>
               </button>
 
               {/* Desktop: Static Header */}

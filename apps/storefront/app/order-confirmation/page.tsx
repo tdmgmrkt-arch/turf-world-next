@@ -201,7 +201,7 @@ export default async function OrderConfirmationPage({
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <a
-                href="tel:1-800-TURF-WLD"
+                href="tel:(909) 491-2203"
                 className="flex items-center gap-3 px-6 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 transition-colors w-full sm:w-auto justify-center"
               >
                 <div className="w-10 h-10 rounded-lg bg-white flex items-center justify-center">
@@ -209,7 +209,7 @@ export default async function OrderConfirmationPage({
                 </div>
                 <div className="text-left">
                   <p className="text-xs text-slate-500">Call Us</p>
-                  <p className="font-bold text-slate-900">1-800-TURF-WLD</p>
+                  <p className="font-bold text-slate-900">(909) 491-2203</p>
                 </div>
               </a>
               <a

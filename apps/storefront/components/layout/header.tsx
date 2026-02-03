@@ -1,12 +1,40 @@
 "use client";
 
-import Link from "next/link";
-import Image from "next/image";
-import { ShoppingCart, Menu, Calculator, Sparkles, ChevronDown, X, ArrowRight, Phone, Truck, Shield, Clock, CheckCircle2, Package } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import NextLink from "next/link";
+import NextImage from "next/image";
+import { Button as ShadcnButton } from "@/components/ui/button";
 import { useCartStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
 import { useState, useRef, useEffect } from "react";
+import {
+  ShoppingCart as LucideShoppingCart,
+  Menu as LucideMenu,
+  X as LucideX,
+  Phone as LucidePhone,
+  Calculator as LucideCalculator,
+  Sparkles as LucideSparkles,
+  Truck as LucideTruck,
+  Shield as LucideShield,
+  Clock as LucideClock,
+  Package as LucidePackage,
+} from "lucide-react";
+
+// Cast Lucide icons to work around React 19 JSX type incompatibility
+const ShoppingCart = LucideShoppingCart as any;
+const Menu = LucideMenu as any;
+const X = LucideX as any;
+const Phone = LucidePhone as any;
+const Calculator = LucideCalculator as any;
+const Sparkles = LucideSparkles as any;
+const Truck = LucideTruck as any;
+const Shield = LucideShield as any;
+const Clock = LucideClock as any;
+const Package = LucidePackage as any;
+
+// Cast to work around React 19 JSX type incompatibility
+const Link = NextLink as any;
+const Image = NextImage as any;
+const Button = ShadcnButton as any;
 
 const turfCategories = [
   {
@@ -67,7 +95,7 @@ const supplyCategories = [
 ];
 
 const navLinks = [
-  { name: "Calculator", href: "/calculator", icon: Calculator },
+  { name: "Calculator", href: "/calculator" },
   { name: "Locations", href: "/locations" },
   { name: "Wholesale", href: "/broker" },
   { name: "About", href: "/about" },
@@ -142,7 +170,7 @@ export function Header() {
                   )}
                 >
                   Shop Turf
-                  <ChevronDown className={cn("w-4 h-4 transition-transform", turfMenuOpen && "rotate-180")} />
+                  <span className={cn("text-xs transition-transform", turfMenuOpen && "rotate-180")}>▼</span>
                 </button>
               </div>
 
@@ -158,7 +186,7 @@ export function Header() {
                   )}
                 >
                   Shop Supplies
-                  <ChevronDown className={cn("w-4 h-4 transition-transform", suppliesMenuOpen && "rotate-180")} />
+                  <span className={cn("text-xs transition-transform", suppliesMenuOpen && "rotate-180")}>▼</span>
                 </button>
               </div>
 
@@ -168,14 +196,12 @@ export function Header() {
                   href={link.href}
                   className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium hover:text-primary transition-colors"
                 >
-                  {link.icon && <link.icon className="w-4 h-4" />}
                   {link.name}
                 </Link>
               ))}
 
               <Link href="/samples">
                 <Button size="sm" className="ml-3 bg-primary hover:bg-primary/90">
-                  <Sparkles className="w-4 h-4 mr-1.5" />
                   Free Samples
                 </Button>
               </Link>
@@ -183,9 +209,8 @@ export function Header() {
 
             {/* Right Side */}
             <div className="flex items-center gap-3">
-              <a href="tel:1-800-TURF-WLD" className="hidden xl:flex items-center gap-2 text-sm font-medium hover:text-primary transition-colors">
-                <Phone className="w-4 h-4" />
-                1-800-TURF-WLD
+              <a href="tel:(909) 491-2203" className="hidden xl:flex items-center gap-2 text-sm font-medium hover:text-primary transition-colors">
+                <Phone className="h-4 w-4" /> (909) 491-2203
               </a>
 
               <Button
@@ -228,21 +253,17 @@ export function Header() {
             <div className="container py-2.5 flex items-center justify-between text-sm">
               <div className="flex items-center gap-6">
                 <span className="flex items-center gap-1.5 font-medium">
-                  <Truck className="w-4 h-4" />
-                  Free Shipping on Orders $1,500+
+                  <Truck className="h-4 w-4" /> Free Shipping on Orders $1,500+
                 </span>
                 <span className="flex items-center gap-1.5">
-                  <Shield className="w-4 h-4" />
-                  15-Year Warranty
+                  <Shield className="h-4 w-4" /> 15-Year Warranty
                 </span>
                 <span className="flex items-center gap-1.5">
-                  <Clock className="w-4 h-4" />
-                  Ships in 2-3 Days
+                  <Clock className="h-4 w-4" /> Ships in 2-3 Days
                 </span>
               </div>
               <Link href="/samples" className="flex items-center gap-1.5 font-semibold hover:underline underline-offset-2">
-                Get Free Samples
-                <ArrowRight className="w-4 h-4" />
+                Get Free Samples →
               </Link>
             </div>
           </div>
@@ -273,8 +294,7 @@ export function Header() {
                             From <span className="font-bold text-emerald-400">{cat.priceFrom}</span>/sf
                           </span>
                           <span className="flex items-center gap-1 text-xs font-medium text-white/90 group-hover:text-emerald-400 transition-colors">
-                            Shop Now
-                            <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
+                            Shop Now →
                           </span>
                         </div>
                       </div>
@@ -288,21 +308,17 @@ export function Header() {
                     href="/products"
                     className="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:underline underline-offset-2"
                   >
-                    View All Turf Options
-                    <ArrowRight className="w-4 h-4" />
+                    View All Turf Options →
                   </Link>
                   <div className="flex items-center gap-4 text-sm text-muted-foreground">
                     <span className="flex items-center gap-1.5">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                      PFAS-Free
+                      ✓ PFAS-Free
                     </span>
                     <span className="flex items-center gap-1.5">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                      Lead-Free
+                      ✓ Lead-Free
                     </span>
                     <span className="flex items-center gap-1.5">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                      Made in USA
+                      ✓ Made in USA
                     </span>
                   </div>
                 </div>
@@ -316,28 +332,28 @@ export function Header() {
                     href="/calculator"
                     className="flex items-center gap-3 p-4 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors group"
                   >
-                    <div className="w-10 h-10 rounded-lg bg-white shadow-sm flex items-center justify-center">
-                      <Calculator className="w-5 h-5 text-primary" />
+                    <div className="w-10 h-10 rounded-lg bg-white shadow-sm flex items-center justify-center text-primary">
+                      <Calculator className="h-5 w-5" />
                     </div>
                     <div className="flex-1">
                       <span className="font-semibold block group-hover:text-primary transition-colors">Project Calculator</span>
                       <span className="text-sm text-muted-foreground">Get exact sq ft & pricing</span>
                     </div>
-                    <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                    <span className="text-muted-foreground group-hover:text-primary transition-colors">→</span>
                   </Link>
 
                   <Link
                     href="/samples"
                     className="flex items-center gap-3 p-4 rounded-xl bg-emerald-50 hover:bg-emerald-100 transition-colors group border border-emerald-100"
                   >
-                    <div className="w-10 h-10 rounded-lg bg-white shadow-sm flex items-center justify-center">
-                      <Sparkles className="w-5 h-5 text-emerald-600" />
+                    <div className="w-10 h-10 rounded-lg bg-white shadow-sm flex items-center justify-center text-emerald-600">
+                      <Sparkles className="h-5 w-5" />
                     </div>
                     <div className="flex-1">
                       <span className="font-semibold block text-emerald-900">Free Sample Kit</span>
                       <span className="text-sm text-emerald-700">See & feel before you buy</span>
                     </div>
-                    <ArrowRight className="w-4 h-4 text-emerald-600" />
+                    <span className="text-emerald-600">→</span>
                   </Link>
                 </div>
 
@@ -345,11 +361,10 @@ export function Header() {
                 <div className="mt-6 pt-6 border-t">
                   <p className="text-sm text-muted-foreground mb-2">Questions? We&apos;re here to help.</p>
                   <a
-                    href="tel:1-800-TURF-WLD"
+                    href="tel:(909) 491-2203"
                     className="flex items-center gap-2 text-lg font-bold text-primary hover:underline"
                   >
-                    <Phone className="w-5 h-5" />
-                    1-800-TURF-WLD
+                    <Phone className="h-5 w-5" /> (909) 491-2203
                   </a>
                 </div>
               </div>
@@ -371,21 +386,17 @@ export function Header() {
             <div className="container py-2.5 flex items-center justify-between text-sm">
               <div className="flex items-center gap-6">
                 <span className="flex items-center gap-1.5 font-medium">
-                  <Package className="w-4 h-4" />
-                  Ships With Your Turf Order
+                  <Package className="h-4 w-4" /> Ships With Your Turf Order
                 </span>
                 <span className="flex items-center gap-1.5">
-                  <Shield className="w-4 h-4" />
-                  Quality Guaranteed
+                  <Shield className="h-4 w-4" /> Quality Guaranteed
                 </span>
                 <span className="flex items-center gap-1.5">
-                  <Truck className="w-4 h-4" />
-                  Fast Shipping
+                  <Truck className="h-4 w-4" /> Fast Shipping
                 </span>
               </div>
               <Link href="/calculator" className="flex items-center gap-1.5 font-semibold hover:underline underline-offset-2">
-                Calculate What You Need
-                <ArrowRight className="w-4 h-4" />
+                Calculate What You Need →
               </Link>
             </div>
           </div>
@@ -415,8 +426,7 @@ export function Header() {
                         <h3 className="font-bold text-base text-white">{cat.title}</h3>
                         <p className="text-white/70 text-sm mt-0.5">{cat.description}</p>
                         <div className="mt-2 flex items-center text-xs font-semibold text-emerald-400 group-hover:underline">
-                          Shop Now
-                          <ArrowRight className="w-3.5 h-3.5 ml-1 group-hover:translate-x-1 transition-transform" />
+                          Shop Now →
                         </div>
                       </div>
                     </Link>
@@ -429,21 +439,17 @@ export function Header() {
                     href="/supplies"
                     className="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:underline underline-offset-2"
                   >
-                    View All Supplies
-                    <ArrowRight className="w-4 h-4" />
+                    View All Supplies →
                   </Link>
                   <div className="flex items-center gap-4 text-sm text-muted-foreground">
                     <span className="flex items-center gap-1.5">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                      Pro-Grade Quality
+                      ✓ Pro-Grade Quality
                     </span>
                     <span className="flex items-center gap-1.5">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                      Competitive Pricing
+                      ✓ Competitive Pricing
                     </span>
                     <span className="flex items-center gap-1.5">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                      Bundle & Save
+                      ✓ Bundle & Save
                     </span>
                   </div>
                 </div>
@@ -457,28 +463,28 @@ export function Header() {
                     href="/calculator"
                     className="flex items-center gap-3 p-4 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors group"
                   >
-                    <div className="w-10 h-10 rounded-lg bg-white shadow-sm flex items-center justify-center">
-                      <Calculator className="w-5 h-5 text-primary" />
+                    <div className="w-10 h-10 rounded-lg bg-white shadow-sm flex items-center justify-center text-primary">
+                      <Calculator className="h-5 w-5" />
                     </div>
                     <div className="flex-1">
                       <span className="font-semibold block group-hover:text-primary transition-colors">Project Calculator</span>
                       <span className="text-sm text-muted-foreground">Know exactly what you need</span>
                     </div>
-                    <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                    <span className="text-muted-foreground group-hover:text-primary transition-colors">→</span>
                   </Link>
 
                   <Link
                     href="/products"
                     className="flex items-center gap-3 p-4 rounded-xl bg-emerald-50 hover:bg-emerald-100 transition-colors group border border-emerald-100"
                   >
-                    <div className="w-10 h-10 rounded-lg bg-white shadow-sm flex items-center justify-center">
-                      <Package className="w-5 h-5 text-emerald-600" />
+                    <div className="w-10 h-10 rounded-lg bg-white shadow-sm flex items-center justify-center text-emerald-600">
+                      <Package className="h-5 w-5" />
                     </div>
                     <div className="flex-1">
                       <span className="font-semibold block text-emerald-900">Shop Turf First</span>
                       <span className="text-sm text-emerald-700">Bundle turf + supplies</span>
                     </div>
-                    <ArrowRight className="w-4 h-4 text-emerald-600" />
+                    <span className="text-emerald-600">→</span>
                   </Link>
                 </div>
 
@@ -486,11 +492,10 @@ export function Header() {
                 <div className="mt-6 pt-6 border-t">
                   <p className="text-sm text-muted-foreground mb-2">Need help choosing supplies?</p>
                   <a
-                    href="tel:1-800-TURF-WLD"
+                    href="tel:(909) 491-2203"
                     className="flex items-center gap-2 text-lg font-bold text-primary hover:underline"
                   >
-                    <Phone className="w-5 h-5" />
-                    1-800-TURF-WLD
+                    <Phone className="h-5 w-5" /> (909) 491-2203
                   </a>
                 </div>
               </div>
@@ -516,7 +521,7 @@ export function Header() {
             <div className="flex items-center justify-between p-4 border-b">
               <span className="font-semibold">Menu</span>
               <Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(false)}>
-                <X className="w-5 h-5" />
+                <X className="h-5 w-5" />
               </Button>
             </div>
 
@@ -579,7 +584,6 @@ export function Header() {
                     onClick={() => setMobileMenuOpen(false)}
                     className="flex items-center gap-3 py-3 font-medium hover:text-primary transition-colors"
                   >
-                    {link.icon && <link.icon className="w-5 h-5 text-muted-foreground" />}
                     {link.name}
                   </Link>
                 ))}
@@ -588,14 +592,12 @@ export function Header() {
 
             {/* Footer */}
             <div className="p-4 border-t bg-slate-50">
-              <a href="tel:1-800-TURF-WLD" className="flex items-center justify-center gap-2 mb-3 text-sm font-medium">
-                <Phone className="w-4 h-4" />
-                1-800-TURF-WLD
+              <a href="tel:(909) 491-2203" className="flex items-center justify-center gap-2 mb-3 text-sm font-medium">
+                <Phone className="h-4 w-4" /> (909) 491-2203
               </a>
               <Link href="/samples" onClick={() => setMobileMenuOpen(false)}>
                 <Button className="w-full bg-primary hover:bg-primary/90" size="lg">
-                  <Sparkles className="w-4 h-4 mr-2" />
-                  Get Free Samples
+                  <Sparkles className="h-4 w-4 mr-1" /> Get Free Samples
                 </Button>
               </Link>
             </div>

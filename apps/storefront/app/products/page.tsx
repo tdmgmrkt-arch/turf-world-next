@@ -1,11 +1,26 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight, Sparkles, Star, Truck, Shield, Filter } from "lucide-react";
+import {
+  ArrowRight as LucideArrowRight,
+  Sparkles as LucideSparkles,
+  Star as LucideStar,
+  Truck as LucideTruck,
+  Shield as LucideShield,
+  Filter as LucideFilter,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Breadcrumb } from "@/components/ui/breadcrumb";
 import { formatPrice, cn } from "@/lib/utils";
 import { PRODUCTS, type Product, type ProductUse } from "@/lib/products";
+
+// Cast Lucide icons to work around React 19 JSX type incompatibility
+const ArrowRight = LucideArrowRight as any;
+const Sparkles = LucideSparkles as any;
+const Star = LucideStar as any;
+const Truck = LucideTruck as any;
+const Shield = LucideShield as any;
+const Filter = LucideFilter as any;
 
 export const metadata: Metadata = {
   title: "Shop Artificial Grass | Premium Turf Collection",
@@ -296,8 +311,11 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
                     <ArrowRight className="ml-2 h-5 w-5" />
                   </Link>
                 </Button>
-                <Button variant="outline" size="lg" className="w-full sm:w-auto h-12 sm:h-14 px-6 sm:px-8 border-white/20 text-white hover:bg-white/10 rounded-xl" asChild>
-                  <Link href="/samples">Get Free Samples</Link>
+                <Button variant="outline" size="lg" className="w-full sm:w-auto h-12 sm:h-14 px-6 sm:px-8 bg-white/10 border-white/30 text-white hover:bg-white/20 rounded-xl" asChild>
+                  <Link href="/samples">
+                    <Sparkles className="mr-2 h-4 w-4" />
+                    Get Free Samples
+                  </Link>
                 </Button>
               </div>
             </div>

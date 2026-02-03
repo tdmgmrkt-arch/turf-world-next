@@ -1,15 +1,39 @@
 "use client";
 
-import Image from "next/image";
-import Link from "next/link";
-import { Minus, Plus, Trash2, ShoppingBag, X, Truck, Shield, Sparkles, ArrowRight, Package } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import NextImage from "next/image";
+import NextLink from "next/link";
+import { Button as ShadcnButton } from "@/components/ui/button";
 import {
-  Sheet,
-  SheetContent,
+  Sheet as ShadcnSheet,
+  SheetContent as ShadcnSheetContent,
 } from "@/components/ui/sheet";
 import { useCartStore } from "@/lib/store";
 import { formatPrice } from "@/lib/utils";
+import {
+  ShoppingCart as LucideShoppingCart,
+  X as LucideX,
+  Truck as LucideTruck,
+  Sparkles as LucideSparkles,
+  Package as LucidePackage,
+  Trash2 as LucideTrash2,
+  Shield as LucideShield,
+} from "lucide-react";
+
+// Cast Lucide icons to work around React 19 JSX type incompatibility
+const ShoppingCart = LucideShoppingCart as any;
+const X = LucideX as any;
+const Truck = LucideTruck as any;
+const Sparkles = LucideSparkles as any;
+const Package = LucidePackage as any;
+const Trash2 = LucideTrash2 as any;
+const Shield = LucideShield as any;
+
+// Cast to work around React 19 JSX type incompatibility with Radix UI / Shadcn / Next.js
+const Button = ShadcnButton as any;
+const Sheet = ShadcnSheet as any;
+const SheetContent = ShadcnSheetContent as any;
+const Image = NextImage as any;
+const Link = NextLink as any;
 
 const FREE_SHIPPING_THRESHOLD = 150000; // $1,500 in cents
 
@@ -35,14 +59,14 @@ export function CartDrawer() {
   const suggestInfill = hasTurf && !items.some((item) => item.title.toLowerCase().includes("infill"));
 
   return (
-    <Sheet open={isOpen} onOpenChange={(open) => !open && closeCart()}>
+    <Sheet open={isOpen} onOpenChange={(open: boolean) => !open && closeCart()}>
       <SheetContent className="flex w-full flex-col p-0 sm:max-w-md">
         {/* Header */}
         <div className="bg-gradient-to-r from-slate-900 to-slate-800 px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10">
-                <ShoppingBag className="h-5 w-5 text-white" />
+                <ShoppingCart className="h-5 w-5 text-white" />
               </div>
               <div>
                 <h2 className="text-lg font-bold text-white">Your Cart</h2>
@@ -90,7 +114,7 @@ export function CartDrawer() {
           <div className="flex flex-1 flex-col items-center justify-center gap-6 p-8 text-center">
             <div className="relative">
               <div className="h-24 w-24 rounded-full bg-slate-100 flex items-center justify-center">
-                <ShoppingBag className="h-12 w-12 text-slate-300" />
+                <ShoppingCart className="h-10 w-10 text-slate-300" />
               </div>
               <div className="absolute -bottom-1 -right-1 h-8 w-8 rounded-full bg-emerald-100 flex items-center justify-center">
                 <Sparkles className="h-4 w-4 text-emerald-600" />
@@ -104,8 +128,7 @@ export function CartDrawer() {
             </div>
             <Button asChild onClick={closeCart} size="lg" className="px-8">
               <Link href="/products">
-                Browse Products
-                <ArrowRight className="ml-2 h-4 w-4" />
+                Browse Products →
               </Link>
             </Button>
           </div>
@@ -144,7 +167,7 @@ export function CartDrawer() {
                           className="flex-shrink-0 h-6 w-6 flex items-center justify-center rounded-md text-slate-400 hover:text-red-500 hover:bg-red-50 transition-colors"
                           aria-label={`Remove ${item.title} from cart`}
                         >
-                          <Trash2 className="h-3.5 w-3.5" />
+                          <Trash2 className="h-4 w-4" />
                         </button>
                       </div>
 
@@ -165,7 +188,7 @@ export function CartDrawer() {
                             onClick={() => updateQuantity(item.id, item.quantity - 1)}
                             aria-label="Decrease quantity"
                           >
-                            <Minus className="h-3 w-3" />
+                            −
                           </button>
                           <span className="w-8 text-center text-sm font-medium text-slate-900">
                             {item.quantity}
@@ -175,7 +198,7 @@ export function CartDrawer() {
                             onClick={() => updateQuantity(item.id, item.quantity + 1)}
                             aria-label="Increase quantity"
                           >
-                            <Plus className="h-3 w-3" />
+                            +
                           </button>
                         </div>
 
@@ -208,8 +231,7 @@ export function CartDrawer() {
                         onClick={closeCart}
                         className="inline-flex items-center gap-1 mt-2 text-xs font-semibold text-emerald-600 hover:text-emerald-700 hover:underline"
                       >
-                        Shop Supplies
-                        <ArrowRight className="h-3 w-3" />
+                        Shop Supplies →
                       </Link>
                     </div>
                   </div>
@@ -244,8 +266,7 @@ export function CartDrawer() {
               <div className="mt-4 space-y-2">
                 <Button className="w-full h-12 text-base font-semibold" size="lg" asChild>
                   <Link href="/checkout" onClick={closeCart}>
-                    Proceed to Checkout
-                    <ArrowRight className="ml-2 h-4 w-4" />
+                    Proceed to Checkout →
                   </Link>
                 </Button>
                 <button

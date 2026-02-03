@@ -94,6 +94,8 @@ export async function updateCartItem(
  * Remove item from cart (Client-side)
  */
 export async function removeFromCart(cartId: string, lineItemId: string) {
-  const { cart } = await medusa.store.cart.deleteLineItem(cartId, lineItemId);
+  await medusa.store.cart.deleteLineItem(cartId, lineItemId);
+  // In Medusa v2, deleteLineItem doesn't return the cart, so we refetch it
+  const { cart } = await medusa.store.cart.retrieve(cartId);
   return cart;
 }
