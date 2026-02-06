@@ -70,7 +70,7 @@ interface UseTurfLogicReturn {
 export function useTurfLogic(options: UseTurfLogicOptions): UseTurfLogicReturn {
   const { pricePerSqFtCents, isPetTurf = false, includeInfill = true } = options;
 
-  const [widthFeet, setWidthFeetState] = useState(20);
+  const [widthFeet, setWidthFeetState] = useState(15);
   const [lengthFeet, setLengthFeetState] = useState(30);
 
   // Clamp inputs to reasonable ranges
@@ -83,7 +83,7 @@ export function useTurfLogic(options: UseTurfLogicOptions): UseTurfLogicReturn {
   }, []);
 
   const reset = useCallback(() => {
-    setWidthFeetState(20);
+    setWidthFeetState(15);
     setLengthFeetState(30);
   }, []);
 

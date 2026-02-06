@@ -61,9 +61,9 @@ const faqs = [
       "15ft is the industry standard width for artificial turf rolls. This width is optimal for manufacturing, shipping, and installation. Most residential projects can be covered with 1-2 rolls side by side.",
   },
   {
-    question: "What is face weight and why does it matter?",
+    question: "What is Total Weight and why does it matter?",
     answer:
-      "Face weight measures the density of turf fibers in ounces per square yard. Higher face weight (80oz+) means more fibers, better durability, and a more realistic appearance. For high-traffic areas or pets, we recommend 80oz or higher.",
+      "Total Weight measures the density of turf fibers in ounces per square yard. Higher Total Weight (80oz+) means more fibers, better durability, and a more realistic appearance. For high-traffic areas or pets, we recommend 80oz or higher.",
   },
   {
     question: "Do I need infill?",

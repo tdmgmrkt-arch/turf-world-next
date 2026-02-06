@@ -25,23 +25,21 @@ const Filter = LucideFilter as any;
 export const metadata: Metadata = {
   title: "Shop Artificial Grass | Premium Turf Collection",
   description:
-    "Browse our complete collection of professional-grade artificial turf. Free shipping, 16-year warranty, direct from manufacturer pricing.",
+    "Browse our complete collection of professional-grade artificial turf. Fast nationwide shipping, 16-year warranty, direct from manufacturer pricing.",
 };
 
 const USE_FILTERS: { label: string; value: ProductUse | "all"; icon?: string }[] = [
   { label: "All Products", value: "all" },
-  { label: "Residential", value: "residential" },
+  { label: "Landscape", value: "landscape" },
   { label: "Pet Turf", value: "pet" },
   { label: "Putting Green", value: "putting" },
-  { label: "Playground", value: "playground" },
-  { label: "Commercial", value: "commercial" },
 ];
 
-const SORT_OPTIONS = [
-  { label: "Featured", value: "" },
-  { label: "Price: Low", value: "price-asc" },
-  { label: "Price: High", value: "price-desc" },
-  { label: "Weight", value: "weight" },
+const SORT_FIELDS = [
+  { label: "Featured", field: "" },
+  { label: "Price", field: "price", defaultDir: "asc" as const },
+  { label: "Weight", field: "weight", defaultDir: "desc" as const },
+  { label: "Height", field: "height", defaultDir: "desc" as const },
 ];
 
 interface ProductsPageProps {
@@ -68,9 +66,21 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
     filteredProducts = [...filteredProducts].sort(
       (a, b) => b.priceCents - a.priceCents
     );
-  } else if (sort === "weight") {
+  } else if (sort === "weight-asc") {
+    filteredProducts = [...filteredProducts].sort(
+      (a, b) => a.weight - b.weight
+    );
+  } else if (sort === "weight-desc") {
     filteredProducts = [...filteredProducts].sort(
       (a, b) => b.weight - a.weight
+    );
+  } else if (sort === "height-asc") {
+    filteredProducts = [...filteredProducts].sort(
+      (a, b) => a.pileHeight - b.pileHeight
+    );
+  } else if (sort === "height-desc") {
+    filteredProducts = [...filteredProducts].sort(
+      (a, b) => b.pileHeight - a.pileHeight
     );
   } else {
     // Default: featured first, then by weight
@@ -121,37 +131,13 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
             <div className="absolute inset-0 bg-slate-900/60" />
           </>
         )}
-        {useFilter === "residential" && (
+        {useFilter === "landscape" && (
           <>
             <Image
               src="/landscape.hero.webp"
-              alt="Residential turf"
+              alt="Landscape turf"
               fill
               className="object-cover object-[center_75%]"
-              priority
-            />
-            <div className="absolute inset-0 bg-slate-900/60" />
-          </>
-        )}
-        {useFilter === "commercial" && (
-          <>
-            <Image
-              src="/commercial.hero.webp"
-              alt="Commercial turf"
-              fill
-              className="object-cover object-[center_25%]"
-              priority
-            />
-            <div className="absolute inset-0 bg-slate-900/60" />
-          </>
-        )}
-        {useFilter === "playground" && (
-          <>
-            <Image
-              src="/playground.hero.webp"
-              alt="Playground turf"
-              fill
-              className="object-cover object-[center_40%]"
               priority
             />
             <div className="absolute inset-0 bg-slate-900/60" />
@@ -183,7 +169,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
             </h1>
 
             <p className="mt-4 sm:mt-6 text-sm sm:text-base md:text-lg text-white/90 max-w-xl drop-shadow-md">
-              Professional-grade artificial grass with free shipping, 16-year
+              Professional-grade artificial grass with fast nationwide shipping, 16-year
               warranty, and contractor-direct pricing.
             </p>
 
@@ -191,7 +177,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
             <div className="flex flex-wrap gap-2 sm:gap-4 mt-6 sm:mt-8">
               <div className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-full bg-white/15 backdrop-blur-sm">
                 <Truck className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-400" />
-                <span className="text-xs sm:text-sm font-medium text-white">Free Shipping</span>
+                <span className="text-xs sm:text-sm font-medium text-white">Fast Shipping</span>
               </div>
               <div className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-full bg-white/15 backdrop-blur-sm">
                 <Shield className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-400" />
@@ -237,23 +223,50 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
             <div className="flex items-center gap-2 sm:gap-3">
               <span className="text-xs sm:text-sm text-muted-foreground">Sort:</span>
               <div className="flex gap-0.5 sm:gap-1 bg-muted rounded-full p-0.5 sm:p-1">
-                {SORT_OPTIONS.map((option) => (
-                  <Link
-                    key={option.value}
-                    href={`/products${useFilter && useFilter !== "all" ? `?use=${useFilter}` : ""}${option.value ? `${useFilter && useFilter !== "all" ? "&" : "?"}sort=${option.value}` : ""}`}
-                  >
-                    <button
-                      className={cn(
-                        "px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-medium transition-all",
-                        (sort === option.value || (!sort && !option.value))
-                          ? "bg-white shadow-sm text-foreground"
-                          : "text-muted-foreground hover:text-foreground"
-                      )}
+                {SORT_FIELDS.map((option) => {
+                  const currentField = sort ? sort.replace(/-asc$|-desc$/, '') : '';
+                  const currentDir = sort?.endsWith('-asc') ? 'asc' : sort?.endsWith('-desc') ? 'desc' : null;
+                  const isActive = option.field === '' ? !sort : currentField === option.field;
+
+                  // Compute the next sort value
+                  let nextSort = '';
+                  if (option.field === '') {
+                    // Featured — no sort param
+                    nextSort = '';
+                  } else if (isActive) {
+                    // Toggle direction
+                    nextSort = `${option.field}-${currentDir === 'asc' ? 'desc' : 'asc'}`;
+                  } else {
+                    // Activate with default direction
+                    nextSort = `${option.field}-${option.defaultDir}`;
+                  }
+
+                  const baseHref = useFilter && useFilter !== "all" ? `?use=${useFilter}` : "";
+                  const sortParam = nextSort ? `${baseHref ? "&" : "?"}sort=${nextSort}` : "";
+
+                  return (
+                    <Link
+                      key={option.field || "featured"}
+                      href={`/products${baseHref}${sortParam}`}
                     >
-                      {option.label}
-                    </button>
-                  </Link>
-                ))}
+                      <button
+                        className={cn(
+                          "px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-medium transition-all inline-flex items-center gap-0.5",
+                          isActive
+                            ? "bg-white shadow-sm text-foreground"
+                            : "text-muted-foreground hover:text-foreground"
+                        )}
+                      >
+                        {option.label}
+                        {option.field && (
+                          <span className={cn("ml-0.5 w-3 text-center", isActive ? "text-primary" : "invisible")}>
+                            {isActive && currentDir === 'asc' ? '↑' : '↓'}
+                          </span>
+                        )}
+                      </button>
+                    </Link>
+                  );
+                })}
               </div>
             </div>
           </div>
@@ -375,7 +388,7 @@ function ProductCard({ product, index }: { product: Product; index: number }) {
         <div className="p-3 sm:p-4 md:p-5">
           {/* Category tag */}
           <span className="text-[9px] sm:text-[10px] font-semibold uppercase tracking-wider text-primary">
-            {product.category === "pet" ? "Pet Turf" : product.category === "putting" ? "Putting Green" : "Residential"}
+            {product.category === "pet" ? "Pet Turf" : product.category === "putting" ? "Putting Green" : "Landscape"}
           </span>
 
           {/* Title */}

@@ -16,7 +16,7 @@ import { Breadcrumb } from "@/components/ui/breadcrumb";
 export const metadata: Metadata = {
   title: "Free Turf Samples | Feel It Before You Buy",
   description:
-    "Order up to 3 free artificial turf samples. See and feel the quality before you commit. Free shipping, no credit card required.",
+    "Order up to 3 free artificial turf samples. See and feel the quality before you commit. Fast shipping, no credit card required.",
   keywords: [
     "free turf samples",
     "artificial grass samples",
@@ -31,7 +31,7 @@ export default function SamplesPage() {
       <Breadcrumb items={[{ label: "Free Samples" }]} />
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden py-12 sm:py-16 md:py-24 lg:py-28">
+      <section className="relative overflow-hidden py-12 sm:py-16 md:py-24">
         {/* Background Image */}
         <Image
           src="/order-samples-hero.webp"
@@ -44,14 +44,14 @@ export default function SamplesPage() {
         <div className="absolute inset-0 bg-slate-900/70" />
 
         <div className="container px-4 sm:px-6 relative z-10">
-          <div className="mx-auto max-w-4xl text-center">
+          <div className="mx-auto max-w-3xl text-center">
             {/* Badge */}
             <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/10 text-xs sm:text-sm text-white/80 mb-4 sm:mb-6">
               <Gift className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary" />
               <span>100% Free • No Credit Card Required</span>
             </div>
 
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-white tracking-tight">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white tracking-tight">
               See It. Feel It.{" "}
               <span className="text-[#34CE95]">
                 Love It.
@@ -64,12 +64,12 @@ export default function SamplesPage() {
             </p>
 
             {/* Trust indicators */}
-            <div className="flex flex-wrap justify-center gap-4 sm:gap-6 mt-6 sm:mt-10">
+            <div className="flex flex-wrap justify-center gap-4 sm:gap-6 mt-6 sm:mt-8">
               <div className="flex items-center gap-2 text-white/60">
                 <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-primary/20 flex items-center justify-center">
                   <Truck className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary" />
                 </div>
-                <span className="text-xs sm:text-sm">Free Shipping</span>
+                <span className="text-xs sm:text-sm">Fast Shipping</span>
               </div>
               <div className="flex items-center gap-2 text-white/60">
                 <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-primary/20 flex items-center justify-center">
@@ -123,7 +123,7 @@ export default function SamplesPage() {
               icon={<Star className="w-6 h-6" />}
               iconBg="from-amber-500 to-orange-600"
               title="Compare Options"
-              description="Order different face weights and colors to find your perfect match before committing."
+              description="Order different Total Weights and colors to find your perfect match before committing."
               features={["Multiple weights", "Color variations", "Side-by-side compare"]}
             />
             <BenefitCard

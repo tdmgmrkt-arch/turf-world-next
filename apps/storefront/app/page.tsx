@@ -43,36 +43,39 @@ const categories = [
     description: "Engineered for pets. High-drainage, antimicrobial, built to last.",
     icon: Dog,
     href: "/products?use=pet",
-    image: "/pets.avif",
+    image: "/pets.card.webp",
     gradient: "from-amber-500/20 to-orange-500/20",
     iconBg: "bg-amber-500",
+    imagePosition: "center 5%",
   },
   {
     title: "Landscape",
     description: "Lush, realistic lawns that stay green 365 days a year.",
     icon: Leaf,
-    href: "/products?use=residential",
-    image: "/residential.avif",
+    href: "/products?use=landscape",
+    image: "/landscape.card.webp",
     gradient: "from-emerald-500/20 to-green-500/20",
     iconBg: "bg-emerald-500",
+    imagePosition: "center",
   },
   {
     title: "Putting Greens",
     description: "Tournament-quality nylon. Perfect roll, every time.",
     icon: Trophy,
     href: "/products?use=putting",
-    image: "/golf.avif",
+    image: "/golf.card.webp",
     gradient: "from-blue-500/20 to-cyan-500/20",
     iconBg: "bg-blue-500",
   },
   {
-    title: "Commercial",
-    description: "Durable, professional-grade turf for high-traffic areas.",
+    title: "Installation Supplies",
+    description: "Everything you need for a professional turf installation.",
     icon: Shield,
-    href: "/products?use=commercial",
-    image: "/commercial.avif",
+    href: "/supplies",
+    image: "/supplies.card.webp",
     gradient: "from-purple-500/20 to-indigo-500/20",
     iconBg: "bg-purple-500",
+    imagePosition: "center",
   },
 ];
 
@@ -98,6 +101,11 @@ const features = [
     icon: Truck,
     title: "Free Nationwide Shipping",
     description: "Direct to your door. No hidden fees, no surprises.",
+  },
+  {
+    icon: Sparkles,
+    title: "Premium C8 Yarn",
+    description: "We use C8-grade polypropylene — the highest tier of turf fiber for superior softness, UV resistance, and long-lasting color.",
   },
   {
     icon: Calculator,
@@ -419,7 +427,7 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-8">
             {features.map((feature, index) => (
               <div
                 key={feature.title}

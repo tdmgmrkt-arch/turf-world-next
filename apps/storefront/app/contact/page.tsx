@@ -110,7 +110,7 @@ export default function ContactPage() {
                 <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-primary/20 flex items-center justify-center">
                   <Truck className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary" />
                 </div>
-                <span className="text-xs sm:text-sm">Free Shipping</span>
+                <span className="text-xs sm:text-sm">Fast Shipping</span>
               </div>
               <div className="flex items-center gap-2 text-white/60">
                 <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-primary/20 flex items-center justify-center">
@@ -338,7 +338,7 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <p className="font-bold text-base sm:text-lg">Request Free Samples</p>
-                    <p className="text-xs sm:text-sm text-white/80">Up to 3 samples, free shipping</p>
+                    <p className="text-xs sm:text-sm text-white/80">Up to 3 samples, shipped free</p>
                   </div>
                 </div>
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform hidden sm:block" />

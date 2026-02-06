@@ -64,7 +64,7 @@ export function ProductSchema({ product, reviews }: ProductSchemaProps) {
       additionalProperty: [
         product.attributes.face_weight && {
           "@type": "PropertyValue",
-          name: "Face Weight",
+          name: "Total Weight",
           value: `${product.attributes.face_weight} oz/sq yd`,
         },
         product.attributes.pile_height && {
@@ -148,9 +148,9 @@ export function OrganizationSchema() {
       availableLanguage: "English",
     },
     sameAs: [
-      "https://facebook.com/turfworld",
-      "https://instagram.com/turfworld",
-      "https://youtube.com/turfworld",
+      "https://www.facebook.com/profile.php?id=61552575488475",
+      "https://www.instagram.com/_turfworld/",
+      "https://www.yelp.com/biz/turf-world-pomona",
     ],
   };
 
@@ -202,7 +202,7 @@ export function LocalBusinessSchema({ city, state }: LocalBusinessSchemaProps) {
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
     name: `Turf World - ${city}`,
-    description: `Professional artificial grass supplier serving ${city}, ${state}. Shop online for premium turf with free shipping.`,
+    description: `Professional artificial grass supplier serving ${city}, ${state}. Shop online for premium turf with fast nationwide shipping.`,
     url: `https://turfworld.com/locations/${city.toLowerCase().replace(/\s+/g, "-")}`,
     address: {
       "@type": "PostalAddress",

@@ -184,8 +184,8 @@ const trustFactors = [
   },
   {
     icon: Truck,
-    title: "Free Shipping",
-    description: "On orders over $1,500 across the continental US",
+    title: "Fast Shipping",
+    description: "Nationwide delivery across the continental US",
   },
   {
     icon: Heart,

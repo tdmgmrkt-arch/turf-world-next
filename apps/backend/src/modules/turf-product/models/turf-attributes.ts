@@ -18,7 +18,7 @@ export const TurfAttributes = model.define("turf_attributes", {
   /** Pile height in inches (1.5 - 2.5 typical) */
   pile_height: model.float().nullable(),
 
-  /** Face weight oz/sq yd (59, 80, 108 etc.) - durability indicator */
+  /** Total Weight oz/sq yd (59, 80, 108 etc.) - durability indicator */
   face_weight: model.float().nullable(),
 
   /** Roll width in feet - ALWAYS 15 for standard turf */

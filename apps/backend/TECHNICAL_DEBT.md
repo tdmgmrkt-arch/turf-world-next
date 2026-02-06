@@ -11,7 +11,7 @@
 
 ### What Happened
 
-The custom `turf-product` module was created to add turf-specific attributes (pile height, face weight, backing type, drainage rate, etc.) to Medusa products. During migration setup, it failed with:
+The custom `turf-product` module was created to add turf-specific attributes (pile height, Total Weight, backing type, drainage rate, etc.) to Medusa products. During migration setup, it failed with:
 
 ```
 Error: Key undefined is not linkable

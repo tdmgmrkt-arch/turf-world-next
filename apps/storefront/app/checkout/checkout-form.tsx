@@ -24,6 +24,7 @@ import {
   MapPin,
   Mail,
   Phone,
+  Zap,
 } from "lucide-react";
 import { Button as ShadcnButton } from "@/components/ui/button";
 import { Input as ShadcnInput } from "@/components/ui/input";
@@ -32,6 +33,9 @@ import { StripeProvider } from "@/components/stripe-provider";
 import { useCartStore } from "@/lib/store";
 import { useMedusaCart } from "@/hooks/use-medusa-cart";
 import { formatPrice, cn } from "@/lib/utils";
+import { isSoCalZipCode } from "@/lib/socal-zipcodes";
+import { getEligibleWillCallLocations, WILL_CALL_LOCATIONS } from "@/lib/will-call-locations";
+import type { CartItem } from "@/types";
 
 // Cast to work around React 19 JSX type incompatibility with Radix UI / Shadcn / Next.js
 const Button = ShadcnButton as any;
@@ -49,27 +53,112 @@ const STEPS: { id: Step; label: string; icon: React.ReactNode }[] = [
   { id: "confirmation", label: "Confirmed", icon: <Check className="h-4 w-4" /> },
 ];
 
-// Shipping options
-const SHIPPING_OPTIONS = [
-  {
-    id: "freight",
-    name: "LTL Freight",
-    description: "For turf rolls - delivered to your driveway",
-    price: 0,
-    estimatedDays: "5-10 business days",
-    note: "Free for orders over $1,500",
-    icon: Truck,
-  },
-  {
-    id: "expedited",
-    name: "Expedited Freight",
-    description: "Faster delivery for urgent projects",
-    price: 29900,
-    estimatedDays: "3-5 business days",
-    note: null,
-    icon: Package,
-  },
-];
+// Shipping pricing constants (all values in cents)
+const SHIPPING_CAP = 15000; // $150 — percentage-based options hidden above this (SoCal only)
+const NEXT_DAY_FLAT_RATE = 15000; // $150 flat rate for SoCal next-day shipping
+
+type ShippingOption = {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  estimatedDays: string;
+  note: string | null;
+  icon: any;
+};
+
+function getShippingOptions(zip: string, subtotal: number, cartItems: CartItem[]): ShippingOption[] {
+  const socal = isSoCalZipCode(zip);
+  const options: ShippingOption[] = [];
+
+  if (socal) {
+    // Will-call pickup — free, SoCal only
+    const eligibleLocations = getEligibleWillCallLocations(cartItems);
+    for (const loc of eligibleLocations) {
+      options.push({
+        id: loc.id,
+        name: `Free Will Call — ${loc.name}`,
+        description: `${loc.address}, ${loc.city}, ${loc.state} ${loc.zip}`,
+        price: 0,
+        estimatedDays: "Ready within 1 business day",
+        note: "Free pickup",
+        icon: MapPin,
+      });
+    }
+
+    // SoCal: Next-day $150 flat, LTL 10%, Expedited 20%
+    options.push({
+      id: "nextday",
+      name: "Next Day Shipping",
+      description: "SoCal residents — next business day delivery",
+      price: NEXT_DAY_FLAT_RATE,
+      estimatedDays: "Next business day",
+      note: "SoCal flat rate",
+      icon: Zap,
+    });
+
+    const ltlPrice = Math.round(subtotal * 0.10);
+    if (ltlPrice <= SHIPPING_CAP) {
+      options.push({
+        id: "freight",
+        name: "LTL Freight",
+        description: "For turf rolls — delivered to your driveway",
+        price: ltlPrice,
+        estimatedDays: "5–10 business days",
+        note: null,
+        icon: Truck,
+      });
+    }
+
+    const expeditedPrice = Math.round(subtotal * 0.20);
+    if (expeditedPrice <= SHIPPING_CAP) {
+      options.push({
+        id: "expedited",
+        name: "Expedited Freight",
+        description: "Faster delivery for urgent projects",
+        price: expeditedPrice,
+        estimatedDays: "3–5 business days",
+        note: null,
+        icon: Package,
+      });
+    }
+  } else {
+    // Non-SoCal: LTL 10% (default), Expedited 25%, Next-day 40%
+    options.push({
+      id: "freight",
+      name: "LTL Freight",
+      description: "For turf rolls — delivered to your driveway",
+      price: Math.round(subtotal * 0.10),
+      estimatedDays: "5–10 business days",
+      note: null,
+      icon: Truck,
+    });
+
+    options.push({
+      id: "expedited",
+      name: "Expedited Freight",
+      description: "Faster delivery for urgent projects",
+      price: Math.round(subtotal * 0.25),
+      estimatedDays: "3–5 business days",
+      note: null,
+      icon: Package,
+    });
+
+    options.push({
+      id: "nextday",
+      name: "Next Day Shipping",
+      description: "Priority next business day delivery",
+      price: Math.round(subtotal * 0.40),
+      estimatedDays: "Next business day",
+      note: null,
+      icon: Zap,
+    });
+  }
+
+  // Always sort cheapest first — auto-select picks [0] (cheapest)
+  options.sort((a, b) => a.price - b.price);
+  return options;
+}
 
 // Inner payment form component (uses Stripe hooks)
 function PaymentForm({
@@ -209,6 +298,7 @@ export function CheckoutForm() {
     shippingCost: number;
     tax: number;
     total: number;
+    selectedShipping: string;
   } | null>(null);
 
   // Form state
@@ -223,15 +313,24 @@ export function CheckoutForm() {
     state: "",
     zip: "",
   });
-  const [selectedShipping, setSelectedShipping] = useState(SHIPPING_OPTIONS[0].id);
+  const [selectedShipping, setSelectedShipping] = useState("");
+
+  const subtotal = getSubtotal();
+  const shippingOptions = getShippingOptions(shipping.zip, subtotal, items);
+
+  // Always auto-select cheapest (first) option when zip, cart, or subtotal changes
+  useEffect(() => {
+    if (shippingOptions.length > 0) {
+      setSelectedShipping(shippingOptions[0].id);
+    }
+  }, [shipping.zip, subtotal, items]);
 
   // Scroll to top when step changes (mobile UX improvement)
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [currentStep]);
 
-  const subtotal = getSubtotal();
-  const shippingCost = SHIPPING_OPTIONS.find((o) => o.id === selectedShipping)?.price || 0;
+  const shippingCost = shippingOptions.find((o) => o.id === selectedShipping)?.price || 0;
   const tax = Math.round(subtotal * 0.0725);
   const total = subtotal + shippingCost + tax;
 
@@ -276,6 +375,7 @@ export function CheckoutForm() {
       shippingCost,
       tax,
       total,
+      selectedShipping,
     });
     setOrderId(newOrderId);
     setCurrentStep("confirmation");
@@ -570,7 +670,7 @@ export function CheckoutForm() {
 
               {/* Shipping options */}
               <div className="space-y-2 sm:space-y-3">
-                {SHIPPING_OPTIONS.map((option) => (
+                {shippingOptions.map((option) => (
                   <label
                     key={option.id}
                     className={cn(
@@ -794,35 +894,93 @@ export function CheckoutForm() {
                       <p className="text-sm text-slate-500">You&apos;ll receive a receipt within a few minutes</p>
                     </div>
                   </div>
-                  <div className="flex items-start gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center flex-shrink-0">
-                      <Package className="w-4 h-4 text-emerald-600" />
-                    </div>
-                    <div>
-                      <p className="font-medium text-slate-900">Order Processing</p>
-                      <p className="text-sm text-slate-500">We&apos;ll prepare your turf in 1-2 business days</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center flex-shrink-0">
-                      <Truck className="w-4 h-4 text-emerald-600" />
-                    </div>
-                    <div>
-                      <p className="font-medium text-slate-900">Freight Delivery</p>
-                      <p className="text-sm text-slate-500">The carrier will call to schedule delivery</p>
-                    </div>
-                  </div>
+                  {(() => {
+                    const method = completedOrder?.selectedShipping ?? selectedShipping;
+                    const isWillCall = method.startsWith("willcall-");
+                    const isNextDay = method === "nextday";
+                    return (
+                      <>
+                        <div className="flex items-start gap-3">
+                          <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center flex-shrink-0">
+                            <Package className="w-4 h-4 text-emerald-600" />
+                          </div>
+                          <div>
+                            <p className="font-medium text-slate-900">Order Processing</p>
+                            <p className="text-sm text-slate-500">
+                              {isWillCall
+                                ? "We'll prepare your turf for pickup"
+                                : isNextDay
+                                  ? "We'll prepare your turf for next-day dispatch"
+                                  : "We'll prepare your turf in 1-2 business days"}
+                            </p>
+                          </div>
+                        </div>
+                        {isWillCall ? (
+                          <div className="flex items-start gap-3">
+                            <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center flex-shrink-0">
+                              <MapPin className="w-4 h-4 text-emerald-600" />
+                            </div>
+                            <div>
+                              <p className="font-medium text-slate-900">Will Call Pickup</p>
+                              <p className="text-sm text-slate-500">Your order will be ready for pickup within 1 business day</p>
+                            </div>
+                          </div>
+                        ) : isNextDay ? (
+                          <div className="flex items-start gap-3">
+                            <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center flex-shrink-0">
+                              <Zap className="w-4 h-4 text-emerald-600" />
+                            </div>
+                            <div>
+                              <p className="font-medium text-slate-900">Next Day Delivery</p>
+                              <p className="text-sm text-slate-500">Your order will arrive the next business day</p>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="flex items-start gap-3">
+                            <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center flex-shrink-0">
+                              <Truck className="w-4 h-4 text-emerald-600" />
+                            </div>
+                            <div>
+                              <p className="font-medium text-slate-900">
+                                {method === "expedited" ? "Expedited Freight" : "LTL Freight Delivery"}
+                              </p>
+                              <p className="text-sm text-slate-500">
+                                {method === "expedited"
+                                  ? "The carrier will deliver within 3-5 business days"
+                                  : "The carrier will call to schedule delivery within 5-10 business days"}
+                              </p>
+                            </div>
+                          </div>
+                        )}
+                      </>
+                    );
+                  })()}
                 </div>
               </div>
 
-              {/* Shipping Address */}
+              {/* Shipping / Pickup Address */}
               <div className="pt-4 border-t border-slate-200">
-                <h3 className="font-bold text-slate-900 mb-2">Shipping To</h3>
-                <p className="text-slate-600">
-                  {shipping.firstName} {shipping.lastName}<br />
-                  {shipping.address}{shipping.apartment && `, ${shipping.apartment}`}<br />
-                  {shipping.city}, {shipping.state} {shipping.zip}
-                </p>
+                {(completedOrder?.selectedShipping ?? selectedShipping).startsWith("willcall-") ? (() => {
+                  const loc = WILL_CALL_LOCATIONS.find(l => l.id === (completedOrder?.selectedShipping ?? selectedShipping));
+                  return loc ? (
+                    <>
+                      <h3 className="font-bold text-slate-900 mb-2">Pickup Location</h3>
+                      <p className="text-slate-600">
+                        {loc.address}<br />
+                        {loc.city}, {loc.state} {loc.zip}
+                      </p>
+                    </>
+                  ) : null;
+                })() : (
+                  <>
+                    <h3 className="font-bold text-slate-900 mb-2">Shipping To</h3>
+                    <p className="text-slate-600">
+                      {shipping.firstName} {shipping.lastName}<br />
+                      {shipping.address}{shipping.apartment && `, ${shipping.apartment}`}<br />
+                      {shipping.city}, {shipping.state} {shipping.zip}
+                    </p>
+                  </>
+                )}
               </div>
 
               {/* Actions */}
@@ -948,7 +1106,7 @@ export function CheckoutForm() {
                 <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center flex-shrink-0">
                   <Truck className="h-4 w-4 text-emerald-600" />
                 </div>
-                <span className="text-slate-600">Free shipping on orders over $1,500</span>
+                <span className="text-slate-600">Fast nationwide shipping</span>
               </div>
             </div>
           </div>

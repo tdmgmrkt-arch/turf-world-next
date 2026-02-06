@@ -31,7 +31,7 @@ const SafeButton = Button as any;
 const SafeImage = Image as any;
 const SafeLink = Link as any;
 import { formatPrice, cn } from "@/lib/utils";
-import { PRODUCTS, getProductByHandle } from "@/lib/products";
+import { PRODUCTS, ACCESSORIES, getProductByHandle } from "@/lib/products";
 
 // Calculator turf options derived from real products
 const TURF_OPTIONS = [
@@ -114,14 +114,84 @@ export function CalculatorForm() {
     includeInfill,
   });
 
-  // Calculate additional costs
-  const seamTapeCostCents = estimate.seaming.seamTapeFeet * 50; // ~$0.50/ft
-  const infillCostCents = estimate.infill
-    ? estimate.infill.bagsNeeded * 3995
-    : 0; // $39.95/bag
-  const adhesiveCostCents = estimate.seaming.seamCount > 0 ? 8995 : 0; // $89.95 per 5gal
-  const grandTotalCents =
-    totalPriceCents + seamTapeCostCents + infillCostCents + adhesiveCostCents;
+  // Calculate package items based on square footage (same logic as product page)
+  const packageItems = React.useMemo(() => {
+    const items: Array<{
+      accessory: typeof ACCESSORIES[0];
+      qty: number;
+      note: string;
+    }> = [];
+
+    // 1. Infill - 1 bag per 50 sqft
+    if (includeInfill) {
+      if (selectedTurf.isPet) {
+        const zeodorizer = ACCESSORIES.find(a => a.handle === "zeodorizer");
+        if (zeodorizer) {
+          items.push({
+            accessory: zeodorizer,
+            qty: Math.ceil(squareFeet / 50),
+            note: "1 bag per 50 sqft",
+          });
+        }
+      } else {
+        const infill = ACCESSORIES.find(a => a.handle === "60-grit-sand");
+        if (infill) {
+          items.push({
+            accessory: infill,
+            qty: Math.ceil(squareFeet / 50),
+            note: "1 bag per 50 sqft",
+          });
+        }
+      }
+    }
+
+    // 2. Weed barrier - 1 roll per 800 sqft
+    const weedBarrier = ACCESSORIES.find(a => a.handle === "weed-barrier");
+    if (weedBarrier) {
+      items.push({
+        accessory: weedBarrier,
+        qty: Math.ceil(totalCutSquareFeet / 800),
+        note: "Prevents weed growth",
+      });
+    }
+
+    // 3. Nails - 1 box per 800 sqft
+    const nails = ACCESSORIES.find(a => a.handle === "5-inch-nails");
+    if (nails) {
+      items.push({
+        accessory: nails,
+        qty: Math.ceil(totalCutSquareFeet / 800),
+        note: "For edges & seams",
+      });
+    }
+
+    // 4. Gopher wire - 1 roll per 400 sqft
+    const gopherWire = ACCESSORIES.find(a => a.handle === "gopher-wire");
+    if (gopherWire) {
+      items.push({
+        accessory: gopherWire,
+        qty: Math.ceil(totalCutSquareFeet / 400),
+        note: "Prevents rodent damage",
+      });
+    }
+
+    // 5. Seam tape - based on seam count
+    if (estimate.seaming.seamCount > 0) {
+      const seamTape = ACCESSORIES.find(a => a.handle === "seam-tape-8x50");
+      if (seamTape) {
+        items.push({
+          accessory: seamTape,
+          qty: estimate.seaming.seamCount,
+          note: `For ${estimate.seaming.seamCount} seam${estimate.seaming.seamCount !== 1 ? 's' : ''}`,
+        });
+      }
+    }
+
+    return items;
+  }, [squareFeet, totalCutSquareFeet, estimate.seaming.seamCount, selectedTurf.isPet, includeInfill]);
+
+  const suppliesTotalCents = packageItems.reduce((sum, item) => sum + (item.accessory.priceCents * item.qty), 0);
+  const grandTotalCents = totalPriceCents + suppliesTotalCents;
 
   return (
     <SafeTooltipProvider>
@@ -671,8 +741,7 @@ export function CalculatorForm() {
                 </div>
               </div>
 
-              {/* Fixed height container for 4 materials - blank space appears when fewer materials */}
-              <div className="space-y-2 h-[240px]">
+              <div className="space-y-2">
                 {/* Turf */}
                 <MaterialRow
                   emoji="📦"
@@ -682,35 +751,16 @@ export function CalculatorForm() {
                   highlight
                 />
 
-                {/* Seam Tape */}
-                {estimate.seaming.seamCount > 0 && (
+                {/* Supply items from ACCESSORIES */}
+                {packageItems.map((item) => (
                   <MaterialRow
-                    emoji="✂️"
-                    title="Seam Tape"
-                    subtitle={`${estimate.seaming.seamTapeFeet} linear ft for ${estimate.seaming.seamCount} seam${estimate.seaming.seamCount !== 1 ? "s" : ""}`}
-                    price={seamTapeCostCents}
+                    key={item.accessory.id}
+                    title={item.accessory.name}
+                    subtitle={`${item.qty} × ${formatPrice(item.accessory.priceCents)} — ${item.note}`}
+                    price={item.accessory.priceCents * item.qty}
+                    image={item.accessory.images[0]}
                   />
-                )}
-
-                {/* Adhesive */}
-                {estimate.seaming.seamCount > 0 && (
-                  <MaterialRow
-                    emoji="🧴"
-                    title="Seam Adhesive"
-                    subtitle="5-gallon bucket"
-                    price={adhesiveCostCents}
-                  />
-                )}
-
-                {/* Infill */}
-                {estimate.infill && includeInfill && (
-                  <MaterialRow
-                    emoji="🪨"
-                    title="ZeoFill Infill"
-                    subtitle={`${estimate.infill.bagsNeeded} bag${estimate.infill.bagsNeeded !== 1 ? "s" : ""} (${estimate.infill.poundsNeeded} lbs)`}
-                    price={infillCostCents}
-                  />
-                )}
+                ))}
               </div>
 
               {/* Divider & Total - outside fixed container so it stays in place */}
@@ -766,12 +816,14 @@ function MaterialRow({
   subtitle,
   price,
   highlight = false,
+  image,
 }: {
-  emoji: string;
+  emoji?: string;
   title: string;
   subtitle: string;
   price: number;
   highlight?: boolean;
+  image?: string;
 }) {
   return (
     <div
@@ -784,11 +836,15 @@ function MaterialRow({
     >
       <div
         className={cn(
-          "flex h-7 w-7 sm:h-8 sm:w-8 flex-shrink-0 items-center justify-center rounded-lg",
+          "relative flex h-7 w-7 sm:h-8 sm:w-8 flex-shrink-0 items-center justify-center rounded-lg overflow-hidden",
           highlight ? "bg-primary text-white" : "bg-white/10 text-white/60"
         )}
       >
-        <span className="text-sm">{emoji}</span>
+        {image ? (
+          <SafeImage src={image} alt={title} fill className="object-cover" sizes="32px" />
+        ) : (
+          <span className="text-sm">{emoji}</span>
+        )}
       </div>
       <div className="flex-1 min-w-0">
         <p className={cn(

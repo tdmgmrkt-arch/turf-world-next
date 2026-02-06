@@ -35,14 +35,11 @@ const SheetContent = ShadcnSheetContent as any;
 const Image = NextImage as any;
 const Link = NextLink as any;
 
-const FREE_SHIPPING_THRESHOLD = 150000; // $1,500 in cents
-
 /**
  * CartDrawer - Premium sliding cart
  *
  * Features:
  * - Shows all cart items with quantity controls
- * - Free shipping progress bar
  * - Smart cross-sell suggestions
  * - Trust badges and branding
  */
@@ -52,8 +49,6 @@ export function CartDrawer() {
 
   const subtotal = getSubtotal();
   const hasTurf = items.some((item) => item.dimensions);
-  const freeShippingProgress = Math.min((subtotal / FREE_SHIPPING_THRESHOLD) * 100, 100);
-  const amountToFreeShipping = FREE_SHIPPING_THRESHOLD - subtotal;
 
   // Smart cross-sell: if turf in cart, suggest infill
   const suggestInfill = hasTurf && !items.some((item) => item.title.toLowerCase().includes("infill"));
@@ -83,28 +78,10 @@ export function CartDrawer() {
             </button>
           </div>
 
-          {/* Free Shipping Progress */}
           {items.length > 0 && (
-            <div className="mt-4">
-              {subtotal >= FREE_SHIPPING_THRESHOLD ? (
-                <div className="flex items-center gap-2 text-emerald-400">
-                  <Truck className="h-4 w-4" />
-                  <span className="text-sm font-medium">You&apos;ve unlocked FREE shipping!</span>
-                </div>
-              ) : (
-                <>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-white/60">Add {formatPrice(amountToFreeShipping)} for FREE shipping</span>
-                    <span className="text-white/80 font-medium">{Math.round(freeShippingProgress)}%</span>
-                  </div>
-                  <div className="mt-2 h-2 rounded-full bg-white/10 overflow-hidden">
-                    <div
-                      className="h-full bg-gradient-to-r from-emerald-400 to-emerald-500 rounded-full transition-all duration-500"
-                      style={{ width: `${freeShippingProgress}%` }}
-                    />
-                  </div>
-                </>
-              )}
+            <div className="mt-4 flex items-center gap-2 text-emerald-400">
+              <Truck className="h-4 w-4" />
+              <span className="text-sm font-medium">Fast Nationwide Shipping</span>
             </div>
           )}
         </div>

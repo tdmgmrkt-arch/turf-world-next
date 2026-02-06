@@ -114,7 +114,7 @@ export default async function seed({ container }: ExecArgs) {
           description: `
             The K9 Pro is our top-selling pet turf, engineered specifically for dog owners.
             Features 100% permeable backing for instant drainage of pet urine, antimicrobial
-            treatment to prevent odor and bacteria, and a durable 80oz face weight that
+            treatment to prevent odor and bacteria, and a durable 80oz Total Weight that
             stands up to heavy pet traffic.
 
             **Key Features:**
@@ -286,11 +286,11 @@ export default async function seed({ container }: ExecArgs) {
           handle: "ecolush-premium-108",
           subtitle: "Luxury Landscape Turf with Recycled Backing",
           description: `
-            Our most realistic landscape turf. 108oz face weight for ultra-lush
+            Our most realistic landscape turf. 108oz Total Weight for ultra-lush
             appearance. Recycled backing for eco-conscious buyers.
 
             **Key Features:**
-            - 108oz face weight (premium density)
+            - 108oz Total Weight (premium density)
             - Recycled polyurethane backing
             - W-blade for natural movement
             - Brown/green thatch layer

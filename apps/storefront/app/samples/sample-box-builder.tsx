@@ -169,7 +169,7 @@ export function SampleBoxBuilder() {
               </div>
               <div>
                 <p className="text-white font-semibold text-sm">{selectedSamples.length} sample{selectedSamples.length !== 1 ? 's' : ''} selected</p>
-                <p className="text-white/50 text-xs">Free shipping included</p>
+                <p className="text-white/50 text-xs">Fast shipping included</p>
               </div>
             </div>
             <Button
@@ -540,7 +540,7 @@ export function SampleBoxBuilder() {
                   </span>
                 </div>
                 <p className="mt-1 text-xs text-white/40">
-                  Free shipping included
+                  Fast shipping included
                 </p>
               </div>
 
@@ -599,7 +599,7 @@ export function SampleBoxBuilder() {
             </span>
             <span className="flex items-center gap-1">
               <span className="w-2 h-2 rounded-full bg-blue-500"></span>
-              Free Shipping
+              Fast Shipping
             </span>
           </div>
         </div>

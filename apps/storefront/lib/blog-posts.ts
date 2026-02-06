@@ -86,7 +86,7 @@ The most important feature for pet turf is superior drainage. Look for turf with
 
 ### 2. Durability
 Pets are tough on turf. Choose products with:
-- Face weight of 80oz or higher
+- Total Weight of 80oz or higher
 - Strong primary backing
 - UV-stabilized fibers
 
@@ -99,7 +99,7 @@ Quality pet turf should include:
 ## Our Pet Turf Recommendations
 
 We recommend our **Turf World Pet Pro** for most pet owners. It features:
-- 88oz face weight
+- 88oz Total Weight
 - Antimicrobial backing
 - Superior 40+ oz/min drainage
 - 15-year warranty

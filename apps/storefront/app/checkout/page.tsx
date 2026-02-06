@@ -33,7 +33,7 @@ export default function CheckoutPage() {
                 <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center">
                   <Truck className="w-4 h-4 text-emerald-400" />
                 </div>
-                <span className="text-sm">Free Shipping</span>
+                <span className="text-sm">Fast Shipping</span>
               </div>
             </div>
           </div>

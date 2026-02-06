@@ -114,7 +114,7 @@ const testimonials = [
 ];
 
 const productCategories = [
-  { name: "Residential Lawns", icon: Home, href: "/products?use=residential" },
+  { name: "Residential Lawns", icon: Home, href: "/products?use=landscape" },
   { name: "Commercial Landscapes", icon: Building2, href: "/products?use=commercial" },
   { name: "Pet-Friendly Turf", icon: Dog, href: "/products?use=pet" },
   { name: "Sports Fields", icon: Trophy, href: "/products?use=putting" },
@@ -182,7 +182,7 @@ export default function BrokerPage() {
                 <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-primary/20 flex items-center justify-center">
                   <Truck className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary" />
                 </div>
-                <span className="text-xs sm:text-sm">Free Shipping</span>
+                <span className="text-xs sm:text-sm">Fast Shipping</span>
               </div>
               <div className="flex items-center gap-2 text-white/60">
                 <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-primary/20 flex items-center justify-center">

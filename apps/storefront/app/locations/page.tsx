@@ -41,7 +41,7 @@ export default function LocationsPage() {
           We Ship Nationwide
         </h1>
         <p className="mt-4 text-lg text-muted-foreground">
-          Free shipping on all turf orders. Find local information for your area
+          Fast nationwide shipping on all turf orders. Find local information for your area
           including water rebate programs and climate-specific recommendations.
         </p>
       </div>

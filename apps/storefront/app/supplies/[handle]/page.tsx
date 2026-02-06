@@ -222,9 +222,9 @@ function SupplyDetailPage() {
                   <Truck className="w-5 h-5 text-primary" />
                 </div>
                 <div>
-                  <p className="font-semibold text-sm">Free Shipping</p>
+                  <p className="font-semibold text-sm">Fast Shipping</p>
                   <p className="text-xs text-muted-foreground">
-                    On orders over $500
+                    Nationwide delivery
                   </p>
                 </div>
               </div>
@@ -332,7 +332,7 @@ function SupplyDetailPage() {
               </Button>
 
               <p className="text-center text-sm text-muted-foreground mt-4">
-                Free shipping on orders over $500
+                Fast nationwide shipping
               </p>
             </div>
 
@@ -340,7 +340,7 @@ function SupplyDetailPage() {
             <div className="grid grid-cols-2 gap-3 lg:hidden">
               <div className="text-center p-3 rounded-xl bg-muted/50">
                 <Truck className="w-5 h-5 text-primary mx-auto mb-1" />
-                <p className="text-xs font-medium">Free Shipping</p>
+                <p className="text-xs font-medium">Fast Shipping</p>
               </div>
               <div className="text-center p-3 rounded-xl bg-muted/50">
                 <Shield className="w-5 h-5 text-primary mx-auto mb-1" />

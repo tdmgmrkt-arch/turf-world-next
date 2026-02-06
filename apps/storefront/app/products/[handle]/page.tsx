@@ -88,9 +88,10 @@ function ProductDetailPage() {
   const [sqftInputValue, setSqftInputValue] = useState("150"); // Display state for input
   const [cuts, setCuts] = useState<Cut[]>(() => generateCutsFromSqFt(150));
   const [cutInputValues, setCutInputValues] = useState<Record<string, string>>({}); // Display state for cut length inputs
-  const [showCutsDetail, setShowCutsDetail] = useState(false);
+  const [showCutsDetail, setShowCutsDetail] = useState(true);
   const [isEditingCuts, setIsEditingCuts] = useState(false);
-  const [includeCompletePackage, setIncludeCompletePackage] = useState(false);
+  const [selectedPackageItems, setSelectedPackageItems] = useState<Record<string, boolean>>({});
+  const [packageItemQuantities, setPackageItemQuantities] = useState<Record<string, number>>({});
   const { addItem } = useCartStore();
 
   // Ref to track current squareFootage for +/- button handlers (avoids stale closure)
@@ -121,95 +122,108 @@ function ProductDetailPage() {
   const wasteLinearFeet = (rollsNeeded * ROLL_LENGTH) - totalLinearFeet;
   const wastePercentage = rollsNeeded > 0 ? Math.round((wasteLinearFeet / (rollsNeeded * ROLL_LENGTH)) * 100) : 0;
 
-  // Calculate package items based on square footage
+  // Calculate package items based on square footage (recommended quantities)
   const packageItems = useMemo(() => {
     const items: Array<{
       accessory: typeof ACCESSORIES[0];
-      quantity: number;
-      totalCents: number;
+      recommendedQty: number;
       note: string;
     }> = [];
 
     // Determine if pet turf (will be set after product check)
     const isPet = product?.category === "pet";
 
-    // 1. Infill - 1 lb/sqft standard, 1.5 lb/sqft for pet turf
-    // Standard bags are 50 lbs, zeodorizer is 40 lbs
+    // 1. Infill - 1 bag per 50 sqft (based on input square footage)
     if (isPet) {
       const zeodorizer = ACCESSORIES.find(a => a.handle === "zeodorizer");
       if (zeodorizer) {
-        const lbsNeeded = totalSquareFeet * 1.5;
-        const bagsNeeded = Math.ceil(lbsNeeded / 40); // 40 lb bags
+        const bagsNeeded = Math.ceil(squareFootage / 50);
         items.push({
           accessory: zeodorizer,
-          quantity: bagsNeeded,
-          totalCents: zeodorizer.priceCents * bagsNeeded,
-          note: `${Math.round(lbsNeeded)} lbs needed`,
+          recommendedQty: bagsNeeded,
+          note: "1 bag per 50 sqft",
         });
       }
     } else {
       const infill = ACCESSORIES.find(a => a.handle === "60-grit-sand");
       if (infill) {
-        const lbsNeeded = totalSquareFeet * 1;
-        const bagsNeeded = Math.ceil(lbsNeeded / 50); // 50 lb bags
+        const bagsNeeded = Math.ceil(squareFootage / 50);
         items.push({
           accessory: infill,
-          quantity: bagsNeeded,
-          totalCents: infill.priceCents * bagsNeeded,
-          note: `${Math.round(lbsNeeded)} lbs needed`,
+          recommendedQty: bagsNeeded,
+          note: "1 bag per 50 sqft",
         });
       }
     }
 
-    // 2. Seam tape - only if multiple strips needed (rollsNeeded > 1 means seams)
-    const stripsAcross = Math.ceil(totalSquareFeet / (totalLinearFeet * ROLL_WIDTH)) || 1;
-    // Actually, for seams we need to know if width > 15ft
-    // Since we're working with linear feet from a 15ft roll, we may need seams
-    // For simplicity: if ordering > 100 linear feet, likely need seams
-    if (totalLinearFeet > ROLL_LENGTH) {
-      const seamTape = ACCESSORIES.find(a => a.handle === "seam-tape-8x50");
-      if (seamTape) {
-        // Estimate seam length: each seam is ~lengthFeet, and we might have multiple seams
-        const estimatedSeamCount = Math.ceil(totalLinearFeet / ROLL_LENGTH) - 1;
-        const seamLengthNeeded = estimatedSeamCount * (totalLinearFeet / Math.ceil(totalLinearFeet / ROLL_LENGTH));
-        const rollsNeeded = Math.ceil(seamLengthNeeded / 50); // 50ft per roll
-        items.push({
-          accessory: seamTape,
-          quantity: Math.max(1, rollsNeeded),
-          totalCents: seamTape.priceCents * Math.max(1, rollsNeeded),
-          note: "For joining cuts",
-        });
-      }
-    }
-
-    // 3. Weed barrier - 1 roll covers 1800 sqft (6' x 300')
+    // 2. Weed barrier - 1 roll per 800 sqft
     const weedBarrier = ACCESSORIES.find(a => a.handle === "weed-barrier");
     if (weedBarrier) {
-      const rollsNeeded = Math.ceil(totalSquareFeet / 1800);
+      const rollsNeeded = Math.ceil(totalSquareFeet / 800);
       items.push({
         accessory: weedBarrier,
-        quantity: rollsNeeded,
-        totalCents: weedBarrier.priceCents * rollsNeeded,
+        recommendedQty: rollsNeeded,
         note: "Prevents weed growth",
       });
     }
 
-    // 4. Nails - 1 box per ~500 sqft for perimeter and seam securing
+    // 3. Nails - 1 box per 800 sqft
     const nails = ACCESSORIES.find(a => a.handle === "5-inch-nails");
     if (nails) {
-      const boxesNeeded = Math.ceil(totalSquareFeet / 500);
+      const boxesNeeded = Math.ceil(totalSquareFeet / 800);
       items.push({
         accessory: nails,
-        quantity: boxesNeeded,
-        totalCents: nails.priceCents * boxesNeeded,
+        recommendedQty: boxesNeeded,
         note: "For edges & seams",
       });
     }
 
-    return items;
-  }, [totalSquareFeet, totalLinearFeet, product?.category]);
+    // 4. Gopher wire - 1 roll covers 400 sqft (4' x 100')
+    const gopherWire = ACCESSORIES.find(a => a.handle === "gopher-wire");
+    if (gopherWire) {
+      const rollsNeeded = Math.ceil(totalSquareFeet / 400);
+      items.push({
+        accessory: gopherWire,
+        recommendedQty: rollsNeeded,
+        note: "Prevents rodent damage",
+      });
+    }
 
-  const packageTotalCents = packageItems.reduce((sum, item) => sum + item.totalCents, 0);
+    // 5. Seam tape - 1 less than total number of cuts (for joining seams)
+    const seamTapeQuantity = Math.max(0, cuts.length - 1);
+    if (seamTapeQuantity > 0) {
+      const seamTape = ACCESSORIES.find(a => a.handle === "seam-tape-8x50");
+      if (seamTape) {
+        items.push({
+          accessory: seamTape,
+          recommendedQty: seamTapeQuantity,
+          note: `For ${seamTapeQuantity} seam${seamTapeQuantity !== 1 ? 's' : ''}`,
+        });
+      }
+    }
+
+    return items;
+  }, [squareFootage, totalSquareFeet, cuts.length, product?.category]);
+
+  // Get actual quantity for an item (custom or recommended)
+  const getItemQuantity = (handle: string, recommendedQty: number) => {
+    return packageItemQuantities[handle] ?? recommendedQty;
+  };
+
+  // Update quantity for an item
+  const updateItemQuantity = (handle: string, qty: number) => {
+    setPackageItemQuantities(prev => ({
+      ...prev,
+      [handle]: Math.max(1, qty)
+    }));
+  };
+
+  const packageTotalCents = packageItems.reduce((sum, item) => {
+    if (!selectedPackageItems[item.accessory.handle]) return sum;
+    const qty = getItemQuantity(item.accessory.handle, item.recommendedQty);
+    return sum + (item.accessory.priceCents * qty);
+  }, 0);
+  const hasAnyPackageItemSelected = packageItems.some(item => selectedPackageItems[item.accessory.handle]);
 
   // Update square footage and auto-generate cuts (always exits custom mode)
   const handleSquareFootageChange = (newSqFt: number) => {
@@ -365,9 +379,10 @@ function ProductDetailPage() {
       });
     });
 
-    // Add package items if selected
-    if (includeCompletePackage) {
-      packageItems.forEach((item) => {
+    // Add selected package items
+    packageItems.forEach((item) => {
+      if (selectedPackageItems[item.accessory.handle]) {
+        const qty = getItemQuantity(item.accessory.handle, item.recommendedQty);
         const uniqueId = `${item.accessory.id}-pkg-${timestamp}`;
         addItem({
           id: uniqueId,
@@ -375,11 +390,11 @@ function ProductDetailPage() {
           variantId: uniqueId,
           title: item.accessory.name,
           thumbnail: item.accessory.images[0] || null,
-          quantity: item.quantity,
+          quantity: qty,
           unitPrice: item.accessory.priceCents,
         });
-      });
-    }
+      }
+    });
   };
 
   if (!product) {
@@ -404,7 +419,7 @@ function ProductDetailPage() {
       );
 
   const turfPriceCents = product.priceCents * totalSquareFeet;
-  const totalPriceCents = turfPriceCents + (includeCompletePackage ? packageTotalCents : 0);
+  const totalPriceCents = turfPriceCents + packageTotalCents;
   const totalPrice = totalPriceCents / 100;
 
   return (
@@ -415,7 +430,97 @@ function ProductDetailPage() {
       ]} />
 
       <div className="container px-4 sm:px-6 py-6 lg:py-8">
-        <div className="grid gap-6 sm:gap-8 lg:grid-cols-2 lg:items-start">
+        {/* Product Header - Full Width */}
+        <div className="mb-6 lg:mb-8">
+          {/* Top Row: Title/Reviews on left, Price on right */}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            {/* Left: Category, Title, Reviews */}
+            <div>
+              <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground uppercase tracking-wider mb-1">
+                <span
+                  className={cn(
+                    "font-bold",
+                    isPetTurf
+                      ? "text-amber-600"
+                      : isPutting
+                        ? "text-blue-600"
+                        : "text-emerald-600"
+                  )}
+                >
+                  {isPetTurf
+                    ? "Pet Turf"
+                    : isPutting
+                      ? "Putting Green"
+                      : "Landscape"}
+                </span>
+                {product.inStock && (
+                  <>
+                    <span>/</span>
+                    <span className="text-green-600 font-medium flex items-center gap-1">
+                      In Stock
+                    </span>
+                  </>
+                )}
+              </div>
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold">{product.name}</h1>
+              <div className="flex items-center gap-2 mt-2">
+                <div className="flex items-center gap-0.5">
+                  {[...Array(5)].map((_, i) => (
+                    <Star
+                      key={i}
+                      className="w-4 h-4 text-amber-400 fill-amber-400"
+                    />
+                  ))}
+                </div>
+                <span className="text-sm text-muted-foreground">
+                  (127 Reviews)
+                </span>
+              </div>
+            </div>
+
+            {/* Right: Pricing Card */}
+            <div className="bg-slate-50 border border-slate-100 rounded-lg px-4 py-2 sm:mt-2 flex-shrink-0">
+              <div className="flex items-baseline gap-1 sm:text-right">
+                <span className="text-3xl lg:text-4xl font-bold text-slate-600">
+                  {formatPrice(product.priceCents)}
+                </span>
+                <span className="text-lg text-slate-500">/sq ft</span>
+                {product.comparePriceCents && (
+                  <span className="text-base text-slate-400 line-through ml-2">
+                    {formatPrice(product.comparePriceCents)}
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Description */}
+          <p className="text-sm sm:text-base text-muted-foreground leading-relaxed mt-4 max-w-3xl">
+            {product.description}
+          </p>
+
+          {/* Key Specs - Horizontal row */}
+          <div className="flex flex-wrap gap-2 text-sm mt-4">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-muted/60 border border-border/50">
+              <Layers className="w-3.5 h-3.5 text-primary" />
+              <span className="font-medium">{product.weight} oz</span>
+            </span>
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-muted/60 border border-border/50">
+              <Ruler className="w-3.5 h-3.5 text-primary" />
+              <span className="font-medium">{product.pileHeight}&quot; Pile Height</span>
+            </span>
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-muted/60 border border-border/50">
+              <Package className="w-3.5 h-3.5 text-primary" />
+              <span className="font-medium">{product.rollSize}</span>
+            </span>
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-muted/60 border border-border/50">
+              {isPetTurf ? <Dog className="w-3.5 h-3.5 text-primary" /> : <Leaf className="w-3.5 h-3.5 text-primary" />}
+              <span className="font-medium">{product.backing}</span>
+            </span>
+          </div>
+        </div>
+
+        <div className="grid gap-6 sm:gap-8 lg:grid-cols-2 lg:items-stretch">
           {/* Left: Image Gallery */}
           <div className="space-y-3">
             {/* Main Image */}
@@ -503,7 +608,7 @@ function ProductDetailPage() {
             <div className="hidden lg:flex gap-2 pt-2">
               <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-muted/50">
                 <Truck className="w-4 h-4 text-primary" />
-                <span className="text-xs font-medium">Free Shipping</span>
+                <span className="text-xs font-medium">Fast Shipping</span>
               </div>
               <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-muted/50">
                 <Shield className="w-4 h-4 text-primary" />
@@ -519,7 +624,7 @@ function ProductDetailPage() {
             <div className="hidden lg:block mt-3 p-4 rounded-xl bg-card border">
               <h2 className="text-sm font-bold mb-2">Specifications</h2>
               <div className="grid grid-cols-2 gap-x-4 text-xs">
-                <SpecRow label="Face Weight" value={`${product.weight} oz`} />
+                <SpecRow label="Total Weight" value={`${product.weight} oz`} />
                 <SpecRow label="Pile Height" value={`${product.pileHeight}"`} />
                 <SpecRow label="Roll Size" value={product.rollSize} />
                 <SpecRow label="Backing" value={product.backing} />
@@ -537,117 +642,28 @@ function ProductDetailPage() {
             </div>
           </div>
 
-          {/* Right: Product Info */}
-          <div className="space-y-3 min-w-0">
-            {/* Category Badge + Title Row */}
-            <div>
-              <div className="flex items-center gap-2 mb-2">
-                <span
-                  className={cn(
-                    "px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider",
-                    isPetTurf
-                      ? "bg-amber-100 text-amber-700"
-                      : isPutting
-                        ? "bg-blue-100 text-blue-700"
-                        : "bg-emerald-100 text-emerald-700"
-                  )}
-                >
-                  {isPetTurf
-                    ? "Pet Turf"
-                    : isPutting
-                      ? "Putting Green"
-                      : "Landscape"}
-                </span>
-                {product.inStock && (
-                  <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700 flex items-center gap-1">
-                    <Check className="w-3 h-3" /> In Stock
-                  </span>
-                )}
-              </div>
-              <h1 className="text-2xl sm:text-3xl font-bold">{product.name}</h1>
-              <div className="flex items-center gap-3 mt-1">
-                <div className="flex items-center gap-0.5">
-                  {[...Array(5)].map((_, i) => (
-                    <Star
-                      key={i}
-                      className="w-3.5 h-3.5 text-amber-400 fill-amber-400"
-                    />
-                  ))}
-                  <span className="ml-1 text-sm font-medium">4.9</span>
-                </div>
-                <span className="text-sm text-muted-foreground">
-                  127 reviews
-                </span>
-              </div>
-            </div>
-
-            {/* Price */}
-            <div className="flex items-baseline gap-2">
-              <span className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary to-emerald-600">
-                {formatPrice(product.priceCents)}
-              </span>
-              <span className="text-base text-muted-foreground">/sq ft</span>
-              {product.comparePriceCents && (
-                <span className="text-base text-muted-foreground line-through ml-2">
-                  {formatPrice(product.comparePriceCents)}
-                </span>
-              )}
-            </div>
-
-            {/* Description */}
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              {product.description}
-            </p>
-
-            {/* Key Specs - Compact inline */}
-            <div className="flex flex-wrap gap-2 text-sm">
-              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-muted/50">
-                <Layers className="w-3.5 h-3.5 text-primary" />
-                <span className="font-medium">{product.weight} oz</span>
-              </span>
-              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-muted/50">
-                <Ruler className="w-3.5 h-3.5 text-primary" />
-                <span className="font-medium">{product.pileHeight}&quot;</span>
-              </span>
-              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-muted/50">
-                <Package className="w-3.5 h-3.5 text-primary" />
-                <span className="font-medium">{product.rollSize}</span>
-              </span>
-              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-muted/50">
-                {isPetTurf ? <Dog className="w-3.5 h-3.5 text-primary" /> : <Leaf className="w-3.5 h-3.5 text-primary" />}
-                <span className="font-medium">{product.backing}</span>
-              </span>
-            </div>
-
+          {/* Right: Order Configuration */}
+          <div className="space-y-3 min-w-0 lg:flex lg:flex-col">
             {/* Order Configuration */}
-            <div className="p-3 sm:p-4 rounded-xl border bg-card shadow-sm overflow-hidden">
-              {/* Section Header with mini process */}
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-emerald-600 flex items-center justify-center">
-                    <Ruler className="w-4 h-4 text-white" />
-                  </div>
-                  <h3 className="font-semibold text-sm">Configure Your Order</h3>
+            <div className="p-3 sm:p-4 rounded-xl border bg-card shadow-sm overflow-hidden lg:flex-1 lg:flex lg:flex-col">
+              {/* Card Header */}
+              <div className="flex items-center justify-between mb-3 pb-3 border-b">
+                <div>
+                  <h2 className="text-lg font-bold">Configure Your Order</h2>
+                  <p className="text-xs text-muted-foreground">Select your size, cuts & materials</p>
                 </div>
-                <div className="hidden sm:flex items-center gap-1 text-[10px] text-muted-foreground">
-                  <span className="px-1.5 py-0.5 rounded bg-primary/10 text-primary font-medium">1</span>
-                  <span>Enter</span>
-                  <ArrowRight className="w-2.5 h-2.5" />
-                  <span className="px-1.5 py-0.5 rounded bg-muted font-medium">2</span>
-                  <span>Review</span>
-                  <ArrowRight className="w-2.5 h-2.5" />
-                  <span className="px-1.5 py-0.5 rounded bg-muted font-medium">3</span>
-                  <span>Add</span>
-                </div>
+                <Scissors className="w-5 h-5 text-muted-foreground/40" />
               </div>
-
               {/* Step 1: Square Footage Input */}
-              <div className="p-3 rounded-lg bg-gradient-to-br from-primary/5 to-emerald-500/5 border border-primary/10">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-[10px] font-medium text-primary uppercase tracking-wider flex items-center gap-1">
-                    <span className="w-4 h-4 rounded bg-primary text-white flex items-center justify-center text-[9px] font-bold">1</span>
-                    Enter Square Footage
-                  </span>
+              <div className="p-3 rounded-lg border bg-emerald-50/50 border-emerald-200/50">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-6 h-6 rounded-md bg-emerald-600 flex items-center justify-center">
+                    <span className="text-[10px] font-bold text-white">1</span>
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="text-sm font-semibold">Enter Square Footage</h4>
+                    <p className="text-[11px] text-emerald-700/80">We'll calculate your cuts and materials</p>
+                  </div>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="flex items-center flex-1 bg-white border-2 border-primary/20 rounded-lg overflow-hidden shadow-sm focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all">
@@ -682,28 +698,21 @@ function ProductDetailPage() {
                 </div>
               </div>
 
-              {/* Step 2: Cuts Breakdown - Expandable */}
-              <div className="mt-3">
-                <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-1 mb-1.5">
-                  <span className="w-4 h-4 rounded bg-muted text-foreground flex items-center justify-center text-[9px] font-bold">2</span>
-                  Review Your Cuts
-                </span>
+              {/* Step 2: Cuts Breakdown */}
+              <div className="mt-3 p-3 rounded-lg border bg-slate-50/50 border-slate-200/50">
                 <button
                   onClick={() => setShowCutsDetail(!showCutsDetail)}
-                  className="w-full flex items-center justify-between p-3 rounded-lg bg-muted/50 hover:bg-muted border border-transparent hover:border-border transition-all"
+                  className="w-full flex items-center gap-2"
                 >
-                  <div className="flex items-center gap-2">
-                    <div className="w-7 h-7 rounded-md bg-white border flex items-center justify-center">
-                      <Scissors className="w-3.5 h-3.5 text-primary" />
-                    </div>
-                    <div className="text-left">
-                      <span className="text-sm font-semibold block">
-                        {cuts.length} cut{cuts.length !== 1 ? 's' : ''} from {rollsNeeded} roll{rollsNeeded !== 1 ? 's' : ''}
-                      </span>
-                      <span className="text-[11px] text-muted-foreground">
-                        {isEditingCuts ? 'Custom' : 'Auto-optimized'} • Click to {showCutsDetail ? 'hide' : 'customize'}
-                      </span>
-                    </div>
+                  <div className="w-6 h-6 rounded-md bg-slate-600 flex items-center justify-center">
+                    <span className="text-[10px] font-bold text-white">2</span>
+                  </div>
+                  <div className="flex-1 text-left">
+                    <h4 className="text-sm font-semibold">Review Your Cuts</h4>
+                    <p className="text-[11px] text-slate-600">
+                      <span className="font-semibold">{cuts.length} cut{cuts.length !== 1 ? 's' : ''}</span> from <span className="font-semibold">{rollsNeeded} roll{rollsNeeded !== 1 ? 's' : ''}</span>
+                      {isEditingCuts ? ' • Custom layout' : ' • Auto-optimized'}
+                    </p>
                   </div>
                   <div className="flex items-center gap-1.5">
                     {isEditingCuts && (
@@ -717,195 +726,256 @@ function ProductDetailPage() {
                     </div>
                   </div>
                 </button>
-              </div>
 
-              {showCutsDetail && (
-                <div className="mt-2 p-3 rounded-lg border bg-white">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-[10px] text-muted-foreground px-1.5 py-0.5 rounded bg-muted">
-                      15ft wide rolls
-                    </span>
-                    <div className="flex items-center gap-2">
-                      {isEditingCuts && (
-                        <button
-                          type="button"
-                          onClick={resetToAutoGenerate}
-                          className="text-[10px] text-muted-foreground hover:text-foreground transition-colors"
-                        >
-                          Reset
-                        </button>
-                      )}
-                      <button
-                        type="button"
-                        onClick={addCut}
-                        className="text-[10px] text-white bg-primary hover:bg-primary/90 px-2 py-1 rounded font-medium flex items-center gap-0.5 transition-colors"
-                      >
-                        <Plus className="w-2.5 h-2.5" />
-                        Add
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="space-y-1.5">
-                    {cuts.map((cut, index) => (
-                      <div key={cut.id} className="flex items-center gap-1 sm:gap-1.5 p-1 sm:p-1.5 rounded hover:bg-muted/50 transition-colors">
-                        <span className="text-[9px] sm:text-[10px] font-medium text-muted-foreground w-4 sm:w-5">#{index + 1}</span>
-                        <div className="flex items-center flex-1 min-w-0 border rounded overflow-hidden bg-white text-[10px] sm:text-xs">
-                          <span className="px-1.5 sm:px-2 py-1 sm:py-1.5 font-medium text-muted-foreground bg-muted border-r whitespace-nowrap">15′×</span>
-                          <input
-                            type="number"
-                            value={getCutInputValue(cut)}
-                            onChange={(e) => handleCutLengthChange(cut.id, e.target.value)}
-                            onBlur={() => handleCutLengthBlur(cut.id)}
-                            className="w-10 sm:w-12 h-6 sm:h-7 text-center font-bold bg-transparent focus:outline-none focus:bg-primary/5 transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                            min={MIN_CUT_LENGTH}
-                            max={ROLL_LENGTH}
-                          />
-                          <span className="px-1.5 sm:px-2 py-1 sm:py-1.5 font-medium text-muted-foreground bg-muted border-l">ft</span>
-                        </div>
-                        <span className="text-[10px] sm:text-xs font-semibold w-11 sm:w-14 text-right flex-shrink-0">
-                          {(cut.length * ROLL_WIDTH).toLocaleString()} sf
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() => removeCut(cut.id)}
-                          disabled={cuts.length === 1}
-                          className={cn(
-                            "w-5 h-5 sm:w-6 sm:h-6 rounded flex items-center justify-center transition-all flex-shrink-0",
-                            cuts.length === 1
-                              ? "text-muted-foreground/30 cursor-not-allowed"
-                              : "text-muted-foreground hover:text-red-500 hover:bg-red-50"
-                          )}
-                        >
-                          <Trash2 className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Complete Package Option */}
-              <div className="mt-3">
-                <label
-                  className={cn(
-                    "flex items-center justify-between p-3 rounded-lg border-2 cursor-pointer transition-all",
-                    includeCompletePackage
-                      ? "border-primary bg-primary/5"
-                      : "border-muted hover:border-primary/30 hover:bg-muted/30"
-                  )}
-                >
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      checked={includeCompletePackage}
-                      onChange={(e) => setIncludeCompletePackage(e.target.checked)}
-                      className="sr-only"
-                    />
-                    <div className={cn(
-                      "w-5 h-5 rounded border-2 flex items-center justify-center transition-all",
-                      includeCompletePackage
-                        ? "bg-primary border-primary"
-                        : "border-muted-foreground/30"
-                    )}>
-                      {includeCompletePackage && <Check className="w-3 h-3 text-white" />}
-                    </div>
-                    <div>
-                      <span className="text-sm font-semibold block">Add Complete Install Package</span>
-                      <span className="text-[11px] text-muted-foreground">
-                        Infill, weed barrier, nails{totalLinearFeet > ROLL_LENGTH ? ', seam tape' : ''} • Save 5%
+                {showCutsDetail && (
+                  <div className="mt-3 pt-3 border-t border-slate-200">
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-[10px] text-slate-500 font-medium">
+                        All cuts are 15ft wide
                       </span>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <span className="text-sm font-bold text-primary">+{formatPrice(packageTotalCents)}</span>
-                  </div>
-                </label>
-
-                {/* Package Items Detail */}
-                {includeCompletePackage && (
-                  <div className="mt-2 p-3 rounded-lg bg-muted/30 border space-y-2">
-                    {packageItems.map((item) => (
-                      <div key={item.accessory.id} className="flex items-center justify-between text-xs">
-                        <div className="flex items-center gap-2">
-                          <div className="relative w-8 h-8 rounded overflow-hidden bg-white border flex-shrink-0">
-                            {item.accessory.images[0] && (
-                              <Image
-                                src={item.accessory.images[0]}
-                                alt={item.accessory.name}
-                                fill
-                                className="object-cover"
-                                sizes="32px"
-                              />
-                            )}
-                          </div>
-                          <div>
-                            <span className="font-medium block">{item.accessory.name}</span>
-                            <span className="text-muted-foreground">
-                              {item.quantity}× • {item.note}
-                            </span>
-                          </div>
-                        </div>
-                        <span className="font-semibold">{formatPrice(item.totalCents)}</span>
+                      <div className="flex items-center gap-2">
+                        {isEditingCuts && (
+                          <button
+                            type="button"
+                            onClick={resetToAutoGenerate}
+                            className="text-[10px] text-slate-500 hover:text-slate-700 transition-colors"
+                          >
+                            Reset to auto
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          onClick={addCut}
+                          className="text-[10px] text-white bg-primary hover:bg-primary/90 px-2 py-1 rounded font-medium flex items-center gap-0.5 transition-colors"
+                        >
+                          <Plus className="w-2.5 h-2.5" />
+                          Add Cut
+                        </button>
                       </div>
-                    ))}
+                    </div>
+
+                    {/* Table header */}
+                    <div className="grid grid-cols-[auto_1fr_auto_auto] gap-x-3 px-2 pb-1.5 border-b text-[10px] font-medium text-muted-foreground uppercase tracking-wider">
+                      <span>#</span>
+                      <span>Dimensions</span>
+                      <span className="text-right">Area</span>
+                      <span className="w-6"></span>
+                    </div>
+
+                    {/* Cut rows - min-height reserves space for 2 cuts to prevent layout shift */}
+                    <div className="divide-y min-h-[88px]">
+                      {cuts.map((cut, index) => (
+                        <div key={cut.id} className="grid grid-cols-[auto_1fr_auto_auto] gap-x-3 items-center px-2 py-2 hover:bg-white/50 transition-colors rounded">
+                          <span className="w-5 h-5 rounded-full bg-primary/10 text-primary text-[10px] font-bold flex items-center justify-center">
+                            {index + 1}
+                          </span>
+                          <div className="flex items-center gap-1.5 text-sm">
+                            <span className="text-muted-foreground">15′</span>
+                            <span className="text-muted-foreground">×</span>
+                            <input
+                              type="number"
+                              value={getCutInputValue(cut)}
+                              onChange={(e) => handleCutLengthChange(cut.id, e.target.value)}
+                              onBlur={() => handleCutLengthBlur(cut.id)}
+                              className="w-12 h-7 text-center font-bold border rounded bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                              min={MIN_CUT_LENGTH}
+                              max={ROLL_LENGTH}
+                            />
+                            <span className="text-muted-foreground">ft</span>
+                          </div>
+                          <span className="text-sm font-bold text-primary tabular-nums">
+                            {(cut.length * ROLL_WIDTH).toLocaleString()} sf
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => removeCut(cut.id)}
+                            disabled={cuts.length === 1}
+                            className={cn(
+                              "w-6 h-6 rounded flex items-center justify-center transition-all",
+                              cuts.length === 1
+                                ? "text-muted-foreground/20 cursor-not-allowed"
+                                : "text-muted-foreground hover:text-red-500 hover:bg-red-50"
+                            )}
+                          >
+                            <Trash2 className="w-3 h-3" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 )}
               </div>
 
-              {/* Step 3: Order Summary & Add to Cart */}
-              <div className="mt-3">
-                <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-1 mb-1.5">
-                  <span className="w-4 h-4 rounded bg-muted text-foreground flex items-center justify-center text-[9px] font-bold">3</span>
-                  Add to Cart
-                </span>
-                <div className="p-2 sm:p-3 rounded-lg bg-gradient-to-br from-slate-50 to-slate-100 border">
-                  {/* Summary Stats - Inline */}
-                  <div className="flex items-center justify-between text-[10px] sm:text-xs mb-2 gap-1">
-                    <span className="text-muted-foreground">Need: <span className="font-semibold text-foreground">{squareFootage.toLocaleString()}</span></span>
-                    <span className="text-muted-foreground">Get: <span className="font-semibold text-primary">{totalSquareFeet.toLocaleString()}</span></span>
-                    <span className="text-muted-foreground">Rolls: <span className="font-semibold text-foreground">{rollsNeeded}</span></span>
+              {/* Install Package Items - Individual Selection */}
+              <div className="mt-3 p-3 rounded-lg border bg-amber-50/50 border-amber-200/50">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-6 h-6 rounded-md bg-amber-100 flex items-center justify-center">
+                    <Package className="w-3.5 h-3.5 text-amber-600" />
                   </div>
-
-                  {/* Price Breakdown when package included */}
-                  {includeCompletePackage && (
-                    <div className="space-y-1 pt-2 border-t border-slate-200 text-xs">
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Turf ({totalSquareFeet} sf)</span>
-                        <span className="font-medium">{formatPrice(turfPriceCents)}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Install Package</span>
-                        <span className="font-medium">{formatPrice(packageTotalCents)}</span>
-                      </div>
-                    </div>
+                  <div className="flex-1">
+                    <h4 className="text-sm font-semibold">Add Install Supplies?</h4>
+                    <p className="text-[11px] text-amber-700/80">
+                      Qty auto-calculated for your <span className="font-semibold">{squareFootage.toLocaleString()} sq ft</span> project
+                    </p>
+                  </div>
+                  {packageItems.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const allSelected = packageItems.every(item => selectedPackageItems[item.accessory.handle]);
+                        const newState: Record<string, boolean> = {};
+                        packageItems.forEach(item => {
+                          newState[item.accessory.handle] = !allSelected;
+                        });
+                        setSelectedPackageItems(newState);
+                      }}
+                      className="text-[10px] text-amber-700 hover:text-amber-800 font-medium transition-colors px-2 py-1 rounded bg-amber-100 hover:bg-amber-200"
+                    >
+                      {packageItems.every(item => selectedPackageItems[item.accessory.handle]) ? 'Deselect All' : 'Select All'}
+                    </button>
                   )}
+                </div>
 
-                  {/* Total */}
-                  <div className={cn(
-                    "flex justify-between items-center pt-2",
-                    includeCompletePackage ? "border-t border-slate-200 mt-2" : "border-t border-slate-200"
-                  )}>
-                    <span className="text-sm text-muted-foreground">Total</span>
-                    <div className="text-right">
-                      <span className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary to-emerald-600">
-                        ${totalPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                      </span>
-                    </div>
-                  </div>
+                <div className="space-y-2">
+                  {packageItems.map((item) => {
+                    const isSelected = selectedPackageItems[item.accessory.handle] || false;
+                    const currentQty = getItemQuantity(item.accessory.handle, item.recommendedQty);
+                    const isCustomQty = packageItemQuantities[item.accessory.handle] !== undefined &&
+                                        packageItemQuantities[item.accessory.handle] !== item.recommendedQty;
+                    const itemTotal = item.accessory.priceCents * currentQty;
+
+                    return (
+                      <div
+                        key={item.accessory.id}
+                        className={cn(
+                          "flex items-center gap-2 p-2 rounded-lg border transition-all",
+                          isSelected
+                            ? "border-primary bg-primary/5"
+                            : "border-muted hover:border-primary/30"
+                        )}
+                      >
+                        {/* Checkbox */}
+                        <label className="cursor-pointer flex-shrink-0">
+                          <input
+                            type="checkbox"
+                            checked={isSelected}
+                            onChange={(e) => setSelectedPackageItems(prev => ({
+                              ...prev,
+                              [item.accessory.handle]: e.target.checked
+                            }))}
+                            className="sr-only"
+                          />
+                          <div className={cn(
+                            "w-4 h-4 rounded border-2 flex items-center justify-center transition-all",
+                            isSelected
+                              ? "bg-primary border-primary"
+                              : "border-muted-foreground/30"
+                          )}>
+                            {isSelected && <Check className="w-2.5 h-2.5 text-white" />}
+                          </div>
+                        </label>
+
+                        {/* Image */}
+                        <div className="relative w-8 h-8 rounded overflow-hidden bg-white border flex-shrink-0">
+                          {item.accessory.images[0] && (
+                            <Image
+                              src={item.accessory.images[0]}
+                              alt={item.accessory.name}
+                              fill
+                              className="object-cover"
+                              sizes="32px"
+                            />
+                          )}
+                        </div>
+
+                        {/* Name & note */}
+                        <div className="flex-1 min-w-0">
+                          <span className="text-xs font-medium block truncate">{item.accessory.name}</span>
+                          <span className="text-[10px] text-muted-foreground">{item.note}</span>
+                        </div>
+
+                        {/* Quantity controls - always visible */}
+                        <div className="flex items-center border rounded bg-white">
+                          <button
+                            type="button"
+                            onClick={() => updateItemQuantity(item.accessory.handle, currentQty - 1)}
+                            disabled={currentQty <= 1}
+                            className="w-6 h-6 flex items-center justify-center hover:bg-muted transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                          >
+                            <Minus className="w-2.5 h-2.5" />
+                          </button>
+                          <span className="w-6 text-center text-xs font-bold tabular-nums">{currentQty}</span>
+                          <button
+                            type="button"
+                            onClick={() => updateItemQuantity(item.accessory.handle, currentQty + 1)}
+                            className="w-6 h-6 flex items-center justify-center hover:bg-muted transition-colors"
+                          >
+                            <Plus className="w-2.5 h-2.5" />
+                          </button>
+                        </div>
+
+                        {/* Price */}
+                        <span className="text-xs font-semibold text-primary flex-shrink-0 min-w-[50px] text-right">
+                          {formatPrice(itemTotal)}
+                        </span>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
 
-              {/* Add to Cart */}
-              <Button
-                size="lg"
-                variant="premium"
-                className="w-full mt-3 h-12 text-base"
-                onClick={handleAddToCart}
-              >
-                <ShoppingCart className="mr-2 h-5 w-5" />
-                Add to Cart
-              </Button>
+              {/* Step 3: Order Summary & Add to Cart */}
+              <div className="mt-3 p-3 rounded-lg border bg-blue-50/50 border-blue-200/50 lg:mt-auto">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-6 h-6 rounded-md bg-blue-600 flex items-center justify-center">
+                    <span className="text-[10px] font-bold text-white">3</span>
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="text-sm font-semibold">Review & Add to Cart</h4>
+                    <p className="text-[11px] text-blue-700/80">Your order summary</p>
+                  </div>
+                </div>
+
+                {/* Summary Stats - Inline */}
+                <div className="flex items-center justify-between text-[10px] sm:text-xs mb-2 gap-1 p-2 rounded bg-white/60">
+                  <span className="text-muted-foreground">Need: <span className="font-semibold text-foreground">{squareFootage.toLocaleString()}</span></span>
+                  <span className="text-muted-foreground">Get: <span className="font-semibold text-primary">{totalSquareFeet.toLocaleString()}</span></span>
+                  <span className="text-muted-foreground">Rolls: <span className="font-semibold text-foreground">{rollsNeeded}</span></span>
+                </div>
+
+                {/* Price Breakdown */}
+                <div className="space-y-1 text-xs">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Turf ({totalSquareFeet} sf)</span>
+                    <span className="font-medium">{formatPrice(turfPriceCents)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Install Items</span>
+                    <span className="font-medium">{formatPrice(packageTotalCents)}</span>
+                  </div>
+                </div>
+
+                {/* Total */}
+                <div className="flex justify-between items-center pt-2 border-t border-blue-200/50 mt-2">
+                  <span className="text-sm font-medium text-foreground">Total</span>
+                  <div className="text-right">
+                    <span className="text-2xl font-bold text-green-600">
+                      ${totalPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Add to Cart Button */}
+                <Button
+                  size="lg"
+                  variant="premium"
+                  className="w-full mt-3 h-12 text-base"
+                  onClick={handleAddToCart}
+                >
+                  <ShoppingCart className="mr-2 h-5 w-5" />
+                  Add to Cart
+                </Button>
+              </div>
             </div>
 
             {/* Mobile Trust Badges */}
@@ -949,7 +1019,7 @@ function ProductDetailPage() {
         <div className="mt-12 lg:hidden p-6 rounded-2xl bg-card border">
           <h2 className="text-xl font-bold mb-4">Specifications</h2>
           <div className="grid sm:grid-cols-2 gap-4">
-            <SpecRow label="Face Weight" value={`${product.weight} oz`} />
+            <SpecRow label="Total Weight" value={`${product.weight} oz`} />
             <SpecRow label="Pile Height" value={`${product.pileHeight}"`} />
             <SpecRow label="Roll Size" value={product.rollSize} />
             <SpecRow label="Backing" value={product.backing} />
@@ -966,100 +1036,55 @@ function ProductDetailPage() {
           </div>
         </div>
 
-        {/* Accessories Section */}
-        <div className="mt-8 lg:mt-12 p-6 rounded-2xl bg-muted/30 border">
-          <h2 className="text-xl font-bold mb-4">Recommended Accessories</h2>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {suggestedAccessories.map((accessory) => (
-              <Link
-                key={accessory.id}
-                href={`/supplies/${accessory.handle}`}
-                className="flex items-center gap-4 p-3 rounded-xl bg-white hover:shadow-md transition-shadow"
-              >
-                <div className="relative w-14 h-14 rounded-lg overflow-hidden bg-muted flex-shrink-0">
-                  {accessory.images[0] && (
+        {/* Installation Guide Snippet */}
+        <Link href="/installation" className="block mt-12 group">
+          <div className="p-6 lg:p-8 rounded-3xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 border border-white/[0.06] shadow-2xl hover:border-white/[0.1] transition-all">
+            <div className="flex items-center justify-between mb-2">
+              <div>
+                <h2 className="text-xl lg:text-2xl font-bold text-white">
+                  Installation Guide
+                </h2>
+                <p className="text-sm text-white/40 mt-0.5">7 steps to a perfect lawn</p>
+              </div>
+              <span className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-white text-sm font-semibold group-hover:bg-primary/90 transition-all">
+                View Full Guide
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+              </span>
+            </div>
+            <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent mb-6" />
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3 lg:gap-4">
+              {[
+                { step: 1, title: "Remove Grass", desc: "Clear existing lawn and debris", image: "/installation.step1.webp" },
+                { step: 2, title: "Add Base", desc: "Spread and compact road base", image: "/installation.step2.webp" },
+                { step: 3, title: "Lay Turf", desc: "Roll out and position turf", image: "/installation.step3.webp" },
+                { step: 4, title: "Cut to Fit", desc: "Trim edges with razor knife", image: "/installation.step4.webp" },
+                { step: 5, title: "Secure", desc: "Nail perimeter and seams", image: "/installation.step5.webp" },
+                { step: 6, title: "Add Infill", desc: "Spread infill evenly", image: "/installation.step6.webp" },
+                { step: 7, title: "Brush", desc: "Brush fibers upright", image: "/installation.step7.webp" },
+              ].map((item) => (
+                <div key={item.step} className="relative rounded-xl aspect-[3/4]">
+                  <div className="absolute inset-0 rounded-xl overflow-hidden ring-1 ring-white/10">
                     <Image
-                      src={accessory.images[0]}
-                      alt={accessory.name}
+                      src={item.image}
+                      alt={`Step ${item.step}: ${item.title}`}
                       fill
                       className="object-cover"
-                      sizes="56px"
+                      sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 14vw"
                     />
-                  )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-black/5" />
+                  </div>
+                  <div className="absolute -top-2.5 -left-2.5 w-10 h-10 lg:w-11 lg:h-11 rounded-full bg-gradient-to-br from-emerald-400 to-primary shadow-[0_2px_12px_rgba(16,185,129,0.4)] flex items-center justify-center ring-1 ring-white/20">
+                    <span className="font-extrabold text-white text-base lg:text-lg">{item.step}</span>
+                  </div>
+                  <div className="absolute bottom-0 left-0 right-0 p-3">
+                    <h3 className="font-semibold text-white text-sm leading-tight mb-0.5">{item.title}</h3>
+                    <p className="text-[11px] text-white/50 leading-snug">{item.desc}</p>
+                  </div>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-medium text-sm line-clamp-1">
-                    {accessory.name}
-                  </p>
-                  <p className="text-sm text-primary font-semibold">
-                    {formatPrice(accessory.priceCents)}
-                  </p>
-                </div>
-              </Link>
-            ))}
-            <Link
-              href="/supplies"
-              className="flex items-center justify-center gap-2 p-3 rounded-xl border-2 border-dashed border-muted-foreground/30 hover:border-primary/50 hover:bg-primary/5 transition-colors text-muted-foreground hover:text-primary"
-            >
-              <span className="text-sm font-medium">View All Supplies</span>
-              <ArrowRight className="w-4 h-4" />
-            </Link>
+              ))}
+            </div>
           </div>
-        </div>
-
-        {/* Installation Guide */}
-        <div className="mt-12 p-6 lg:p-8 rounded-3xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-          <h2 className="text-xl lg:text-2xl font-bold text-white mb-6">
-            Installation Guide
-          </h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-4 lg:gap-6">
-            {[
-              {
-                step: 1,
-                title: "Clear Area",
-                desc: "Remove existing grass, weeds, and debris",
-              },
-              {
-                step: 2,
-                title: "Excavate",
-                desc: "Dig down 3-4\" for proper base depth",
-              },
-              {
-                step: 3,
-                title: "Add Base",
-                desc: "Spread and compact crushed rock base",
-              },
-              {
-                step: 4,
-                title: "Weed Barrier",
-                desc: "Lay fabric to prevent weed growth",
-              },
-              {
-                step: 5,
-                title: "Roll Turf",
-                desc: "Unroll turf, trim edges to fit",
-              },
-              {
-                step: 6,
-                title: "Secure",
-                desc: "Nail perimeter and seams every 6\"",
-              },
-              {
-                step: 7,
-                title: "Add Infill",
-                desc: "Spread infill and brush fibers up",
-              },
-            ].map((item) => (
-              <div key={item.step} className="text-white">
-                <div className="w-8 h-8 lg:w-10 lg:h-10 rounded-full bg-primary/20 flex items-center justify-center mb-2">
-                  <span className="font-bold text-primary text-sm lg:text-base">{item.step}</span>
-                </div>
-                <h3 className="font-semibold text-sm lg:text-base mb-1">{item.title}</h3>
-                <p className="text-xs lg:text-sm text-white/60">{item.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
+        </Link>
 
         {/* Related Products */}
         {relatedProducts.length > 0 && (

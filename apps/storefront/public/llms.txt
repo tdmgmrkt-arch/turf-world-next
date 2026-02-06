@@ -8,12 +8,12 @@ Turf World is a direct-to-consumer supplier of professional-grade artificial gra
 ### Turf Categories
 - **K9 Series (Pet Turf):** 100% permeable backing for pet urine drainage. Antimicrobial treated. High drainage rate (100+ gal/min/sqft).
 - **ProPutt:** Nylon texturized turf for golf putting greens (Stimp speed 10-12).
-- **EcoLush:** Recycled backing, 108oz face weight for luxury residential lawns.
-- **Landscape Series:** Standard residential turf, 59-93oz face weight options.
+- **EcoLush:** Recycled backing, 108oz Total Weight for luxury residential lawns.
+- **Landscape Series:** Standard residential turf, 59-93oz Total Weight options.
 
 ### Key Specifications
 - **Roll Width:** All turf is sold in 15ft widths (industry standard)
-- **Face Weight:** 59oz (budget) to 130oz (premium) - higher = more durable
+- **Total Weight:** 59oz (budget) to 130oz (premium) - higher = more durable
 - **Pile Height:** 1.5" to 2.5" - taller = softer, more realistic
 - **Yarn Types:** C4 (budget polyethylene), C8 (premium polyethylene), Nylon (putting greens)
 - **Backing:** Solid, Perforated, or Permeable (best for pets)
