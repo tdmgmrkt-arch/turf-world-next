@@ -68,7 +68,7 @@ const turfCategories = [
     imagePosition: "top-center 60%",
   },
   {
-    title: "Pet & Dog Turf",
+    title: "Pet Turf",
     href: "/products?use=pet",
     description: "Antimicrobial/high-drainage",
     image: "/pets.card.webp",
@@ -214,7 +214,7 @@ export function Header() {
             <Link href="/" className="flex-shrink-0">
               <div className="relative h-10 w-[180px]">
                 <Image
-                  src="/turf.world.alternate.header.logo.png"
+                  src="/turf.world.alternate.header.logo.webp"
                   alt="Turf World"
                   fill
                   className="object-contain"

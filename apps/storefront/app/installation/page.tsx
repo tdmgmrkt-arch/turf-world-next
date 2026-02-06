@@ -81,7 +81,7 @@ const installationSteps = [
 
 export default function InstallationPage() {
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen overflow-x-hidden">
       <Breadcrumb items={[{ label: "Installation Guide" }]} />
 
       {/* Installation Process */}
@@ -126,12 +126,12 @@ export default function InstallationPage() {
                 ].map((layer) => (
                   <div
                     key={layer.label}
-                    className="absolute left-0 w-[48%] sm:w-[44%] flex items-center"
+                    className="absolute left-0 w-[44%] sm:w-[44%] flex items-center"
                     style={{ top: layer.top, transform: "translateY(-50%)" }}
                   >
                     {/* Label text */}
                     <span
-                      className={`text-[9px] sm:text-[11px] md:text-xs font-semibold tracking-wider uppercase whitespace-nowrap pl-3 sm:pl-4 pr-2 sm:pr-3 flex-shrink-0 ${
+                      className={`text-[9px] sm:text-[11px] md:text-xs font-semibold sm:tracking-wider uppercase whitespace-nowrap pl-2 sm:pl-4 pr-1 sm:pr-3 ${
                         layer.optional
                           ? "text-amber-400"
                           : "text-white"
@@ -188,7 +188,7 @@ export default function InstallationPage() {
                         sizes="(max-width: 768px) 100vw, 50vw"
                       />
                     </div>
-                    <div className="absolute -top-2.5 -left-2.5 w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-gradient-to-br from-emerald-400 to-primary shadow-[0_2px_12px_rgba(16,185,129,0.4)] flex items-center justify-center ring-1 ring-white/20">
+                    <div className="absolute -top-2.5 left-0 sm:-left-2.5 w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-gradient-to-br from-emerald-400 to-primary shadow-[0_2px_12px_rgba(16,185,129,0.4)] flex items-center justify-center ring-1 ring-white/20">
                       <span className="font-extrabold text-white text-base sm:text-lg">
                         {step.step}
                       </span>

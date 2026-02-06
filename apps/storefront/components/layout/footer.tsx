@@ -123,7 +123,7 @@ export function Footer() {
             <Link href="/">
               <div className="relative h-10 md:h-12 w-[160px] md:w-[200px]">
                 <Image
-                  src="/turf.world.alternate.header.logo.png"
+                  src="/turf.world.alternate.header.logo.webp"
                   alt="Turf World"
                   fill
                   className="object-contain"
