@@ -406,7 +406,7 @@ export default function HomePage() {
               </div>
 
               {/* Floating Badge */}
-              <div className="absolute -bottom-3 -right-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg">
+              <div className="absolute -bottom-3 right-0 sm:-right-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg">
                 Save 30% vs retail
               </div>
             </div>
