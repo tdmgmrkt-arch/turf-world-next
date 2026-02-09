@@ -7,7 +7,6 @@ import {
   ArrowRight as LucideArrowRight,
   ChevronLeft as LucideChevronLeft,
   ChevronRight as LucideChevronRight,
-  Sparkles as LucideSparkles,
 } from "lucide-react";
 import { Button as ShadcnButton } from "@/components/ui/button";
 import { Breadcrumb } from "@/components/ui/breadcrumb";
@@ -27,7 +26,6 @@ const Clock = LucideClock as any;
 const ArrowRight = LucideArrowRight as any;
 const ChevronLeft = LucideChevronLeft as any;
 const ChevronRight = LucideChevronRight as any;
-const Sparkles = LucideSparkles as any;
 
 export const metadata: Metadata = {
   title: "Turf Talk | Artificial Turf Tips, Guides & News",
@@ -317,36 +315,23 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
       </section>
 
       {/* CTA Section */}
-      <section className="py-16 md:py-24 bg-gradient-to-br from-primary to-emerald-700">
-        <div className="container">
-          <div className="mx-auto max-w-3xl text-center text-white">
-            <Sparkles className="w-12 h-12 mx-auto mb-6 opacity-80" />
-            <h2 className="text-white">Ready to Start Your Project?</h2>
-            <p className="mt-4 text-xl text-white/80">
-              Get free samples shipped to your door and see the quality
-              firsthand.
-            </p>
-            <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
-              <Button
-                size="lg"
-                variant="secondary"
-                className="bg-white text-primary hover:bg-white/90"
-                asChild
-              >
-                <Link href="/samples">
-                  Get Free Samples
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Link>
-              </Button>
-              <Button
-                size="lg"
-                variant="ghost"
-                className="border-2 border-white/40 text-white bg-white/10 hover:bg-white/20 hover:text-white"
-                asChild
-              >
-                <Link href="/calculator">Use Calculator</Link>
-              </Button>
-            </div>
+      <section className="py-16 sm:py-20 lg:py-24 border-t">
+        <div className="container text-center">
+          <h2 className="max-w-3xl mx-auto">Ready to Start Your Project?</h2>
+          <p className="mt-6 text-body-lg text-muted-foreground max-w-xl mx-auto">
+            Get free samples shipped to your door and see the quality
+            firsthand.
+          </p>
+          <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
+            <Button size="lg" className="btn-premium text-lg px-8 h-14" asChild>
+              <Link href="/samples">
+                Get Free Samples
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Link>
+            </Button>
+            <Button size="lg" variant="outline" className="text-lg px-8 h-14" asChild>
+              <Link href="/calculator">Use Calculator</Link>
+            </Button>
           </div>
         </div>
       </section>

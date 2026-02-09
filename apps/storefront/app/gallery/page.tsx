@@ -5,7 +5,6 @@ import {
   Images as LucideImages,
   MapPin as LucideMapPin,
   Ruler as LucideRuler,
-  Sparkles as LucideSparkles,
   ArrowRight as LucideArrowRight,
   Home as LucideHome,
   Building2 as LucideBuilding2,
@@ -22,7 +21,6 @@ const Button = ShadcnButton as any;
 const Images = LucideImages as any;
 const MapPin = LucideMapPin as any;
 const Ruler = LucideRuler as any;
-const Sparkles = LucideSparkles as any;
 const ArrowRight = LucideArrowRight as any;
 const Home = LucideHome as any;
 const Building2 = LucideBuilding2 as any;
@@ -377,35 +375,22 @@ export default function GalleryPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-16 md:py-24 bg-gradient-to-br from-primary to-emerald-700">
-        <div className="container">
-          <div className="mx-auto max-w-3xl text-center text-white">
-            <Sparkles className="w-12 h-12 mx-auto mb-6 opacity-80" />
-            <h2 className="text-white">Ready to Transform Your Space?</h2>
-            <p className="mt-4 text-xl text-white/80">
-              Get free samples and start planning your project today.
-            </p>
-            <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
-              <Button
-                size="lg"
-                variant="secondary"
-                className="bg-white text-primary hover:bg-white/90"
-                asChild
-              >
-                <Link href="/samples">
-                  Get Free Samples
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Link>
-              </Button>
-              <Button
-                size="lg"
-                variant="ghost"
-                className="border-2 border-white/40 text-white bg-white/10 hover:bg-white/20 hover:text-white"
-                asChild
-              >
-                <Link href="/calculator">Use Calculator</Link>
-              </Button>
-            </div>
+      <section className="py-16 sm:py-20 lg:py-24 border-t">
+        <div className="container text-center">
+          <h2 className="max-w-3xl mx-auto">Ready to Transform Your Space?</h2>
+          <p className="mt-6 text-body-lg text-muted-foreground max-w-xl mx-auto">
+            Get free samples and start planning your project today.
+          </p>
+          <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
+            <Button size="lg" className="btn-premium text-lg px-8 h-14" asChild>
+              <Link href="/samples">
+                Get Free Samples
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Link>
+            </Button>
+            <Button size="lg" variant="outline" className="text-lg px-8 h-14" asChild>
+              <Link href="/calculator">Use Calculator</Link>
+            </Button>
           </div>
         </div>
       </section>

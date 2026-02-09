@@ -325,24 +325,22 @@ export default async function LocationPage({ params }: LocationPageProps) {
         )}
 
         {/* CTA */}
-        <section className="bg-primary py-16 text-primary-foreground">
+        <section className="py-16 sm:py-20 lg:py-24 border-t">
           <div className="container text-center">
-            <h2 className="text-2xl font-bold">
+            <h2 className="max-w-3xl mx-auto">
               Ready to transform your {city.name} lawn?
             </h2>
-            <p className="mt-2 opacity-90">
+            <p className="mt-6 text-body-lg text-muted-foreground max-w-xl mx-auto">
               Fast shipping to {city.name}. 15-year warranty on all turf.
             </p>
-            <div className="mt-6 flex flex-col justify-center gap-4 sm:flex-row">
-              <Button size="lg" variant="secondary" asChild>
-                <Link href="/calculator">Calculate Your Project</Link>
+            <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
+              <Button size="lg" className="btn-premium text-lg px-8 h-14" asChild>
+                <Link href="/calculator">
+                  Calculate Your Project
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Link>
               </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                className="border-white text-white hover:bg-white/10"
-                asChild
-              >
+              <Button size="lg" variant="outline" className="text-lg px-8 h-14" asChild>
                 <Link href="/samples">Order Free Samples</Link>
               </Button>
             </div>

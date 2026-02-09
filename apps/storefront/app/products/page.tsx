@@ -303,34 +303,25 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
         )}
 
         {/* Calculator CTA */}
-        <section className="mt-12 sm:mt-16 md:mt-20">
-          <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-6 sm:p-8 md:p-12 lg:p-16">
-            {/* Decorative - hidden on mobile */}
-            <div className="hidden sm:block absolute top-0 right-0 w-96 h-96 bg-primary/30 rounded-full blur-[150px]" />
-            <div className="hidden sm:block absolute bottom-0 left-0 w-64 h-64 bg-emerald-500/20 rounded-full blur-[100px]" />
-
-            <div className="relative text-center max-w-2xl mx-auto">
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white">
-                Not sure how much turf you need?
-              </h2>
-              <p className="mt-3 sm:mt-4 text-sm sm:text-base md:text-lg text-white/70">
-                Our smart calculator does the math for you. Get an instant estimate
-                with exact materials and pricing.
-              </p>
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 mt-6 sm:mt-8">
-                <Button variant="premium" size="lg" className="w-full sm:w-auto h-12 sm:h-14 px-6 sm:px-8" asChild>
-                  <Link href="/calculator">
-                    Try the Calculator
-                    <ArrowRight className="ml-2 h-5 w-5" />
-                  </Link>
-                </Button>
-                <Button variant="outline" size="lg" className="w-full sm:w-auto h-12 sm:h-14 px-6 sm:px-8 bg-white/10 border-white/30 text-white hover:bg-white/20 rounded-xl" asChild>
-                  <Link href="/samples">
-                    <Sparkles className="mr-2 h-4 w-4" />
-                    Get Free Samples
-                  </Link>
-                </Button>
-              </div>
+        <section className="mt-12 sm:mt-16 md:mt-20 pt-12 sm:pt-16 md:pt-20 border-t">
+          <div className="text-center">
+            <h2 className="max-w-3xl mx-auto">
+              Not sure how much turf you need?
+            </h2>
+            <p className="mt-6 text-body-lg text-muted-foreground max-w-xl mx-auto">
+              Our smart calculator does the math for you. Get an instant estimate
+              with exact materials and pricing.
+            </p>
+            <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
+              <Button size="lg" className="btn-premium text-lg px-8 h-14" asChild>
+                <Link href="/calculator">
+                  Try the Calculator
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Link>
+              </Button>
+              <Button size="lg" variant="outline" className="text-lg px-8 h-14" asChild>
+                <Link href="/samples">Get Free Samples</Link>
+              </Button>
             </div>
           </div>
         </section>

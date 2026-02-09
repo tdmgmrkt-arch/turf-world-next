@@ -387,36 +387,25 @@ export default function BrokerPage() {
       </section>
 
       {/* Final CTA Section */}
-      <section id="apply" className="py-20 md:py-28 bg-gradient-to-br from-[#34CE95] to-emerald-600">
-        <div className="container">
-          <div className="mx-auto max-w-3xl text-center">
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white tracking-tight mb-6">
-              Ready to Partner with Turf World?
-            </h2>
-            <p className="text-lg text-white/90 mb-10">
-              Apply today and get access to exclusive wholesale pricing, dedicated
-              support, and premium turf products that will help grow your business.
-            </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Button
-                size="lg"
-                className="h-14 px-8 bg-white text-[#34CE95] hover:bg-white/90 rounded-xl"
-                asChild
-              >
-                <Link href="/contact">
-                  Apply Now
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Link>
-              </Button>
-              <Button
-                size="lg"
-                variant="ghost"
-                className="h-14 px-8 border-2 border-white/40 text-white bg-white/10 hover:bg-white/20 hover:text-white rounded-xl"
-                asChild
-              >
-                <Link href="/samples">Request Free Samples</Link>
-              </Button>
-            </div>
+      <section id="apply" className="py-16 sm:py-20 lg:py-24 border-t">
+        <div className="container text-center">
+          <h2 className="max-w-3xl mx-auto">
+            Ready to Partner with Turf World?
+          </h2>
+          <p className="mt-6 text-body-lg text-muted-foreground max-w-xl mx-auto">
+            Apply today and get access to exclusive wholesale pricing, dedicated
+            support, and premium turf products that will help grow your business.
+          </p>
+          <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
+            <Button size="lg" className="btn-premium text-lg px-8 h-14" asChild>
+              <Link href="/contact">
+                Apply Now
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Link>
+            </Button>
+            <Button size="lg" variant="outline" className="text-lg px-8 h-14" asChild>
+              <Link href="/samples">Request Free Samples</Link>
+            </Button>
           </div>
         </div>
       </section>

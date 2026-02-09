@@ -394,36 +394,24 @@ export default function ContactPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-12 sm:py-16 md:py-20 bg-gradient-to-br from-primary to-emerald-600">
-        <div className="container px-4 sm:px-6">
-          <div className="max-w-3xl mx-auto text-center text-white">
-            <Sparkles className="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-4 sm:mb-6 opacity-80" />
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold">
-              Ready to Transform Your Space?
-            </h2>
-            <p className="mt-3 sm:mt-4 text-base sm:text-lg md:text-xl text-white/80 max-w-xl mx-auto">
-              Get free samples shipped to your door and see the quality firsthand.
-            </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 mt-8 sm:mt-10">
-              <Button
-                size="lg"
-                className="w-full sm:w-auto h-12 sm:h-14 px-6 sm:px-8 bg-white text-primary hover:bg-white/90"
-                asChild
-              >
-                <Link href="/samples">
-                  Get Free Samples
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Link>
-              </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                className="w-full sm:w-auto h-12 sm:h-14 px-6 sm:px-8 border-white/30 text-white hover:bg-white/10"
-                asChild
-              >
-                <Link href="/products">Browse Products</Link>
-              </Button>
-            </div>
+      <section className="py-16 sm:py-20 lg:py-24 border-t">
+        <div className="container text-center">
+          <h2 className="max-w-3xl mx-auto">
+            Ready to Transform Your Space?
+          </h2>
+          <p className="mt-6 text-body-lg text-muted-foreground max-w-xl mx-auto">
+            Get free samples shipped to your door and see the quality firsthand.
+          </p>
+          <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
+            <Button size="lg" className="btn-premium text-lg px-8 h-14" asChild>
+              <Link href="/samples">
+                Get Free Samples
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Link>
+            </Button>
+            <Button size="lg" variant="outline" className="text-lg px-8 h-14" asChild>
+              <Link href="/products">Browse Products</Link>
+            </Button>
           </div>
         </div>
       </section>

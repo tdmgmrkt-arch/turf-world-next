@@ -479,27 +479,22 @@ function SupplyDetailPage() {
         )}
 
         {/* CTA Banner */}
-        <div className="mt-16 p-8 md:p-12 rounded-3xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-center">
-          <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">
+        <div className="mt-16 pt-16 border-t text-center">
+          <h2 className="max-w-3xl mx-auto">
             Need Help With Your Project?
           </h2>
-          <p className="text-white/70 max-w-xl mx-auto mb-8">
+          <p className="mt-6 text-body-lg text-muted-foreground max-w-xl mx-auto">
             Our project calculator can help you determine exactly how much of
             each supply you need for your turf installation.
           </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Button variant="premium" size="lg" className="h-14 px-8" asChild>
+          <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
+            <Button size="lg" className="btn-premium text-lg px-8 h-14" asChild>
               <Link href="/calculator">
                 Try the Calculator
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Link>
             </Button>
-            <Button
-              variant="outline"
-              size="lg"
-              className="h-14 px-8 border-white/20 text-white hover:bg-white/10 rounded-xl"
-              asChild
-            >
+            <Button size="lg" variant="outline" className="text-lg px-8 h-14" asChild>
               <Link href="/products">Shop Turf</Link>
             </Button>
           </div>

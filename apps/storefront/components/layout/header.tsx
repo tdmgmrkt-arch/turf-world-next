@@ -418,7 +418,7 @@ export function Header() {
               </div>
 
               {/* Right Sidebar */}
-              <div className="col-span-4 border-l pl-10">
+              <div className="col-span-4 border-l pl-10 flex flex-col">
                 {/* Quick Actions */}
                 <div className="space-y-3">
                   <Link
@@ -453,7 +453,7 @@ export function Header() {
                 </div>
 
                 {/* Contact */}
-                <div className="mt-6 pt-6 border-t">
+                <div className="mt-auto pt-6 border-t">
                   <p className="text-sm text-muted-foreground mb-2">Questions? We&apos;re here to help.</p>
                   <a
                     href="tel:(909) 491-2203"
@@ -461,19 +461,22 @@ export function Header() {
                   >
                     <Phone className="h-5 w-5" /> (909) 491-2203
                   </a>
-                  <div className="mt-3 flex items-center gap-2">
-                    {socialLinks.map((social) => (
-                      <a
-                        key={social.name}
-                        href={social.href}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-muted-foreground hover:bg-primary hover:text-white transition-all"
-                        aria-label={social.name}
-                      >
-                        <social.icon className="h-3.5 w-3.5" />
-                      </a>
-                    ))}
+                  <div className="mt-3">
+                    <p className="text-xs text-muted-foreground mt-5 mb-5">Follow Us</p>
+                    <div className="flex items-center gap-2">
+                      {socialLinks.map((social) => (
+                        <a
+                          key={social.name}
+                          href={social.href}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-muted-foreground hover:bg-primary hover:text-white transition-all"
+                          aria-label={social.name}
+                        >
+                          <social.icon className="h-3.5 w-3.5" />
+                        </a>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -567,7 +570,7 @@ export function Header() {
               </div>
 
               {/* Right Sidebar */}
-              <div className="col-span-4 border-l pl-10">
+              <div className="col-span-4 border-l pl-10 flex flex-col">
                 {/* Quick Actions */}
                 <div className="space-y-3">
                   <Link
@@ -602,7 +605,7 @@ export function Header() {
                 </div>
 
                 {/* Contact */}
-                <div className="mt-6 pt-6 border-t">
+                <div className="mt-auto pt-6 border-t">
                   <p className="text-sm text-muted-foreground mb-2">Need help choosing supplies?</p>
                   <a
                     href="tel:(909) 491-2203"
@@ -610,19 +613,22 @@ export function Header() {
                   >
                     <Phone className="h-5 w-5" /> (909) 491-2203
                   </a>
-                  <div className="mt-3 flex items-center gap-2">
-                    {socialLinks.map((social) => (
-                      <a
-                        key={social.name}
-                        href={social.href}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-muted-foreground hover:bg-primary hover:text-white transition-all"
-                        aria-label={social.name}
-                      >
-                        <social.icon className="h-3.5 w-3.5" />
-                      </a>
-                    ))}
+                  <div className="mt-3">
+                    <p className="text-xs text-muted-foreground mt-5 mb-5">Follow Us</p>
+                    <div className="flex items-center gap-2">
+                      {socialLinks.map((social) => (
+                        <a
+                          key={social.name}
+                          href={social.href}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-muted-foreground hover:bg-primary hover:text-white transition-all"
+                          aria-label={social.name}
+                        >
+                          <social.icon className="h-3.5 w-3.5" />
+                        </a>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -687,7 +693,7 @@ export function Header() {
               </div>
 
               {/* Right Sidebar */}
-              <div className="col-span-4 border-l pl-10">
+              <div className="col-span-4 border-l pl-10 flex flex-col">
                 {/* Quick Actions */}
                 <div className="space-y-3">
                   <Link
@@ -722,7 +728,7 @@ export function Header() {
                 </div>
 
                 {/* Contact */}
-                <div className="mt-6 pt-6 border-t">
+                <div className="mt-auto pt-6 border-t">
                   <p className="text-sm text-muted-foreground mb-2">Questions? We&apos;re here to help.</p>
                   <a
                     href="tel:(909) 491-2203"
@@ -730,19 +736,22 @@ export function Header() {
                   >
                     <Phone className="h-5 w-5" /> (909) 491-2203
                   </a>
-                  <div className="mt-3 flex items-center gap-2">
-                    {socialLinks.map((social) => (
-                      <a
-                        key={social.name}
-                        href={social.href}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-muted-foreground hover:bg-primary hover:text-white transition-all"
-                        aria-label={social.name}
-                      >
-                        <social.icon className="h-3.5 w-3.5" />
-                      </a>
-                    ))}
+                  <div className="mt-3">
+                    <p className="text-xs text-muted-foreground mt-5 mb-5">Follow Us</p>
+                    <div className="flex items-center gap-2">
+                      {socialLinks.map((social) => (
+                        <a
+                          key={social.name}
+                          href={social.href}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-muted-foreground hover:bg-primary hover:text-white transition-all"
+                          aria-label={social.name}
+                        >
+                          <social.icon className="h-3.5 w-3.5" />
+                        </a>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>

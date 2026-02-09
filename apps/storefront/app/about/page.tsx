@@ -198,36 +198,25 @@ export default function AboutPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-12 sm:py-16 md:py-24 lg:py-28 bg-gradient-to-br from-[#34CE95] to-emerald-600">
-        <div className="container px-4 sm:px-6">
-          <div className="mx-auto max-w-3xl text-center">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white tracking-tight mb-4 sm:mb-6">
-              Ready to Get Started?
-            </h2>
-            <p className="text-base sm:text-lg text-white/90 mb-8 sm:mb-10">
-              Browse our selection of premium artificial turf or request free
-              samples to see the quality for yourself.
-            </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
-              <Button
-                size="lg"
-                className="w-full sm:w-auto h-12 sm:h-14 px-6 sm:px-8 bg-white text-[#34CE95] hover:bg-white/90 rounded-xl"
-                asChild
-              >
-                <Link href="/products">
-                  Shop All Products
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Link>
-              </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                className="w-full sm:w-auto h-12 sm:h-14 px-6 sm:px-8 border-white/30 text-white hover:bg-white/10 rounded-xl"
-                asChild
-              >
-                <Link href="/samples">Request Free Samples</Link>
-              </Button>
-            </div>
+      <section className="py-16 sm:py-20 lg:py-24 border-t">
+        <div className="container text-center">
+          <h2 className="max-w-3xl mx-auto">
+            Ready to Get Started?
+          </h2>
+          <p className="mt-6 text-body-lg text-muted-foreground max-w-xl mx-auto">
+            Browse our selection of premium artificial turf or request free
+            samples to see the quality for yourself.
+          </p>
+          <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
+            <Button size="lg" className="btn-premium text-lg px-8 h-14" asChild>
+              <Link href="/products">
+                Shop All Products
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Link>
+            </Button>
+            <Button size="lg" variant="outline" className="text-lg px-8 h-14" asChild>
+              <Link href="/samples">Request Free Samples</Link>
+            </Button>
           </div>
         </div>
       </section>

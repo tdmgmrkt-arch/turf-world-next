@@ -8,6 +8,7 @@
     "start": "medusa start",
     "build": "medusa build",
     "seed": "medusa exec ./src/scripts/seed.ts",
+    "import-products": "medusa exec ./src/scripts/import-all-products.ts",
     "db:migrate": "medusa db:migrate",
     "db:generate": "medusa db:generate"
   },

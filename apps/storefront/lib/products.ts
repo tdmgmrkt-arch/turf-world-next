@@ -60,8 +60,8 @@ export const PRODUCTS: Product[] = [
     warranty: "16 Year",
     rollSize: "15'W x 100'L",
     images: [
-      "/products/TurfWorld63_6605_SDRT.jpg",
       "/products/TurfWorld63_6465_SDRT.jpg",
+      "/products/TurfWorld63_6605_SDRT.jpg",
       "/products/TurfWorld63_6467_SDRT.jpg",
       "/products/TurfWorld63_6468_SDRT.jpg",
     ],
@@ -85,8 +85,8 @@ export const PRODUCTS: Product[] = [
     warranty: "16 Year",
     rollSize: "15'W x 100'L",
     images: [
-      "/products/Idaho76_6608_SDRT.jpg",
       "/products/Idaho76_6476_SDRT.jpg",
+      "/products/Idaho76_6608_SDRT.jpg",
       "/products/Idaho76_6477_SDRT.jpg",
       "/products/Idaho76_6478_SDRT.jpg",
     ],
@@ -109,8 +109,8 @@ export const PRODUCTS: Product[] = [
     warranty: "16 Year",
     rollSize: "15'W x 100'L",
     images: [
-      "/products/Hawaii80_6609_SDRT.jpg",
       "/products/Hawaii80_6481_SDRT.jpg",
+      "/products/Hawaii80_6609_SDRT.jpg",
       "/products/Hawaii80_6482_SDRT.jpg",
       "/products/Hawaii80_6483_SDRT.jpg",
     ],
@@ -132,8 +132,8 @@ export const PRODUCTS: Product[] = [
     warranty: "16 Year",
     rollSize: "15'W x 100'L",
     images: [
-      "/products/Hawaii80_6609_SDRT.jpg",
       "/products/Hawaii80_6481_SDRT.jpg",
+      "/products/Hawaii80_6609_SDRT.jpg",
     ],
     tags: ["heat-resistant", "residential"],
     inStock: true,
@@ -153,8 +153,8 @@ export const PRODUCTS: Product[] = [
     warranty: "16 Year",
     rollSize: "15'W x 100'L",
     images: [
-      "/products/Colorado80_6610_SDRT.jpg",
       "/products/Colorado80_6485_SDRT.jpg",
+      "/products/Colorado80_6610_SDRT.jpg",
       "/products/Colorado80_6486_SDRT.jpg",
       "/products/Colorado80_6487_SDRT.jpg",
     ],
@@ -176,8 +176,8 @@ export const PRODUCTS: Product[] = [
     warranty: "16 Year",
     rollSize: "15'W x 100'L",
     images: [
-      "/products/Texas80_6611_SDRT.jpg",
       "/products/Texas80_6489_SDRT.jpg",
+      "/products/Texas80_6611_SDRT.jpg",
       "/products/Texas80_6490_SDRT.jpg",
       "/products/Texas80_6491_SDRT.jpg",
     ],
@@ -201,8 +201,8 @@ export const PRODUCTS: Product[] = [
     warranty: "16 Year",
     rollSize: "15'W x 100'L",
     images: [
-      "/products/TurfWorld88_6612_SDRT.jpg",
       "/products/TurfWorld88_6493_SDRT.jpg",
+      "/products/TurfWorld88_6612_SDRT.jpg",
       "/products/TurfWorld88_6494_SDRT.jpg",
       "/products/TurfWorld88_6495_SDRT.jpg",
     ],
@@ -227,8 +227,8 @@ export const PRODUCTS: Product[] = [
     warranty: "16 Year",
     rollSize: "15'W x 100'L",
     images: [
-      "/products/Idaho93_6613_SDRT.jpg",
       "/products/Idaho93_6497_SDRT.jpg",
+      "/products/Idaho93_6613_SDRT.jpg",
       "/products/Idaho93_6498_SDRT.jpg",
       "/products/Idaho93_6499_SDRT.jpg",
     ],
@@ -250,8 +250,8 @@ export const PRODUCTS: Product[] = [
     warranty: "16 Year",
     rollSize: "15'W x 100'L",
     images: [
-      "/products/Idaho93_6613_SDRT.jpg",
       "/products/Idaho93_6497_SDRT.jpg",
+      "/products/Idaho93_6613_SDRT.jpg",
       "/products/Idaho93_6498_SDRT.jpg",
       "/products/Idaho93_6499_SDRT.jpg",
     ],
@@ -276,8 +276,8 @@ export const PRODUCTS: Product[] = [
     warranty: "16 Year",
     rollSize: "15'W x 100'L",
     images: [
-      "/products/Nevada95_6614_SDRT.jpg",
       "/products/Nevada95_6503_SDRT.jpg",
+      "/products/Nevada95_6614_SDRT.jpg",
       "/products/Nevada95_6504_SDRT.jpg",
       "/products/Nevada95_6505_SDRT.jpg",
     ],
@@ -299,8 +299,8 @@ export const PRODUCTS: Product[] = [
     warranty: "16 Year",
     rollSize: "15'W x 100'L",
     images: [
-      "/products/Colorado95_6615_SDRT.jpg",
       "/products/Colorado95_6507_SDRT.jpg",
+      "/products/Colorado95_6615_SDRT.jpg",
       "/products/Colorado95_6508_SDRT.jpg",
       "/products/Colorado95_6509_SDRT.jpg",
     ],
@@ -324,8 +324,8 @@ export const PRODUCTS: Product[] = [
     warranty: "16 Year",
     rollSize: "15'W x 100'L",
     images: [
-      "/products/Hawaii96_6616_SDRT.jpg",
       "/products/Hawaii96_6511_SDRT.jpg",
+      "/products/Hawaii96_6616_SDRT.jpg",
       "/products/Hawaii96_6512_SDRT.jpg",
       "/products/Hawaii96_6513_SDRT.jpg",
     ],
@@ -347,8 +347,8 @@ export const PRODUCTS: Product[] = [
     warranty: "16 Year",
     rollSize: "15'W x 100'L",
     images: [
-      "/products/SuperNatural96_6617_SDRT.jpg",
       "/products/SuperNatural96_6515_SDRT.jpg",
+      "/products/SuperNatural96_6617_SDRT.jpg",
       "/products/SuperNatural96_6516_SDRT.jpg",
       "/products/SuperNatural96_6517_SDRT.jpg",
     ],
@@ -374,8 +374,8 @@ export const PRODUCTS: Product[] = [
     warranty: "16 Year",
     rollSize: "15'W x 100'L",
     images: [
-      "/products/Nevada95_6614_SDRT.jpg",
       "/products/Nevada95_6503_SDRT.jpg",
+      "/products/Nevada95_6614_SDRT.jpg",
     ],
     tags: ["commercial-grade", "high-traffic", "premium"],
     inStock: true,
@@ -395,8 +395,8 @@ export const PRODUCTS: Product[] = [
     warranty: "16 Year",
     rollSize: "15'W x 100'L",
     images: [
-      "/products/Texas108_6618_SDRT.jpg",
       "/products/Texas108_6519_SDRT.jpg",
+      "/products/Texas108_6618_SDRT.jpg",
       "/products/Texas108_6520_SDRT.jpg",
       "/products/Texas108_6521_SDRT.jpg",
     ],
@@ -421,8 +421,8 @@ export const PRODUCTS: Product[] = [
     warranty: "16 Year",
     rollSize: "15'W x 100'L",
     images: [
-      "/products/Nevada110_6619_SDRT.jpg",
       "/products/Nevada110_6523_SDRT.jpg",
+      "/products/Nevada110_6619_SDRT.jpg",
       "/products/Nevada110_6524_SDRT.jpg",
       "/products/Nevada110_6525_SDRT.jpg",
     ],
@@ -444,8 +444,8 @@ export const PRODUCTS: Product[] = [
     warranty: "16 Year",
     rollSize: "15'W x 100'L",
     images: [
-      "/products/SuperNatural120_6620_SDRT.jpg",
       "/products/SuperNatural120_6527_SDRT.jpg",
+      "/products/SuperNatural120_6620_SDRT.jpg",
       "/products/SuperNatural120_6528_SDRT.jpg",
       "/products/SuperNatural120_6529_SDRT.jpg",
     ],
@@ -471,8 +471,8 @@ export const PRODUCTS: Product[] = [
     warranty: "16 Year",
     rollSize: "15'W x 100'L",
     images: [
-      "/products/Texas130_6621_SDRT.jpg",
       "/products/Texas130_6531_SDRT.jpg",
+      "/products/Texas130_6621_SDRT.jpg",
       "/products/Texas130_6532_SDRT.jpg",
       "/products/Texas130_6533_SDRT.jpg",
     ],
@@ -494,8 +494,8 @@ export const PRODUCTS: Product[] = [
     warranty: "16 Year",
     rollSize: "15'W x 100'L",
     images: [
-      "/products/Texas130_6621_SDRT.jpg",
       "/products/Texas130_6531_SDRT.jpg",
+      "/products/Texas130_6621_SDRT.jpg",
     ],
     tags: ["extreme-conditions", "commercial", "maximum-durability"],
     inStock: true,
@@ -516,8 +516,8 @@ export const PRODUCTS: Product[] = [
     warranty: "16 Year",
     rollSize: "15'W x 100'L",
     images: [
-      "/products/Olive73_6622_SDRT.jpg",
       "/products/Olive73_6535_SDRT.jpg",
+      "/products/Olive73_6622_SDRT.jpg",
       "/products/Olive73_6536_SDRT.jpg",
       "/products/Olive73_6537_SDRT.jpg",
     ],
@@ -542,8 +542,8 @@ export const PRODUCTS: Product[] = [
     warranty: "16 Year",
     rollSize: "15'W x 100'L",
     images: [
-      "/products/Bermuda87_6623_SDRT.jpg",
       "/products/Bermuda87_6539_SDRT.jpg",
+      "/products/Bermuda87_6623_SDRT.jpg",
       "/products/Bermuda87_6540_SDRT.jpg",
       "/products/Bermuda87_6541_SDRT.jpg",
     ],
@@ -565,8 +565,8 @@ export const PRODUCTS: Product[] = [
     warranty: "16 Year",
     rollSize: "15'W x 100'L",
     images: [
-      "/products/Olive92_6624_SDRT.jpg",
       "/products/Olive92_6543_SDRT.jpg",
+      "/products/Olive92_6624_SDRT.jpg",
       "/products/Olive92_6544_SDRT.jpg",
       "/products/Olive92_6545_SDRT.jpg",
     ],
@@ -591,8 +591,8 @@ export const PRODUCTS: Product[] = [
     warranty: "16 Year",
     rollSize: "15'W x 100'L",
     images: [
-      "/products/Bermuda93_6625_SDRT.jpg",
       "/products/Bermuda93_6547_SDRT.jpg",
+      "/products/Bermuda93_6625_SDRT.jpg",
       "/products/Bermuda93_6548_SDRT.jpg",
       "/products/Bermuda93_6550_SDRT.jpg",
     ],
@@ -614,8 +614,8 @@ export const PRODUCTS: Product[] = [
     warranty: "16 Year",
     rollSize: "15'W x 100'L",
     images: [
-      "/products/Natural93_6626_SDRT.jpg",
       "/products/Natural93_6552_SDRT.jpg",
+      "/products/Natural93_6626_SDRT.jpg",
       "/products/Natural93_6553_SDRT.jpg",
       "/products/Natural93_6554_SDRT.jpg",
     ],
@@ -637,8 +637,8 @@ export const PRODUCTS: Product[] = [
     warranty: "16 Year",
     rollSize: "15'W x 100'L",
     images: [
-      "/products/ProPutt_6627_SDRT.jpg",
       "/products/ProPutt_6556_SDRT.jpg",
+      "/products/ProPutt_6627_SDRT.jpg",
       "/products/ProPutt_6557_SDRT.jpg",
       "/products/ProPutt_6558_SDRT.jpg",
     ],
@@ -662,8 +662,8 @@ export const PRODUCTS: Product[] = [
     warranty: "16 Year",
     rollSize: "15'W x 100'L",
     images: [
-      "/products/ThousandPinePutt_6628_SDRT.jpg",
       "/products/ThousandPinePutt_6559_SDRT.jpg",
+      "/products/ThousandPinePutt_6628_SDRT.jpg",
       "/products/ThousandPinePutt_6560_SDRT.jpg",
       "/products/ThousandPinePutt_6561_SDRT.jpg",
     ],

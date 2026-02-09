@@ -7,7 +7,6 @@ import {
   Droplets,
   Hammer,
   ArrowRight,
-  Calculator,
   Sparkles,
   Check,
   Star,
@@ -283,57 +282,25 @@ export default function SuppliesPage() {
       </section>
 
       {/* Calculator CTA */}
-      <section className="py-12 sm:py-16 md:py-24 lg:py-28">
-        <div className="container px-4 sm:px-6">
-          <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-6 sm:p-8 md:p-12 lg:p-16">
-            {/* Decorative elements - hidden on mobile for performance */}
-            <div className="hidden sm:block absolute top-0 right-0 w-96 h-96 bg-primary/30 rounded-full blur-[150px]" />
-            <div className="hidden sm:block absolute bottom-0 left-0 w-64 h-64 bg-emerald-500/20 rounded-full blur-[100px]" />
-
-            <div className="relative max-w-3xl mx-auto text-center">
-              <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-white/10 border border-white/10 text-xs sm:text-sm text-white/80 mb-4 sm:mb-6">
-                <Calculator className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary" />
-                <span>Project Calculator</span>
-              </div>
-
-              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white">
-                Not Sure What You Need?
-              </h2>
-              <p className="mt-3 sm:mt-4 text-sm sm:text-base md:text-lg text-white/70 max-w-xl mx-auto">
-                Our project calculator tells you exactly how much infill, seam tape,
-                and adhesive you need based on your project dimensions.
-              </p>
-
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 mt-8 sm:mt-10">
-                <Button variant="premium" size="lg" className="w-full sm:w-auto h-12 sm:h-14 px-6 sm:px-8 text-sm sm:text-base" asChild>
-                  <Link href="/calculator">
-                    Use the Calculator
-                    <ArrowRight className="ml-2 h-5 w-5" />
-                  </Link>
-                </Button>
-                <Button variant="ghost" size="lg" className="w-full sm:w-auto h-12 sm:h-14 px-6 sm:px-8 text-sm sm:text-base border-2 border-white/40 text-white bg-white/10 hover:bg-white/20 hover:text-white rounded-xl" asChild>
-                  <Link href="/samples">
-                    Get Free Samples
-                  </Link>
-                </Button>
-              </div>
-
-              {/* Quick stats */}
-              <div className="flex flex-wrap justify-center gap-6 sm:gap-8 mt-8 sm:mt-12 pt-6 sm:pt-8 border-t border-white/10">
-                <div className="text-center">
-                  <p className="text-2xl sm:text-3xl font-bold text-white">10K+</p>
-                  <p className="text-xs sm:text-sm text-white/60">DIY Projects</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-2xl sm:text-3xl font-bold text-white">98%</p>
-                  <p className="text-xs sm:text-sm text-white/60">Accuracy Rate</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-2xl sm:text-3xl font-bold text-white">$500</p>
-                  <p className="text-xs sm:text-sm text-white/60">Avg. Savings</p>
-                </div>
-              </div>
-            </div>
+      <section className="py-16 sm:py-20 lg:py-24 border-t">
+        <div className="container text-center">
+          <h2 className="max-w-3xl mx-auto">
+            Not Sure What You Need?
+          </h2>
+          <p className="mt-6 text-body-lg text-muted-foreground max-w-xl mx-auto">
+            Our project calculator tells you exactly how much infill, seam tape,
+            and adhesive you need based on your project dimensions.
+          </p>
+          <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
+            <Button size="lg" className="btn-premium text-lg px-8 h-14" asChild>
+              <Link href="/calculator">
+                Use the Calculator
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Link>
+            </Button>
+            <Button size="lg" variant="outline" className="text-lg px-8 h-14" asChild>
+              <Link href="/samples">Get Free Samples</Link>
+            </Button>
           </div>
         </div>
       </section>

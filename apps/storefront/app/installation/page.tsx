@@ -279,43 +279,28 @@ export default function InstallationPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-10 md:py-14 bg-gradient-to-br from-primary to-emerald-700">
-        <div className="container px-4 sm:px-6 text-center">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-3">
+      <section className="py-16 sm:py-20 lg:py-24 border-t">
+        <div className="container text-center">
+          <h2 className="max-w-3xl mx-auto">
             Ready to Get Started?
           </h2>
-          <p className="text-white/80 mb-6 max-w-lg mx-auto">
+          <p className="mt-6 text-body-lg text-muted-foreground max-w-xl mx-auto">
             Shop our premium artificial turf collection and get everything you
             need for a professional installation.
           </p>
-          <div className="flex flex-wrap justify-center gap-3">
-            <Link href="/products">
-              <Button
-                size="lg"
-                className="bg-white text-primary hover:bg-white/90"
-              >
+          <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
+            <Button size="lg" className="btn-premium text-lg px-8 h-14" asChild>
+              <Link href="/products">
                 Shop Turf
-                <ArrowRight className="ml-2 w-4 h-4" />
-              </Button>
-            </Link>
-            <Link href="/calculator">
-              <Button
-                size="lg"
-                variant="outline"
-                className="border-white/30 text-white hover:bg-white/10"
-              >
-                Calculate Materials
-              </Button>
-            </Link>
-            <Link href="/samples">
-              <Button
-                size="lg"
-                variant="outline"
-                className="border-white/30 text-white hover:bg-white/10"
-              >
-                Free Samples
-              </Button>
-            </Link>
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Link>
+            </Button>
+            <Button size="lg" variant="outline" className="text-lg px-8 h-14" asChild>
+              <Link href="/calculator">Calculate Materials</Link>
+            </Button>
+            <Button size="lg" variant="outline" className="text-lg px-8 h-14" asChild>
+              <Link href="/samples">Free Samples</Link>
+            </Button>
           </div>
         </div>
       </section>
