@@ -5,10 +5,6 @@ import {
   HelpCircle as LucideHelpCircle,
   Phone as LucidePhone,
   ArrowRight as LucideArrowRight,
-  Package as LucidePackage,
-  Truck as LucideTruck,
-  Shield as LucideShield,
-  Sparkles as LucideSparkles,
 } from "lucide-react";
 import { Button as ShadcnButton } from "@/components/ui/button";
 import { Breadcrumb } from "@/components/ui/breadcrumb";
@@ -19,10 +15,6 @@ const Button = ShadcnButton as any;
 const HelpCircle = LucideHelpCircle as any;
 const Phone = LucidePhone as any;
 const ArrowRight = LucideArrowRight as any;
-const Package = LucidePackage as any;
-const Truck = LucideTruck as any;
-const Shield = LucideShield as any;
-const Sparkles = LucideSparkles as any;
 
 export const metadata: Metadata = {
   title: "Frequently Asked Questions | Turf World",
@@ -39,7 +31,7 @@ export const metadata: Metadata = {
 const faqCategories = [
   {
     category: "Products & Pricing",
-    icon: Package,
+    icon: "Package",
     color: "from-primary to-emerald-600",
     questions: [
       {
@@ -71,7 +63,7 @@ const faqCategories = [
   },
   {
     category: "Ordering & Samples",
-    icon: Sparkles,
+    icon: "Sparkles",
     color: "from-emerald-500 to-emerald-700",
     questions: [
       {
@@ -98,7 +90,7 @@ const faqCategories = [
   },
   {
     category: "Shipping & Delivery",
-    icon: Truck,
+    icon: "Truck",
     color: "from-blue-500 to-blue-700",
     questions: [
       {
@@ -130,7 +122,7 @@ const faqCategories = [
   },
   {
     category: "Installation",
-    icon: Package,
+    icon: "Package",
     color: "from-amber-500 to-orange-600",
     questions: [
       {
@@ -162,7 +154,7 @@ const faqCategories = [
   },
   {
     category: "Warranty & Returns",
-    icon: Shield,
+    icon: "Shield",
     color: "from-slate-600 to-slate-800",
     questions: [
       {
@@ -189,7 +181,7 @@ const faqCategories = [
   },
   {
     category: "Maintenance & Care",
-    icon: Sparkles,
+    icon: "Sparkles",
     color: "from-emerald-500 to-emerald-700",
     questions: [
       {

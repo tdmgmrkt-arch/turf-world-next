@@ -1,10 +1,27 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronDown as LucideChevronDown } from "lucide-react";
+import {
+  ChevronDown as LucideChevronDown,
+  Package as LucidePackage,
+  Truck as LucideTruck,
+  Shield as LucideShield,
+  Sparkles as LucideSparkles,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const ChevronDown = LucideChevronDown as any;
+const Package = LucidePackage as any;
+const Truck = LucideTruck as any;
+const Shield = LucideShield as any;
+const Sparkles = LucideSparkles as any;
+
+const iconMap: Record<string, any> = {
+  Package,
+  Truck,
+  Shield,
+  Sparkles,
+};
 
 interface FAQAccordionProps {
   question: string;
@@ -54,7 +71,7 @@ export function FAQAccordion({
 interface FAQCategoryProps {
   category: {
     category: string;
-    icon: any;
+    icon: string;
     color: string;
     questions: Array<{ question: string; answer: string }>;
   };
@@ -62,7 +79,7 @@ interface FAQCategoryProps {
 
 export function FAQCategory({ category }: FAQCategoryProps) {
   const [openItems, setOpenItems] = useState<number | null>(null);
-  const Icon = category.icon;
+  const Icon = iconMap[category.icon] || Package;
 
   const toggleItem = (index: number) => {
     setOpenItems(openItems === index ? null : index);
