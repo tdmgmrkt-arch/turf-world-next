@@ -2,21 +2,29 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-# Copy backend package files
-COPY package.json ./
+# Copy workspace config and lockfile (for fast installs)
+COPY package.json package-lock.json ./
+COPY apps/backend/package.json ./apps/backend/
 
-# Install ALL dependencies (TypeScript needed for build)
-RUN npm install
+# Create stub storefront package.json so workspace glob resolves
+RUN mkdir -p apps/storefront && \
+    echo '{"name":"@turf-world/storefront","version":"0.0.1","private":true}' > apps/storefront/package.json
 
-# Copy backend source
-COPY . .
+# Install only backend workspace deps (lockfile = fast resolution)
+RUN npm install --workspace=@turf-world/backend --include-workspace-root --no-audit --no-fund
+
+# Copy backend source only
+COPY apps/backend/ ./apps/backend/
 
 # Build Medusa
-RUN npm run build
+WORKDIR /app/apps/backend
+RUN npx medusa build
 
-# Remove devDependencies after build (smaller production image)
+# Prune dev dependencies for smaller image
+WORKDIR /app
 RUN npm prune --omit=dev
 
 EXPOSE 9000
 
-CMD ["npm", "start"]
+WORKDIR /app/apps/backend
+CMD ["npx", "medusa", "start"]

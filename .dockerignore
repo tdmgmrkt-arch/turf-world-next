@@ -1,0 +1,11 @@
+node_modules
+.git
+apps/storefront/node_modules
+apps/storefront/.next
+apps/storefront/app
+apps/storefront/components
+apps/storefront/hooks
+apps/storefront/lib
+apps/storefront/public
+apps/storefront/styles
+*.md
