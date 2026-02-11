@@ -20,11 +20,5 @@ COPY apps/backend/ ./apps/backend/
 WORKDIR /app/apps/backend
 RUN npx medusa build
 
-# Prune dev dependencies for smaller image
-WORKDIR /app
-RUN npm prune --omit=dev
-
 EXPOSE 9000
-
-WORKDIR /app/apps/backend
 CMD ["npx", "medusa", "start"]
