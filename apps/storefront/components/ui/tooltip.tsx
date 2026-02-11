@@ -12,7 +12,12 @@ const TooltipContentPrimitive = TooltipPrimitive.Content as any;
 
 const TooltipContent = React.forwardRef<
   HTMLDivElement,
-  React.ComponentPropsWithoutRef<"div"> & { sideOffset?: number }
+  React.ComponentPropsWithoutRef<"div"> & {
+    sideOffset?: number;
+    side?: "top" | "right" | "bottom" | "left";
+    align?: "start" | "center" | "end";
+    alignOffset?: number;
+  }
 >(({ className, sideOffset = 4, ...props }, ref) => (
   <TooltipContentPrimitive
     ref={ref}

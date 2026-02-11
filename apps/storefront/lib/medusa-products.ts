@@ -34,7 +34,7 @@ export async function fetchAllProducts(): Promise<Product[]> {
     return response.products
       .filter((p: any) => !isAccessory(p))
       .map(transformMedusaProduct)
-      .sort((a, b) => {
+      .sort((a: Product, b: Product) => {
         // Sort: featured first, then by weight
         if (a.featured && !b.featured) return -1;
         if (!a.featured && b.featured) return 1;
