@@ -33,6 +33,7 @@ export interface Accessory {
   name: string;
   description: string;
   priceCents: number;
+  comparePriceCents?: number;
   category: "infill" | "seaming" | "installation" | "tools";
   size: string;
   images: string[];
@@ -69,6 +70,7 @@ export const PRODUCTS: Product[] = [
     badge: "Budget Pick",
     badgeColor: "bg-emerald-500",
     inStock: true,
+    featured: true,
   },
   {
     id: "idaho-76",
@@ -183,7 +185,6 @@ export const PRODUCTS: Product[] = [
     ],
     tags: ["uv-resistant", "heat-tolerant", "residential"],
     inStock: true,
-    featured: true,
   },
   // 88-96oz Range
   {
@@ -259,7 +260,6 @@ export const PRODUCTS: Product[] = [
     badge: "New — On Special",
     badgeColor: "bg-rose-500",
     inStock: true,
-    featured: true,
   },
   {
     id: "nevada-95",
@@ -404,7 +404,6 @@ export const PRODUCTS: Product[] = [
     badge: "Pro Choice",
     badgeColor: "bg-blue-500",
     inStock: true,
-    featured: true,
   },
   {
     id: "nevada-110",
@@ -453,7 +452,6 @@ export const PRODUCTS: Product[] = [
     badge: "Flagship",
     badgeColor: "bg-gradient-to-r from-amber-500 to-yellow-500",
     inStock: true,
-    featured: true,
   },
   // 130oz Range
   {
@@ -525,7 +523,6 @@ export const PRODUCTS: Product[] = [
     badge: "Pet Friendly",
     badgeColor: "bg-amber-500",
     inStock: true,
-    featured: true,
   },
   {
     id: "bermuda-87-pet",

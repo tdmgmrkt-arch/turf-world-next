@@ -59,8 +59,8 @@ A well-installed artificial lawn will last 15-20 years with minimal maintenance.
     `,
     image: "/blog/installation-guide.webp",
     author: {
-      name: "Mike Torres",
-      avatar: "/team/mike.webp",
+      name: "The Experts @",
+      avatar: "/team/twlogo2.png",
     },
     category: "Installation",
     readTime: 8,
@@ -102,7 +102,7 @@ We recommend our **Turf World Pet Pro** for most pet owners. It features:
 - 88oz Total Weight
 - Antimicrobial backing
 - Superior 40+ oz/min drainage
-- 15-year warranty
+- 16-Year Warranty
 
 ## Maintenance Tips
 
@@ -117,8 +117,8 @@ Investing in quality pet turf means happier pets and less maintenance for you. Y
     `,
     image: "/blog/pet-turf-guide.webp",
     author: {
-      name: "Sarah Chen",
-      avatar: "/team/sarah.webp",
+      name: "The Experts @",
+      avatar: "/team/twlogo2.png",
     },
     category: "Pet Care",
     readTime: 6,
@@ -160,7 +160,7 @@ Over 10 years, artificial turf saves the average homeowner **$34,000** while pro
 - Zero water usage
 - No mowing or fertilizing
 - Always green, always perfect
-- 15-year warranty coverage
+- 16-Year Warranty coverage
 
 ## Environmental Impact
 
@@ -175,8 +175,8 @@ Ready to stop throwing money at your lawn? Use our [Project Calculator](/calcula
     `,
     image: "/blog/cost-comparison.webp",
     author: {
-      name: "Mike Torres",
-      avatar: "/team/mike.webp",
+      name: "The Experts @",
+      avatar: "/team/twlogo2.png",
     },
     category: "Cost Savings",
     readTime: 5,
@@ -245,8 +245,8 @@ Start planning your putting green today!
     `,
     image: "/blog/putting-green.webp",
     author: {
-      name: "Tom Williams",
-      avatar: "/team/tom.webp",
+      name: "The Experts @",
+      avatar: "/team/twlogo2.png",
     },
     category: "Putting Greens",
     readTime: 7,
@@ -314,8 +314,8 @@ With just a few minutes of care each month, your artificial turf will look great
     `,
     image: "/blog/maintenance-tips.webp",
     author: {
-      name: "Sarah Chen",
-      avatar: "/team/sarah.webp",
+      name: "The Experts @",
+      avatar: "/team/twlogo2.png",
     },
     category: "Maintenance",
     readTime: 4,
@@ -397,8 +397,8 @@ For commercial projects, we offer competitive wholesale pricing. Contact our tea
     `,
     image: "/blog/commercial-turf.webp",
     author: {
-      name: "Mike Torres",
-      avatar: "/team/mike.webp",
+      name: "The Experts @",
+      avatar: "/team/twlogo2.png",
     },
     category: "Commercial",
     readTime: 6,

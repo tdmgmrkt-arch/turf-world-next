@@ -158,7 +158,7 @@ export async function generateMetadata({
 
   return {
     title: `Artificial Grass in ${city.name}, ${city.stateCode} | Turf World`,
-    description: `${city.heroMessage}. Shop premium artificial turf for ${city.name} homes. Fast shipping, 15-year warranty. ${city.waterRestrictions ? "Water rebate eligible." : ""}`,
+    description: `${city.heroMessage}. Shop premium artificial turf for ${city.name} homes. Fast shipping, 16-Year Warranty. ${city.waterRestrictions ? "Water rebate eligible." : ""}`,
     keywords: [
       `artificial grass ${city.name}`,
       `turf ${city.name}`,
@@ -331,7 +331,7 @@ export default async function LocationPage({ params }: LocationPageProps) {
               Ready to transform your {city.name} lawn?
             </h2>
             <p className="mt-6 text-body-lg text-muted-foreground max-w-xl mx-auto">
-              Fast shipping to {city.name}. 15-year warranty on all turf.
+              Fast shipping to {city.name}. 16-Year Warranty on all turf.
             </p>
             <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
               <Button size="lg" className="btn-premium text-lg px-8 h-14" asChild>

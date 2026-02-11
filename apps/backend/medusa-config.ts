@@ -48,5 +48,13 @@ export default defineConfig({
     // {
     //   resolve: "./src/modules/turf-product",
     // },
+
+    // ========================================
+    // CUSTOM: TURF ATTRIBUTES MODULE
+    // Extends products with turf-specific fields
+    // ========================================
+    {
+      resolve: "./src/modules/turf-attributes",
+    },
   ],
 });

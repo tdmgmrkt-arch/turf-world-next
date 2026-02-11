@@ -1,5 +1,6 @@
 import { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import {
   FileText as LucideFileText,
   Headphones as LucideHeadphones,
@@ -30,9 +31,14 @@ export default function TermsAndConditionsPage() {
 
       {/* Hero Section */}
       <section className="py-12 md:py-16 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 relative overflow-hidden">
-        {/* Decorative elements */}
-        <div className="absolute top-0 right-0 w-96 h-96 bg-primary/20 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 left-0 w-64 h-64 bg-emerald-500/20 rounded-full blur-3xl" />
+        <Image
+          src="/turf-hero.webp"
+          alt="Terms & Conditions"
+          fill
+          className="object-cover"
+          priority
+        />
+        <div className="absolute inset-0 bg-slate-900/70" />
 
         <div className="container relative">
           <div className="mx-auto max-w-3xl text-center">
@@ -52,7 +58,7 @@ export default function TermsAndConditionsPage() {
       {/* Content Sections */}
       <section className="py-12 md:py-16">
         <div className="container">
-          <div className="mx-auto max-w-4xl">
+          <div className="px-4 sm:px-6">
             <div className="grid gap-6 md:gap-8">
 
               {/* Customer Care */}

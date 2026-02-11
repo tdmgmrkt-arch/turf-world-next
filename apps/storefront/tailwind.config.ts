@@ -6,6 +6,19 @@ const config: Config = {
     "./app/**/*.{ts,tsx}",
     "./components/**/*.{ts,tsx}",
   ],
+  safelist: [
+    // Product badge colors (dynamic from database)
+    'bg-emerald-500',
+    'bg-amber-500',
+    'bg-rose-500',
+    'bg-purple-500',
+    'bg-blue-500',
+    'bg-indigo-500',
+    'bg-orange-500',
+    'bg-gradient-to-r',
+    'from-amber-500',
+    'to-yellow-500',
+  ],
   theme: {
     container: {
       center: true,

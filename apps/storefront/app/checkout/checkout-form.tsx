@@ -283,8 +283,10 @@ function PaymentForm({
 export function CheckoutForm() {
   const { items, getSubtotal, clearCart } = useCartStore();
   const {
+    cart: medusaCart,
     updateShippingAddress,
     createPaymentSession,
+    syncLocalCartToMedusa,
   } = useMedusaCart();
 
   const [currentStep, setCurrentStep] = useState<Step>("information");
@@ -331,7 +333,8 @@ export function CheckoutForm() {
   }, [currentStep]);
 
   const shippingCost = shippingOptions.find((o) => o.id === selectedShipping)?.price || 0;
-  const tax = Math.round(subtotal * 0.0725);
+  // Use Medusa's calculated tax if available, otherwise 0 (tax calculated after shipping address is set)
+  const tax = medusaCart?.tax_total || 0;
   const total = subtotal + shippingCost + tax;
 
   // Initialize payment session when reaching payment step
@@ -344,6 +347,10 @@ export function CheckoutForm() {
   const initializePayment = async () => {
     setIsInitializingPayment(true);
     try {
+      // Step 1: Sync local cart items to Medusa with cut dimension metadata
+      await syncLocalCartToMedusa(items);
+
+      // Step 2: Update shipping address
       await updateShippingAddress({
         first_name: shipping.firstName,
         last_name: shipping.lastName,
@@ -356,6 +363,7 @@ export function CheckoutForm() {
         phone: contact.phone || undefined,
       });
 
+      // Step 3: Create payment session
       const secret = await createPaymentSession();
       if (secret) {
         setClientSecret(secret);
@@ -1077,7 +1085,7 @@ export function CheckoutForm() {
                 </span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-slate-500">Tax (CA 7.25%)</span>
+                <span className="text-slate-500">Tax</span>
                 <span className="font-medium">{formatPrice(completedOrder?.tax ?? tax)}</span>
               </div>
               <div className="flex justify-between pt-3 border-t border-slate-200">
@@ -1100,7 +1108,7 @@ export function CheckoutForm() {
                 <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center flex-shrink-0">
                   <Award className="h-4 w-4 text-emerald-600" />
                 </div>
-                <span className="text-slate-600">15-year warranty included</span>
+                <span className="text-slate-600">16-Year Warranty included</span>
               </div>
               <div className="flex items-center gap-3 text-sm">
                 <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center flex-shrink-0">

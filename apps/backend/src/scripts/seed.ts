@@ -122,7 +122,7 @@ export default async function seed({ container }: ExecArgs) {
             - Antimicrobial yarn treatment
             - 100+ gal/min/sqft drainage rate
             - Class A fire rated
-            - 15-year warranty
+            - 16-Year Warranty
             - PFAS-free and lead-free
 
             **Ideal For:** Backyards, dog runs, pet facilities, kennels
@@ -221,7 +221,7 @@ export default async function seed({ container }: ExecArgs) {
             - Texturized nylon yarn
             - Stimp speed 10-12
             - UV stabilized
-            - 15-year warranty
+            - 16-Year Warranty
           `.trim(),
           status: "published",
           tags: [
@@ -294,7 +294,7 @@ export default async function seed({ container }: ExecArgs) {
             - Recycled polyurethane backing
             - W-blade for natural movement
             - Brown/green thatch layer
-            - 15-year warranty
+            - 16-Year Warranty
           `.trim(),
           status: "published",
           tags: [

@@ -1,5 +1,7 @@
-import { Metadata } from "next";
+"use client";
+
 import Image from "next/image";
+import { useState } from "react";
 import {
   Sparkles,
   Truck,
@@ -9,23 +11,38 @@ import {
   Shield,
   Check,
   Gift,
+  ChevronDown,
 } from "lucide-react";
 import { SampleBoxBuilder } from "./sample-box-builder";
 import { Breadcrumb } from "@/components/ui/breadcrumb";
-
-export const metadata: Metadata = {
-  title: "Free Turf Samples | Feel It Before You Buy",
-  description:
-    "Order up to 3 free artificial turf samples. See and feel the quality before you commit. Fast shipping, no credit card required.",
-  keywords: [
-    "free turf samples",
-    "artificial grass samples",
-    "turf swatches",
-    "feel artificial grass",
-  ],
-};
+import { cn } from "@/lib/utils";
 
 export default function SamplesPage() {
+  const [openFAQ, setOpenFAQ] = useState<number | null>(null);
+
+  const toggleFAQ = (index: number) => {
+    setOpenFAQ(openFAQ === index ? null : index);
+  };
+
+  const faqs = [
+    {
+      question: "How long does shipping take?",
+      answer: "Most samples arrive within 3-5 business days. We ship via USPS Priority Mail and you'll receive tracking info via email.",
+    },
+    {
+      question: "Is it really free?",
+      answer: "Yes! We cover the cost of samples and shipping. No credit card required, no hidden fees, no obligation to buy.",
+    },
+    {
+      question: "What size are the samples?",
+      answer: 'Each sample is approximately 8" x 8" (about the size of a standard sheet of paper). Large enough to truly feel the quality.',
+    },
+    {
+      question: "Can I order more than 3 samples?",
+      answer: "We limit to 3 samples per household to keep the program sustainable. Choose wisely! If you need more, contact our team.",
+    },
+  ];
+
   return (
     <div className="min-h-screen">
       <Breadcrumb items={[{ label: "Free Samples" }]} />
@@ -176,23 +193,16 @@ export default function SamplesPage() {
             </p>
           </div>
 
-          <div className="grid gap-3 sm:gap-4 max-w-5xl mx-auto">
-            <FAQCard
-              question="How long does shipping take?"
-              answer="Most samples arrive within 3-5 business days. We ship via USPS Priority Mail and you'll receive tracking info via email."
-            />
-            <FAQCard
-              question="Is it really free?"
-              answer="Yes! We cover the cost of samples and shipping. No credit card required, no hidden fees, no obligation to buy."
-            />
-            <FAQCard
-              question="What size are the samples?"
-              answer="Each sample is approximately 8&quot; x 8&quot; (about the size of a standard sheet of paper). Large enough to truly feel the quality."
-            />
-            <FAQCard
-              question="Can I order more than 3 samples?"
-              answer="We limit to 3 samples per household to keep the program sustainable. Choose wisely! If you need more, contact our team."
-            />
+          <div className="grid gap-3 sm:gap-4 max-w-3xl mx-auto">
+            {faqs.map((faq, index) => (
+              <FAQAccordion
+                key={index}
+                question={faq.question}
+                answer={faq.answer}
+                isOpen={openFAQ === index}
+                onToggle={() => toggleFAQ(index)}
+              />
+            ))}
           </div>
         </div>
       </section>
@@ -239,17 +249,45 @@ function BenefitCard({
   );
 }
 
-function FAQCard({
+function FAQAccordion({
   question,
   answer,
+  isOpen,
+  onToggle,
 }: {
   question: string;
   answer: string;
+  isOpen: boolean;
+  onToggle: () => void;
 }) {
   return (
-    <div className="group p-4 sm:p-6 rounded-xl sm:rounded-2xl bg-white border border-border/50 shadow-sm hover:shadow-md hover:border-primary/20 transition-all duration-300">
-      <h3 className="font-semibold text-base sm:text-lg group-hover:text-primary transition-colors">{question}</h3>
-      <p className="mt-1.5 sm:mt-2 text-sm sm:text-base text-muted-foreground">{answer}</p>
+    <div className="group rounded-xl border border-border/50 bg-white shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden">
+      <button
+        onClick={onToggle}
+        className="w-full flex items-center justify-between p-4 sm:p-5 text-left transition-colors hover:bg-slate-50"
+      >
+        <h3 className="font-semibold text-sm sm:text-base pr-4 group-hover:text-primary transition-colors">
+          {question}
+        </h3>
+        <ChevronDown
+          className={cn(
+            "w-5 h-5 flex-shrink-0 text-muted-foreground transition-transform duration-300",
+            isOpen && "rotate-180 text-primary"
+          )}
+        />
+      </button>
+      <div
+        className={cn(
+          "overflow-hidden transition-all duration-300 ease-in-out",
+          isOpen ? "max-h-48 opacity-100" : "max-h-0 opacity-0"
+        )}
+      >
+        <div className="px-4 sm:px-5 pb-4 sm:pb-5 pt-0">
+          <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
+            {answer}
+          </p>
+        </div>
+      </div>
     </div>
   );
 }

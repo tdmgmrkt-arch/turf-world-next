@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
@@ -13,11 +13,13 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Scissors as LucideScissors } from "lucide-react";
+import { Scissors as LucideScissors, HelpCircle as LucideHelpCircle, X as LucideX } from "lucide-react";
 import { useTurfLogic } from "@/hooks/use-turf-logic";
 
 // Cast Lucide icons to work around React 19 JSX type incompatibility
 const Scissors = LucideScissors as any;
+const HelpCircle = LucideHelpCircle as any;
+const X = LucideX as any;
 
 // Cast to work around React 19 JSX type incompatibility with Radix UI / Shadcn / Next.js
 const SafeTooltipProvider = TooltipProvider as any;
@@ -31,72 +33,45 @@ const SafeButton = Button as any;
 const SafeImage = Image as any;
 const SafeLink = Link as any;
 import { formatPrice, cn } from "@/lib/utils";
-import { PRODUCTS, ACCESSORIES, getProductByHandle } from "@/lib/products";
-
-// Calculator turf options derived from real products
-const TURF_OPTIONS = [
-  {
-    id: "turf-world-63",
-    productHandle: "turf-world-63",
-    name: "Turf World 63",
-    pricePerSqFtCents: 130,
-    description: "Budget-friendly 63oz, 1.25\" pile",
-    isPet: false,
-    badge: "Budget Pick",
-    color: "emerald",
-  },
-  {
-    id: "turf-world-88",
-    productHandle: "turf-world-88",
-    name: "Turf World 88",
-    pricePerSqFtCents: 179,
-    description: "Best seller 88oz, 1.75\" pile",
-    isPet: false,
-    badge: "Best Seller",
-    color: "emerald",
-  },
-  {
-    id: "super-natural-96",
-    productHandle: "super-natural-96",
-    name: "Super Natural 96",
-    pricePerSqFtCents: 209,
-    description: "Ultra-realistic 96oz, 1.67\" pile",
-    isPet: false,
-    badge: "Most Realistic",
-    color: "emerald",
-  },
-  {
-    id: "olive-92-pet",
-    productHandle: "olive-92-pet",
-    name: "Olive 92 Pet",
-    pricePerSqFtCents: 209,
-    description: "Premium pet turf, 92oz, antimicrobial",
-    isPet: true,
-    badge: "Best for Dogs",
-    color: "amber",
-  },
-  {
-    id: "putting-green",
-    productHandle: "putting-green",
-    name: "Pro Putt Green",
-    pricePerSqFtCents: 195,
-    description: "Tournament quality, 0.71\" pile",
-    isPet: false,
-    badge: "Pro Grade",
-    color: "blue",
-  },
-];
-
-// Get other products not in the preset options
-const OTHER_PRODUCTS = PRODUCTS.filter(
-  (p) => !TURF_OPTIONS.some((t) => t.productHandle === p.handle)
-);
+import { useTurfOptions, type TurfOption } from "@/hooks/use-turf-options";
 
 export function CalculatorForm() {
-  const [selectedTurf, setSelectedTurf] = useState(TURF_OPTIONS[1]); // Default to standard
+  const { presetOptions, otherProducts, accessories, getProduct } = useTurfOptions();
+
+  const [selectedTurf, setSelectedTurf] = useState<TurfOption | null>(null);
   const [includeInfill, setIncludeInfill] = useState(true);
   const [showMoreOptions, setShowMoreOptions] = useState(false);
 
+  // Ref for dropdown container to handle click-outside
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Set default selection after presets load
+  useEffect(() => {
+    if (!selectedTurf && presetOptions.length > 0) {
+      // Default to 2nd option (was TURF_OPTIONS[1])
+      const defaultOption = presetOptions[1] || presetOptions[0];
+      setSelectedTurf(defaultOption);
+    }
+  }, [presetOptions, selectedTurf]);
+
+  // Handle click-outside to close dropdown
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setShowMoreOptions(false);
+      }
+    }
+
+    if (showMoreOptions) {
+      document.addEventListener("mousedown", handleClickOutside);
+      return () => {
+        document.removeEventListener("mousedown", handleClickOutside);
+      };
+    }
+  }, [showMoreOptions]);
+
+  // IMPORTANT: Call ALL hooks unconditionally (React Rules of Hooks)
+  // Use safe defaults if selectedTurf is null during initial load
   const {
     widthFeet,
     lengthFeet,
@@ -109,15 +84,18 @@ export function CalculatorForm() {
     rollsNeeded,
     totalCutSquareFeet,
   } = useTurfLogic({
-    pricePerSqFtCents: selectedTurf.pricePerSqFtCents,
-    isPetTurf: selectedTurf.isPet,
+    pricePerSqFtCents: selectedTurf?.pricePerSqFtCents || 0,
+    isPetTurf: selectedTurf?.isPet || false,
     includeInfill,
   });
 
   // Calculate package items based on square footage (same logic as product page)
   const packageItems = React.useMemo(() => {
+    // Return empty array if selectedTurf not yet loaded
+    if (!selectedTurf) return [];
+
     const items: Array<{
-      accessory: typeof ACCESSORIES[0];
+      accessory: typeof accessories[0];
       qty: number;
       note: string;
     }> = [];
@@ -125,7 +103,7 @@ export function CalculatorForm() {
     // 1. Infill - 1 bag per 50 sqft
     if (includeInfill) {
       if (selectedTurf.isPet) {
-        const zeodorizer = ACCESSORIES.find(a => a.handle === "zeodorizer");
+        const zeodorizer = accessories.find(a => a.handle === "zeodorizer");
         if (zeodorizer) {
           items.push({
             accessory: zeodorizer,
@@ -134,7 +112,7 @@ export function CalculatorForm() {
           });
         }
       } else {
-        const infill = ACCESSORIES.find(a => a.handle === "60-grit-sand");
+        const infill = accessories.find(a => a.handle === "60-grit-sand");
         if (infill) {
           items.push({
             accessory: infill,
@@ -146,7 +124,7 @@ export function CalculatorForm() {
     }
 
     // 2. Weed barrier - 1 roll per 800 sqft
-    const weedBarrier = ACCESSORIES.find(a => a.handle === "weed-barrier");
+    const weedBarrier = accessories.find(a => a.handle === "weed-barrier");
     if (weedBarrier) {
       items.push({
         accessory: weedBarrier,
@@ -156,7 +134,7 @@ export function CalculatorForm() {
     }
 
     // 3. Nails - 1 box per 800 sqft
-    const nails = ACCESSORIES.find(a => a.handle === "5-inch-nails");
+    const nails = accessories.find(a => a.handle === "5-inch-nails");
     if (nails) {
       items.push({
         accessory: nails,
@@ -166,7 +144,7 @@ export function CalculatorForm() {
     }
 
     // 4. Gopher wire - 1 roll per 400 sqft
-    const gopherWire = ACCESSORIES.find(a => a.handle === "gopher-wire");
+    const gopherWire = accessories.find(a => a.handle === "gopher-wire");
     if (gopherWire) {
       items.push({
         accessory: gopherWire,
@@ -177,7 +155,7 @@ export function CalculatorForm() {
 
     // 5. Seam tape - based on seam count
     if (estimate.seaming.seamCount > 0) {
-      const seamTape = ACCESSORIES.find(a => a.handle === "seam-tape-8x50");
+      const seamTape = accessories.find(a => a.handle === "seam-tape-8x50");
       if (seamTape) {
         items.push({
           accessory: seamTape,
@@ -188,10 +166,22 @@ export function CalculatorForm() {
     }
 
     return items;
-  }, [squareFeet, totalCutSquareFeet, estimate.seaming.seamCount, selectedTurf.isPet, includeInfill]);
+  }, [selectedTurf, squareFeet, totalCutSquareFeet, estimate.seaming.seamCount, includeInfill, accessories]);
 
   const suppliesTotalCents = packageItems.reduce((sum, item) => sum + (item.accessory.priceCents * item.qty), 0);
   const grandTotalCents = totalPriceCents + suppliesTotalCents;
+
+  // Handle loading state - guard placed AFTER all hooks to satisfy React Rules of Hooks
+  if (!selectedTurf || presetOptions.length === 0) {
+    return (
+      <div className="p-8 text-center">
+        <p className="text-muted-foreground">Loading calculator...</p>
+        {presetOptions.length === 0 && (
+          <p className="text-xs text-red-500 mt-2">No featured products found</p>
+        )}
+      </div>
+    );
+  }
 
   return (
     <SafeTooltipProvider>
@@ -467,9 +457,9 @@ export function CalculatorForm() {
           </div>
 
           {/* Turf Selection - spans full width */}
-          <div className="lg:col-span-2 group relative rounded-xl sm:rounded-2xl bg-white border border-border/50 shadow-lg transition-all duration-300 hover:shadow-xl">
+          <div className="lg:col-span-2 group relative rounded-xl sm:rounded-2xl bg-white border border-border/50 shadow-lg transition-all duration-300 hover:shadow-xl overflow-visible">
 
-            <div className="relative p-3 sm:p-4">
+            <div className="relative p-3 sm:p-4 overflow-visible">
               <div className="flex items-center gap-2 sm:gap-3 mb-3">
                 <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center shadow-lg shadow-emerald-500/20">
                   <span className="text-white text-sm sm:text-base">🌿</span>
@@ -481,8 +471,8 @@ export function CalculatorForm() {
               </div>
 
               <div className="space-y-1.5 sm:space-y-2">
-                {TURF_OPTIONS.map((turf) => {
-                  const product = getProductByHandle(turf.productHandle);
+                {presetOptions.map((turf) => {
+                  const product = getProduct(turf.productHandle);
                   return (
                     <button
                       key={turf.id}
@@ -546,14 +536,20 @@ export function CalculatorForm() {
                 })}
               </div>
 
+              {/* Advanced Options - Visual Grouping */}
+              <div className="mt-3 sm:mt-4 p-3 sm:p-4 rounded-xl bg-gradient-to-br from-muted/30 to-muted/50 border border-border/30 overflow-visible">
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Advanced Options</span>
+                </div>
+
               {/* Other Products - Card Style Dropdown */}
-              {OTHER_PRODUCTS.length > 0 && (
-                <div className="relative mt-1.5 sm:mt-2">
+              {otherProducts.length > 0 && (
+                <div ref={dropdownRef} className="relative mt-1.5 sm:mt-2 overflow-visible">
                   {/* Check if a non-preset product is selected */}
                   {(() => {
-                    const isOtherSelected = !TURF_OPTIONS.some(t => t.id === selectedTurf.id);
+                    const isOtherSelected = !presetOptions.some(t => t.id === selectedTurf.id);
                     const selectedProduct = isOtherSelected
-                      ? OTHER_PRODUCTS.find(p => p.handle === selectedTurf.id)
+                      ? otherProducts.find(p => p.handle === selectedTurf.id)
                       : null;
 
                     return (
@@ -615,7 +611,7 @@ export function CalculatorForm() {
                                   )}>▼</span>
                                 </div>
                                 <p className="text-[9px] sm:text-[10px] text-muted-foreground pl-[18px] hidden sm:block">
-                                  {OTHER_PRODUCTS.length} more products available
+                                  {otherProducts.length} more products available
                                 </p>
                               </div>
                             </>
@@ -627,8 +623,25 @@ export function CalculatorForm() {
 
                   {/* Dropdown list */}
                   {showMoreOptions && (
-                    <div className="absolute z-10 left-0 right-0 mt-1 max-h-64 sm:max-h-80 overflow-y-auto rounded-lg border border-border/50 bg-white shadow-xl">
-                      {OTHER_PRODUCTS.map((product) => {
+                    <div className="absolute z-50 left-0 right-0 mt-1 max-h-64 sm:max-h-80 rounded-lg border border-border/50 bg-white shadow-2xl overflow-hidden">
+                      {/* Dropdown header with close button */}
+                      <div className="sticky top-0 z-10 flex items-center justify-between px-3 py-2 bg-gradient-to-r from-muted/80 to-muted/50 border-b border-border/30 backdrop-blur-sm">
+                        <span className="text-xs font-semibold text-muted-foreground">
+                          Select a Product
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => setShowMoreOptions(false)}
+                          className="p-1 rounded-md hover:bg-white/50 transition-colors"
+                          aria-label="Close dropdown"
+                        >
+                          <X className="w-3.5 h-3.5 text-muted-foreground" />
+                        </button>
+                      </div>
+
+                      {/* Products list */}
+                      <div className="max-h-56 sm:max-h-72 overflow-y-auto">
+                      {otherProducts.map((product) => {
                         const isSelected = selectedTurf.id === product.handle;
                         return (
                           <button
@@ -683,6 +696,7 @@ export function CalculatorForm() {
                           </button>
                         );
                       })}
+                      </div> {/* End products list */}
                     </div>
                   )}
                 </div>
@@ -708,14 +722,41 @@ export function CalculatorForm() {
                       <span className="text-white text-[10px]">✓</span>
                     )}
                   </div>
-                  <div className="flex-1 min-w-0">
+                  <div className="flex-1 min-w-0 flex items-center gap-1.5">
                     <span className="font-medium text-xs">Include infill in estimate</span>
                     {selectedTurf.isPet && (
-                      <span className="text-amber-600 text-[10px] font-medium ml-1">(Recommended)</span>
+                      <span className="text-amber-600 text-[10px] font-medium">(Recommended)</span>
                     )}
+                    <SafeTooltip>
+                      <SafeTooltipTrigger asChild>
+                        <button
+                          type="button"
+                          className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-primary/20 hover:bg-primary/30 transition-all duration-200 hover:scale-110"
+                          onClick={(e: React.MouseEvent) => e.preventDefault()}
+                        >
+                          <HelpCircle className="w-4 h-4 text-primary" />
+                        </button>
+                      </SafeTooltipTrigger>
+                      <SafeTooltipContent side="right" align="start" alignOffset={-10} sideOffset={8} className="max-w-[340px] sm:max-w-[420px] p-3 sm:p-4 bg-gradient-to-br from-slate-900 to-slate-800 border-slate-700">
+                        <div className="space-y-1.5">
+                          <h4 className="font-bold text-xs sm:text-sm text-white flex items-center gap-1.5">
+                            <span className="text-primary">•</span>
+                            What is Infill?
+                          </h4>
+                          <p className="text-[11px] sm:text-xs text-white/80 leading-snug">
+                            Infill helps turf blades stand upright, adds cushioning, and improves drainage. For pet turf, ZeoFill neutralizes odors.
+                          </p>
+                          <p className="text-[10px] text-white/50 italic pt-1 border-t border-white/10">
+                            Highly recommended for longevity and realistic appearance
+                          </p>
+                        </div>
+                      </SafeTooltipContent>
+                    </SafeTooltip>
                   </div>
                 </label>
               </div>
+
+              </div> {/* End Advanced Options */}
             </div>
           </div>
 
@@ -751,16 +792,32 @@ export function CalculatorForm() {
                   highlight
                 />
 
-                {/* Supply items from ACCESSORIES */}
-                {packageItems.map((item) => (
-                  <MaterialRow
-                    key={item.accessory.id}
-                    title={item.accessory.name}
-                    subtitle={`${item.qty} × ${formatPrice(item.accessory.priceCents)} — ${item.note}`}
-                    price={item.accessory.priceCents * item.qty}
-                    image={item.accessory.images[0]}
-                  />
-                ))}
+                {/* Supply items from accessories */}
+                {packageItems.map((item, index) => {
+                  // Add "(Recommended)" label before first infill item
+                  const isInfill = item.accessory.handle === "zeodorizer" || item.accessory.handle === "60-grit-sand";
+                  const isFirstInfill = isInfill && index === 0;
+
+                  return (
+                    <React.Fragment key={item.accessory.id}>
+                      {isFirstInfill && (
+                        <div className="flex items-center gap-1.5 mt-2 mb-1">
+                          <div className="h-px flex-1 bg-white/10" />
+                          <span className="text-[10px] text-white/40 uppercase tracking-wider font-semibold">
+                            Recommended
+                          </span>
+                          <div className="h-px flex-1 bg-white/10" />
+                        </div>
+                      )}
+                      <MaterialRow
+                        title={item.accessory.name}
+                        subtitle={`${item.qty} × ${formatPrice(item.accessory.priceCents)} — ${item.note}`}
+                        price={item.accessory.priceCents * item.qty}
+                        image={item.accessory.images[0]}
+                      />
+                    </React.Fragment>
+                  );
+                })}
               </div>
 
               {/* Divider & Total - outside fixed container so it stays in place */}

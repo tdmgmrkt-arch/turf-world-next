@@ -170,7 +170,7 @@ export default function InstallersPage() {
           />
           <BenefitCard
             title="Warranty Protected"
-            description="Professional installation protects your 15-year warranty. DIY installation may void coverage."
+            description="Professional installation protects your 16-Year Warranty. DIY installation may void coverage."
           />
           <BenefitCard
             title="Licensed & Insured"

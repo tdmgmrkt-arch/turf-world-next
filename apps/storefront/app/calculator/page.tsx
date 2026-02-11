@@ -95,9 +95,9 @@ export default function CalculatorPage() {
               <div className="hidden sm:block absolute -inset-1 bg-gradient-to-r from-primary/20 via-emerald-500/20 to-primary/20 rounded-[2rem] blur-xl opacity-50" />
 
               {/* Main card */}
-              <div className="relative bg-card rounded-2xl sm:rounded-3xl border shadow-premium overflow-hidden">
+              <div className="relative bg-card rounded-2xl sm:rounded-3xl border shadow-premium overflow-visible">
                 {/* Integrated Header */}
-                <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 px-4 sm:px-6 py-4 sm:py-6">
+                <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 px-4 sm:px-6 py-4 sm:py-6 rounded-t-2xl sm:rounded-t-3xl overflow-hidden">
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-primary to-emerald-600 flex items-center justify-center shadow-lg">
@@ -130,7 +130,7 @@ export default function CalculatorPage() {
                 </div>
 
                 {/* Calculator Content */}
-                <div className="p-3 sm:p-6 pb-6 sm:pb-10">
+                <div className="p-3 sm:p-6 pb-6 sm:pb-10 rounded-b-2xl sm:rounded-b-3xl">
                   <CalculatorForm />
                 </div>
               </div>

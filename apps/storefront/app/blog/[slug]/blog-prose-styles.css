@@ -1,0 +1,214 @@
+/* Blog Prose Container */
+.blog-prose {
+  @apply max-w-none;
+}
+
+/* Headings */
+.blog-prose-h2 {
+  @apply text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight;
+  @apply mt-12 mb-6 text-foreground;
+  @apply scroll-mt-24; /* Account for sticky header */
+  position: relative;
+  padding-top: 1rem;
+}
+
+.blog-prose-h2::before {
+  content: '';
+  display: block;
+  width: 4rem;
+  height: 0.25rem;
+  background: linear-gradient(90deg, hsl(var(--primary)), hsl(152, 55%, 45%));
+  margin-bottom: 1rem;
+  border-radius: 2px;
+}
+
+.blog-prose-h3 {
+  @apply text-xl md:text-2xl font-semibold tracking-tight;
+  @apply mt-10 mb-4 text-foreground;
+  @apply scroll-mt-24;
+}
+
+/* Paragraphs */
+.blog-prose-p {
+  @apply text-base md:text-lg leading-relaxed text-muted-foreground;
+  @apply mb-6;
+}
+
+/* First paragraph larger text */
+.blog-prose > p:first-of-type,
+.blog-prose-p:first-of-type {
+  @apply text-lg md:text-xl;
+  @apply mb-8;
+}
+
+/* Drop cap on first paragraph */
+.blog-prose > p:first-of-type::first-letter,
+.blog-prose-p:first-of-type::first-letter {
+  float: left;
+  font-size: 3.5rem;
+  line-height: 0.85;
+  margin: 0.05em 0.15em 0 0;
+  font-weight: 700;
+  background: linear-gradient(135deg, hsl(var(--primary)), hsl(152, 55%, 45%));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+@media (max-width: 768px) {
+  .blog-prose > p:first-of-type::first-letter,
+  .blog-prose-p:first-of-type::first-letter {
+    font-size: 2.75rem;
+  }
+}
+
+/* Lists */
+.blog-prose-ul,
+.blog-prose-ol {
+  @apply my-6 space-y-3;
+  @apply pl-6 md:pl-8;
+}
+
+.blog-prose-ul {
+  list-style: none;
+}
+
+.blog-prose-ul .blog-prose-li {
+  @apply relative pl-2;
+  @apply text-base md:text-lg leading-relaxed text-muted-foreground;
+}
+
+.blog-prose-ul .blog-prose-li::before {
+  content: '✓';
+  position: absolute;
+  left: -1.5rem;
+  font-weight: 700;
+  color: hsl(var(--primary));
+  font-size: 1.1em;
+}
+
+.blog-prose-ol {
+  counter-reset: list-counter;
+  list-style: none;
+}
+
+.blog-prose-ol .blog-prose-li {
+  @apply relative pl-2;
+  @apply text-base md:text-lg leading-relaxed text-muted-foreground;
+  counter-increment: list-counter;
+}
+
+.blog-prose-ol .blog-prose-li::before {
+  content: counter(list-counter) '.';
+  position: absolute;
+  left: -2rem;
+  font-weight: 700;
+  color: hsl(var(--primary));
+  min-width: 1.5rem;
+  text-align: right;
+}
+
+/* Nested lists */
+.blog-prose-li .blog-prose-ul,
+.blog-prose-li .blog-prose-ol {
+  @apply mt-3 mb-3;
+}
+
+/* Links */
+.blog-prose-link {
+  @apply text-primary font-medium;
+  @apply underline decoration-primary/30 decoration-2 underline-offset-4;
+  @apply transition-all duration-200;
+  position: relative;
+}
+
+.blog-prose-link:hover {
+  @apply decoration-primary;
+  @apply text-emerald-700;
+}
+
+/* Strong/Bold */
+.blog-prose-strong {
+  @apply font-semibold text-foreground;
+}
+
+/* Tables */
+.blog-prose-table-wrapper {
+  @apply my-8 overflow-x-auto;
+  @apply rounded-xl border border-border/50;
+  @apply shadow-lg;
+  position: relative;
+}
+
+.blog-prose-table {
+  @apply w-full;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.blog-prose-thead {
+  @apply bg-gradient-to-r from-slate-900 to-slate-800;
+}
+
+.blog-prose-th {
+  @apply px-6 py-4 text-left;
+  @apply text-sm md:text-base font-semibold text-white;
+  @apply border-b border-slate-700;
+}
+
+.blog-prose-th:first-child {
+  @apply rounded-tl-xl;
+}
+
+.blog-prose-th:last-child {
+  @apply rounded-tr-xl;
+}
+
+.blog-prose-tbody .blog-prose-tr {
+  @apply transition-colors duration-150;
+}
+
+.blog-prose-tbody .blog-prose-tr:nth-child(odd) {
+  @apply bg-muted/30;
+}
+
+.blog-prose-tbody .blog-prose-tr:nth-child(even) {
+  @apply bg-muted/10;
+}
+
+.blog-prose-tbody .blog-prose-tr:hover {
+  @apply bg-primary/5;
+}
+
+.blog-prose-td {
+  @apply px-6 py-4;
+  @apply text-sm md:text-base text-muted-foreground;
+  @apply border-b border-border/30;
+}
+
+.blog-prose-tbody .blog-prose-tr:last-child .blog-prose-td {
+  @apply border-b-0;
+}
+
+.blog-prose-tbody .blog-prose-tr:last-child .blog-prose-td:first-child {
+  @apply rounded-bl-xl;
+}
+
+.blog-prose-tbody .blog-prose-tr:last-child .blog-prose-td:last-child {
+  @apply rounded-br-xl;
+}
+
+/* Responsive table adjustments */
+@media (max-width: 768px) {
+  .blog-prose-th,
+  .blog-prose-td {
+    @apply px-4 py-3 text-sm;
+  }
+}
+
+/* Pro tip callouts (for content like "Pro tip: Use our Project Calculator") */
+.blog-prose-p strong:first-child {
+  @apply inline-block px-3 py-1 rounded-md;
+  @apply bg-primary/10 text-primary;
+  @apply mr-2;
+}

@@ -92,7 +92,7 @@ export default async function Image() {
                 background: "#3b82f6",
               }}
             />
-            15-Year Warranty
+            16-Year Warranty
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <div

@@ -148,7 +148,7 @@ const reviews = [
     rating: 5,
     title: "Exceeded all expectations",
     review:
-      "I was skeptical about artificial turf looking 'real' but Turf World 88 is absolutely stunning. The multi-tone blades look natural, and it feels soft underfoot. My kids play on it daily with no wear showing. The 15-year warranty gave me confidence.",
+      "I was skeptical about artificial turf looking 'real' but Turf World 88 is absolutely stunning. The multi-tone blades look natural, and it feels soft underfoot. My kids play on it daily with no wear showing. The 16-Year Warranty gave me confidence.",
     product: "Turf World 88",
     projectSize: "1,100 sq ft",
     date: "September 2024",
@@ -177,7 +177,7 @@ const trustFactors = [
   },
   {
     icon: Shield,
-    title: "15-Year Warranty",
+    title: "16-Year Warranty",
     description: "Every product backed by our industry-leading warranty",
   },
   {

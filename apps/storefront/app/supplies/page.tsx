@@ -18,6 +18,8 @@ import { Button } from "@/components/ui/button";
 import { Breadcrumb } from "@/components/ui/breadcrumb";
 import { formatPrice, cn } from "@/lib/utils";
 import { ACCESSORIES, type Accessory } from "@/lib/products";
+import { fetchAllAccessories } from "@/lib/medusa-products";
+import { USE_MEDUSA_API } from "@/lib/medusa-client";
 
 export const metadata: Metadata = {
   title: "Turf Installation Supplies | Infill, Seam Tape, Nails & More",
@@ -72,7 +74,10 @@ const CATEGORIES: { name: Accessory["category"]; displayName: string; icon: type
   },
 ];
 
-export default function SuppliesPage() {
+export default async function SuppliesPage() {
+  // Fetch accessories from API or use hardcoded data based on feature flag
+  const accessories = USE_MEDUSA_API ? await fetchAllAccessories() : ACCESSORIES;
+
   return (
     <div className="min-h-screen">
       <Breadcrumb items={[{ label: "Supplies" }]} />
@@ -150,7 +155,7 @@ export default function SuppliesPage() {
       <section className="py-10 sm:py-14 md:py-20">
         <div className="container px-4 sm:px-6">
           {CATEGORIES.map((category, catIdx) => {
-            const categoryItems = ACCESSORIES.filter(
+            const categoryItems = accessories.filter(
               (a) => a.category === category.name
             );
             if (categoryItems.length === 0) return null;
@@ -261,9 +266,27 @@ export default function SuppliesPage() {
 
                           {/* Price & Action */}
                           <div className="mt-3 sm:mt-4 md:mt-6 pt-2 sm:pt-3 md:pt-4 border-t flex items-center justify-between">
-                            <span className="text-lg sm:text-xl md:text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary to-emerald-600">
-                              {formatPrice(supply.priceCents)}
-                            </span>
+                            <div>
+                              {/* Show compare-at price if promotion active */}
+                              {supply.comparePriceCents && (
+                                <div className="mb-0.5">
+                                  <span className="text-[10px] sm:text-xs text-muted-foreground line-through">
+                                    {formatPrice(supply.comparePriceCents)}
+                                  </span>
+                                  <span className="ml-1.5 text-[9px] sm:text-[10px] font-bold text-rose-600 bg-rose-50 px-1.5 py-0.5 rounded">
+                                    {Math.round((1 - supply.priceCents / supply.comparePriceCents) * 100)}% OFF
+                                  </span>
+                                </div>
+                              )}
+                              <span className={cn(
+                                "text-lg sm:text-xl md:text-2xl font-bold",
+                                supply.comparePriceCents
+                                  ? "text-rose-600"
+                                  : "text-transparent bg-clip-text bg-gradient-to-r from-primary to-emerald-600"
+                              )}>
+                                {formatPrice(supply.priceCents)}
+                              </span>
+                            </div>
                             <span className="hidden sm:inline-flex items-center gap-2 text-sm font-medium text-primary group-hover:underline">
                               View Details
                               <ArrowRight className="w-4 h-4" />

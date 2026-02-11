@@ -17,7 +17,7 @@ export const metadata: Metadata = {
     template: "%s | Turf World",
   },
   description:
-    "Skip the middleman. Get professional-grade artificial grass with transparent pricing, fast nationwide shipping, and a 15-year warranty. PFAS-free guaranteed.",
+    "Skip the middleman. Get professional-grade artificial grass with transparent pricing, fast nationwide shipping, and a 16-Year Warranty. PFAS-free guaranteed.",
   keywords: [
     "artificial grass",
     "artificial turf",
@@ -29,6 +29,9 @@ export const metadata: Metadata = {
     "fire rated turf",
   ],
   metadataBase: new URL("https://www.turf-world.com"),
+  icons: {
+    icon: "/favicon.ico",
+  },
   openGraph: {
     type: "website",
     locale: "en_US",

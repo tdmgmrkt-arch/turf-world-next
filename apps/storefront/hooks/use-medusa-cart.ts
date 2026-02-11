@@ -59,13 +59,18 @@ export function useMedusaCart() {
     initCart();
   }, [cartId, setCartId, refreshCart]);
 
-  const addItem = useCallback(async (variantId: string, quantity: number) => {
+  const addItem = useCallback(async (
+    variantId: string,
+    quantity: number,
+    metadata?: Record<string, any>
+  ) => {
     if (!cartId) return;
     try {
       setIsLoading(true);
       await medusa.store.cart.createLineItem(cartId, {
         variant_id: variantId,
         quantity,
+        metadata,
       });
       await refreshCart(cartId); // Refetch after mutation
     } catch (err) {
@@ -101,6 +106,87 @@ export function useMedusaCart() {
       setIsLoading(false);
     }
   }, [cartId, refreshCart]);
+
+  /**
+   * Sync local cart items to Medusa cart with metadata
+   * This ensures cut dimensions and other custom data are sent to the backend
+   */
+  const syncLocalCartToMedusa = useCallback(async (localCartItems: any[]) => {
+    if (!cartId || localCartItems.length === 0) return;
+
+    try {
+      setIsLoading(true);
+
+      // Clear existing Medusa cart items to avoid duplicates
+      if (medusaCart?.items?.length > 0) {
+        for (const item of medusaCart.items) {
+          await medusa.store.cart.deleteLineItem(cartId, item.id);
+        }
+      }
+
+      // Get region ID for product queries
+      const regionId = process.env.NEXT_PUBLIC_MEDUSA_REGION_ID;
+
+      // Add each local cart item to Medusa cart with metadata
+      for (const localItem of localCartItems) {
+        try {
+          // Fetch the Medusa product to get its actual variant ID
+          // The productId in local cart is the original product ID (e.g., "hawaii-80")
+          const { products } = await medusa.store.product.list({
+            region_id: regionId,
+            limit: 100, // Get all products to search
+          });
+
+          // Find product by matching the original_id in metadata
+          const medusaProduct = products.find(
+            (p: any) => p.metadata?.original_id === localItem.productId || p.handle === localItem.productId
+          );
+
+          if (!medusaProduct || !medusaProduct.variants?.[0]) {
+            console.warn(`Could not find Medusa variant for product: ${localItem.productId}`);
+            continue;
+          }
+
+          // Use the first variant ID from the Medusa product
+          const variantId = medusaProduct.variants[0].id;
+
+          // Build metadata with cut dimensions
+          const metadata: Record<string, any> = {
+            local_cart_id: localItem.id,
+            original_product_id: localItem.productId,
+            custom_title: localItem.title, // Preserve the custom title like "Hawaii 80 - Cut #1"
+          };
+
+          // Add dimension metadata if present (for custom cuts)
+          if (localItem.dimensions) {
+            metadata.cut_width_ft = localItem.dimensions.widthFeet;
+            metadata.cut_length_ft = localItem.dimensions.lengthFeet;
+            metadata.cut_square_feet = localItem.dimensions.squareFeet;
+            metadata.cut_label = `${localItem.dimensions.widthFeet}' × ${localItem.dimensions.lengthFeet}'`;
+          }
+
+          // Create line item in Medusa cart
+          await medusa.store.cart.createLineItem(cartId, {
+            variant_id: variantId,
+            quantity: localItem.quantity,
+            metadata,
+          });
+        } catch (itemErr) {
+          console.error(`Failed to add item ${localItem.id} to Medusa cart:`, itemErr);
+          // Continue with other items even if one fails
+        }
+      }
+
+      // Refresh cart to get updated state
+      await refreshCart(cartId);
+    } catch (err) {
+      console.error("Failed to sync local cart to Medusa:", err);
+      setError(err as Error);
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  }, [cartId, medusaCart, refreshCart]);
 
   const completeCheckout = useCallback(async () => {
     if (!cartId) return null;
@@ -216,6 +302,7 @@ export function useMedusaCart() {
     addItem,
     updateItem,
     removeItem,
+    syncLocalCartToMedusa,
     completeCheckout,
     refreshCart,
     updateShippingAddress,

@@ -60,8 +60,8 @@ const footerLinks = {
       { name: "About Us", href: "/about" },
       { name: "Service Areas", href: "/locations" },
       { name: "Reviews", href: "/reviews" },
+      { name: "Partner With Us", href: "/broker" },
       { name: "Contact", href: "/contact" },
-      { name: "Careers", href: "/careers" },
     ],
   },
   legal: {
@@ -256,7 +256,7 @@ export function Footer() {
               </span>
               <span className="flex items-center gap-1">
                 <span className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-blue-500"></span>
-                15-Year Warranty
+                16-Year Warranty
               </span>
             </div>
 

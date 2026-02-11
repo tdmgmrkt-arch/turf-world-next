@@ -1,8 +1,11 @@
 import { ExecArgs } from "@medusajs/framework/types";
-import { createProductsWorkflow } from "@medusajs/medusa/core-flows";
+import { createProductsWorkflow, createCollectionsWorkflow } from "@medusajs/medusa/core-flows";
 import { ProductStatus } from "@medusajs/framework/utils";
 import { readFileSync } from "fs";
 import { join } from "path";
+
+// Default region ID for pricing (United States)
+const DEFAULT_REGION_ID = "reg_01KH2BZEE8K83YZTDS8TKW664W";
 
 /**
  * Import All Products from Storefront
@@ -28,17 +31,91 @@ export default async function importAllProducts({ container }: ExecArgs) {
   logger.info(`Found ${PRODUCTS.length} turf products and ${ACCESSORIES.length} accessories`);
 
   // ================================================
-  // 1. CREATE CATEGORIES
+  // 1. GET OR CREATE COLLECTIONS
   // ================================================
-  logger.info("Categories will be auto-created with products");
+  logger.info("Fetching or creating product collections...");
+
+  const query = container.resolve("query") as any;
+
+  // Try to fetch existing collections first
+  const { data: existingCollections } = await query.graph({
+    entity: "product_collection",
+    fields: ["id", "handle"],
+  });
+
+  let collections = existingCollections;
+
+  // If no collections exist, create them
+  if (!collections || collections.length === 0) {
+    logger.info("No collections found. Creating new collections...");
+    const { result: newCollections } = await createCollectionsWorkflow(container).run({
+      input: {
+        collections: [
+          {
+            title: "Landscape Turf",
+            handle: "landscape",
+            metadata: {
+              description: "Professional-grade landscape artificial grass",
+              sort_order: 1,
+            },
+          },
+          {
+            title: "Pet Turf",
+            handle: "pet",
+            metadata: {
+              description: "Pet-friendly artificial grass with superior drainage",
+              sort_order: 2,
+            },
+          },
+          {
+            title: "Putting Greens",
+            handle: "putting",
+            metadata: {
+              description: "Golf putting green turf",
+              sort_order: 3,
+            },
+          },
+          {
+            title: "Installation Supplies",
+            handle: "supplies",
+            metadata: {
+              description: "Turf installation materials and accessories",
+              sort_order: 4,
+            },
+          },
+        ],
+      },
+    });
+    collections = newCollections;
+  } else {
+    logger.info(`Found ${collections.length} existing collections. Skipping creation.`);
+  }
+
+  // Create a map of category -> collection ID
+  const collectionMap: Record<string, string> = {};
+  for (const collection of collections) {
+    collectionMap[collection.handle] = collection.id;
+  }
+
+  logger.info(`✅ Using ${collections.length} collections`);
 
   // ================================================
   // 2. CONVERT TURF PRODUCTS TO MEDUSA FORMAT
   // ================================================
-  const medusaProducts = PRODUCTS.map((product: any) => ({
-    title: product.name,
-    handle: product.handle,
-    subtitle: `${product.weight}oz Total Weight | ${product.pileHeight}" Pile Height`,
+  const medusaProducts = PRODUCTS.map((product: any) => {
+    // Determine collection based on category
+    let collectionHandle = "landscape"; // default
+    if (product.category === "pet") {
+      collectionHandle = "pet";
+    } else if (product.category === "putting") {
+      collectionHandle = "putting";
+    }
+
+    return {
+      title: product.name,
+      handle: product.handle,
+      subtitle: `${product.weight}oz Total Weight | ${product.pileHeight}" Pile Height`,
+      collection_id: collectionMap[collectionHandle],
     description: `
 ${product.description}
 
@@ -54,7 +131,8 @@ ${product.badge ? `**${product.badge}** - ` : ""}Professional-grade artificial t
     status: product.inStock ? ProductStatus.PUBLISHED : ProductStatus.DRAFT,
     is_giftcard: false,
     discountable: true,
-    // tags: product.tags.map((tag: string) => ({ value: tag })), // Skip tags for now
+    // TODO: Enable tags after creating them first
+    // tags: product.tags.map((tag: string) => ({ value: tag })),
     // categories: [
     //   {
     //     name: getCategoryName(product.category),
@@ -76,6 +154,7 @@ ${product.badge ? `**${product.badge}** - ` : ""}Professional-grade artificial t
           {
             amount: product.priceCents,
             currency_code: "usd",
+            region_id: DEFAULT_REGION_ID,
           },
         ],
         options: { Size: "15' x 100' Roll" },
@@ -120,11 +199,12 @@ ${product.badge ? `**${product.badge}** - ` : ""}Professional-grade artificial t
         fire_rating: "Class_A", // Default, update in metadata later if needed
       },
     },
-    // Images - reference from storefront public folder
-    images: product.images.map((imgPath: string) => ({
-      url: `http://localhost:3008${imgPath}`, // Reference storefront images
-    })),
-  }));
+      // Images - reference from storefront public folder
+      images: product.images.map((imgPath: string) => ({
+        url: `http://localhost:3008${imgPath}`, // Reference storefront images
+      })),
+    };
+  });
 
   // ================================================
   // 3. CONVERT ACCESSORIES TO MEDUSA FORMAT
@@ -134,10 +214,12 @@ ${product.badge ? `**${product.badge}** - ` : ""}Professional-grade artificial t
     handle: accessory.handle,
     subtitle: accessory.size,
     description: accessory.description,
+    collection_id: collectionMap["supplies"], // All accessories go to supplies collection
     status: accessory.inStock ? ProductStatus.PUBLISHED : ProductStatus.DRAFT,
     is_giftcard: false,
     discountable: true,
-    // tags: accessory.tags.map((tag: string) => ({ value: tag })), // Skip tags for now
+    // TODO: Enable tags after creating them first
+    // tags: accessory.tags.map((tag: string) => ({ value: tag })),
     // categories: [
     //   {
     //     name: getCategoryName(accessory.category),
@@ -159,6 +241,7 @@ ${product.badge ? `**${product.badge}** - ` : ""}Professional-grade artificial t
           {
             amount: accessory.priceCents,
             currency_code: "usd",
+            region_id: DEFAULT_REGION_ID,
           },
         ],
         options: { Size: accessory.size },
@@ -193,6 +276,44 @@ ${product.badge ? `**${product.badge}** - ` : ""}Professional-grade artificial t
     });
 
     logger.info(`✅ Successfully imported ${result.length} products!`);
+
+    // ================================================
+    // 5. CREATE TURF ATTRIBUTES FOR TURF PRODUCTS
+    // ================================================
+    logger.info("Creating turf attributes for products...");
+
+    const turfAttributesService = container.resolve("turf_attributes") as any;
+
+    // Only create turf attributes for actual turf products (not accessories)
+    let turfCount = 0;
+    for (let i = 0; i < PRODUCTS.length; i++) {
+      const product = PRODUCTS[i];
+      const createdProduct = result[i]; // Corresponding created product
+
+      await turfAttributesService.createTurfAttributes({
+        product_id: createdProduct.id,
+        pile_height: product.pileHeight,
+        face_weight: product.weight,
+        roll_width: 15,
+        backing_type: product.backing.toLowerCase().includes("permeable")
+          ? "permeable"
+          : product.backing.toLowerCase().includes("perforated")
+          ? "perforated"
+          : "solid",
+        warranty_years: parseInt(product.warranty.match(/\d+/)?.[0] || "15"),
+        primary_use: product.category,
+        pet_friendly: product.category === "pet" || product.uses.includes("pet"),
+        golf_optimized: product.category === "putting",
+        has_thatch: product.pileHeight > 1,
+        pfas_free: true,
+        lead_free: true,
+        fire_rating: "Class_A",
+      });
+      turfCount++;
+    }
+
+    logger.info(`✅ Created ${turfCount} turf attribute records`);
+
     logger.info("");
     logger.info("Product import complete!");
     logger.info("Access your admin dashboard at: http://localhost:9000/app");

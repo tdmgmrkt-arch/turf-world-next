@@ -2,6 +2,7 @@
 
 import NextLink from "next/link";
 import NextImage from "next/image";
+import { usePathname } from "next/navigation";
 import { Button as ShadcnButton } from "@/components/ui/button";
 import { useCartStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
@@ -21,6 +22,7 @@ import {
   Heart as LucideHeart,
   Facebook as LucideFacebook,
   Instagram as LucideInstagram,
+  ChevronDown as LucideChevronDown,
 } from "lucide-react";
 
 // Cast Lucide icons to work around React 19 JSX type incompatibility
@@ -38,6 +40,7 @@ const Star = LucideStar as any;
 const Heart = LucideHeart as any;
 const Facebook = LucideFacebook as any;
 const Instagram = LucideInstagram as any;
+const ChevronDown = LucideChevronDown as any;
 
 function YelpIcon({ className }: { className?: string }) {
   return (
@@ -147,19 +150,37 @@ const aboutCategories = [
   },
 ];
 
-const navLinks = [
+// Desktop navigation links (simple list)
+const desktopNavLinks = [
   { name: "Calculator", href: "/calculator" },
   { name: "Locations", href: "/locations" },
   { name: "Wholesale", href: "/broker" },
 ];
 
+// Mobile-only resource links (full list including legal/policy pages)
+const mobileResourceLinks = [
+  { name: "Calculator", href: "/calculator" },
+  { name: "Locations", href: "/locations" },
+  { name: "Wholesale", href: "/broker" },
+  { name: "Installation Guide", href: "/installation" },
+  { name: "Warranty Information", href: "/warranty" },
+  { name: "Shipping Policy", href: "/shipping" },
+  { name: "Return Policy", href: "/returns" },
+  { name: "FAQ", href: "/faq" },
+  { name: "Terms & Conditions", href: "/terms-and-conditions" },
+  { name: "Privacy Policy", href: "/privacy-policy" },
+];
+
 export function Header() {
+  const pathname = usePathname();
   const { openCart, getItemCount } = useCartStore();
   const itemCount = getItemCount();
   const [turfMenuOpen, setTurfMenuOpen] = useState(false);
   const [suppliesMenuOpen, setSuppliesMenuOpen] = useState(false);
   const [aboutMenuOpen, setAboutMenuOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mobileAboutOpen, setMobileAboutOpen] = useState(false);
+  const [mobileResourcesOpen, setMobileResourcesOpen] = useState(false);
   const turfTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const suppliesTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const aboutTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -257,7 +278,7 @@ export function Header() {
                 </button>
               </div>
 
-              {navLinks.map((link) => (
+              {desktopNavLinks.map((link) => (
                 <Link
                   key={link.name}
                   href={link.href}
@@ -346,7 +367,7 @@ export function Header() {
                   <Truck className="h-4 w-4" /> Fast Nationwide Shipping
                 </span>
                 <span className="flex items-center gap-1.5">
-                  <Shield className="h-4 w-4" /> 15-Year Warranty
+                  <Shield className="h-4 w-4" /> 16-Year Warranty
                 </span>
                 <span className="flex items-center gap-1.5">
                   <Clock className="h-4 w-4" /> Ships in 2-3 Days
@@ -683,7 +704,7 @@ export function Header() {
                       <Heart className="h-4 w-4 text-primary" /> Family-owned since 2015
                     </span>
                     <span className="flex items-center gap-1.5">
-                      <Shield className="h-4 w-4 text-primary" /> 15-Year Warranty
+                      <Shield className="h-4 w-4 text-primary" /> 16-Year Warranty
                     </span>
                     <span className="flex items-center gap-1.5">
                       <Star className="h-4 w-4 text-amber-500" /> 4.9/5 Customer Rating
@@ -781,113 +802,248 @@ export function Header() {
               </Button>
             </div>
 
-            <div className="flex-1 overflow-y-auto">
-              {/* Turf Categories */}
-              <div className="p-4">
+            {/* Contextual "Now Browsing" Header */}
+            {(() => {
+              const currentCategory = turfCategories.find(cat => pathname === cat.href || pathname?.startsWith(cat.href.split('?')[0])) ||
+                                     supplyCategories.find(cat => pathname === cat.href || pathname?.startsWith(cat.href.split('#')[0]));
+
+              if (currentCategory) {
+                return (
+                  <div className="px-4 py-3 bg-gradient-to-r from-primary/5 to-emerald-50 border-b border-primary/10">
+                    <div className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+                      <span className="text-xs font-semibold text-primary uppercase tracking-wider">
+                        Now Browsing: {currentCategory.title}
+                      </span>
+                    </div>
+                  </div>
+                );
+              }
+              return null;
+            })()}
+
+            <div className="relative flex-1">
+              <div className="absolute inset-0 overflow-y-auto">
+                {/* Turf Categories - Primary Visual Block */}
+                <div className="p-4">
                 <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">Shop Turf</p>
                 <div className="grid grid-cols-2 gap-2">
-                  {turfCategories.map((cat) => (
-                    <Link
-                      key={cat.title}
-                      href={cat.href}
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="relative rounded-lg overflow-hidden aspect-square"
-                    >
-                      <Image
-                        src={cat.image}
-                        alt={cat.title}
-                        fill
-                        className="object-cover"
-                        style={cat.imagePosition ? { objectPosition: cat.imagePosition } : undefined}
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
-                      <div className="absolute bottom-2 left-2 right-2 text-white">
-                        <span className="font-semibold text-sm block">{cat.title}</span>
-                        <span className="text-xs text-white/80">From {cat.priceFrom}/sf</span>
-                      </div>
-                    </Link>
-                  ))}
+                  {turfCategories.map((cat) => {
+                    const isActive = pathname === cat.href || pathname?.startsWith(cat.href.split('?')[0]);
+                    return (
+                      <Link
+                        key={cat.title}
+                        href={cat.href}
+                        onClick={() => setMobileMenuOpen(false)}
+                        className={cn(
+                          "relative rounded-lg overflow-hidden aspect-square transition-all active:scale-95",
+                          isActive && "ring-2 ring-primary ring-offset-2"
+                        )}
+                      >
+                        <Image
+                          src={cat.image}
+                          alt={cat.title}
+                          fill
+                          className="object-cover"
+                          style={cat.imagePosition ? { objectPosition: cat.imagePosition } : undefined}
+                          priority
+                        />
+                        <div className={cn(
+                          "absolute inset-0 bg-gradient-to-t transition-colors",
+                          isActive
+                            ? "from-primary/90 to-primary/20"
+                            : "from-black/70 to-transparent"
+                        )} />
+                        <div className="absolute bottom-2 left-2 right-2 text-white">
+                          <span className={cn(
+                            "font-semibold text-sm block",
+                            isActive && "text-white"
+                          )}>{cat.title}</span>
+                          <span className="text-xs text-white/90">From {cat.priceFrom}/sf</span>
+                        </div>
+                        {isActive && (
+                          <div className="absolute top-2 right-2 w-2 h-2 rounded-full bg-emerald-400 shadow-lg" />
+                        )}
+                      </Link>
+                    );
+                  })}
                 </div>
               </div>
 
-              {/* Supplies Categories */}
+              {/* Calculator Bridge - Prominent CTA */}
+              <div className="px-4 py-3 border-t bg-gradient-to-br from-primary/5 to-emerald-50/50">
+                <Link
+                  href="/calculator"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="block group"
+                >
+                  <div className="flex items-center gap-3 p-3.5 rounded-xl bg-gradient-to-r from-primary to-emerald-600 shadow-lg shadow-primary/20 transition-all active:scale-95 hover:shadow-xl hover:shadow-primary/30">
+                    <div className="w-10 h-10 rounded-lg bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                      <Calculator className="h-5 w-5 text-white" />
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-white text-sm">Turf Project Calculator</span>
+                        <span className="px-1.5 py-0.5 rounded-full bg-white/20 text-[9px] font-semibold text-white uppercase tracking-wider">Free</span>
+                      </div>
+                      <p className="text-xs text-white/90 mt-0.5">Get exact materials & pricing instantly</p>
+                    </div>
+                    <div className="text-white/80 transition-transform group-hover:translate-x-1">→</div>
+                  </div>
+                </Link>
+              </div>
+
+              {/* Supplies Categories - Primary Visual Block */}
               <div className="p-4 border-t">
                 <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">Shop Supplies</p>
                 <div className="grid grid-cols-2 gap-2">
-                  {supplyCategories.map((cat) => (
-                    <Link
-                      key={cat.title}
-                      href={cat.href}
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="relative rounded-lg overflow-hidden aspect-square border border-slate-200"
-                    >
-                      <Image
-                        src={cat.image}
-                        alt={cat.title}
-                        fill
-                        className="object-cover"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-                      <div className="absolute bottom-0 left-0 right-0 p-2">
-                        <span className="font-semibold text-sm block text-white">{cat.title}</span>
-                      </div>
-                    </Link>
-                  ))}
+                  {supplyCategories.map((cat) => {
+                    const isActive = pathname === cat.href || pathname?.startsWith(cat.href.split('#')[0]);
+                    return (
+                      <Link
+                        key={cat.title}
+                        href={cat.href}
+                        onClick={() => setMobileMenuOpen(false)}
+                        className={cn(
+                          "relative rounded-lg overflow-hidden aspect-square border transition-all active:scale-95",
+                          isActive
+                            ? "border-primary ring-2 ring-primary ring-offset-2"
+                            : "border-slate-200"
+                        )}
+                      >
+                        <Image
+                          src={cat.image}
+                          alt={cat.title}
+                          fill
+                          className="object-cover"
+                          priority
+                        />
+                        <div className={cn(
+                          "absolute inset-0 bg-gradient-to-t transition-colors",
+                          isActive
+                            ? "from-primary/90 via-primary/20 to-transparent"
+                            : "from-black/70 via-black/20 to-transparent"
+                        )} />
+                        <div className="absolute bottom-0 left-0 right-0 p-2">
+                          <span className="font-semibold text-sm block text-white">{cat.title}</span>
+                        </div>
+                        {isActive && (
+                          <div className="absolute top-2 right-2 w-2 h-2 rounded-full bg-emerald-400 shadow-lg" />
+                        )}
+                      </Link>
+                    );
+                  })}
                 </div>
               </div>
 
-              {/* About */}
-              <div className="p-4 border-t">
-                <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">About</p>
-                <div className="grid grid-cols-2 gap-2">
-                  {aboutCategories.map((cat) => (
-                    <Link
-                      key={cat.title}
-                      href={cat.href}
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="relative rounded-lg overflow-hidden aspect-square"
-                    >
-                      <Image src={cat.image} alt={cat.title} fill className="object-cover" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
-                      <div className="absolute bottom-2 left-2 right-2 text-white">
-                        <span className="font-semibold text-sm block">{cat.title}</span>
-                        <span className="text-xs text-white/80">{cat.description}</span>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-
-              {/* Links */}
-              <div className="p-4 border-t">
-                <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">Resources</p>
-                {navLinks.map((link) => (
-                  <Link
-                    key={link.name}
-                    href={link.href}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="flex items-center gap-3 py-3 font-medium hover:text-primary transition-colors"
-                  >
-                    {link.name}
-                  </Link>
-                ))}
-                <Link
-                  href="/contact"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-3 py-3 font-medium hover:text-primary transition-colors"
+              {/* About - Accordion */}
+              <div className="border-t">
+                <button
+                  onClick={() => setMobileAboutOpen(!mobileAboutOpen)}
+                  className="w-full flex items-center justify-between p-4 text-left hover:bg-slate-50 transition-all active:scale-[0.98]"
                 >
-                  Contact
-                </Link>
+                  <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">About</span>
+                  <ChevronDown className={cn(
+                    "h-4 w-4 text-muted-foreground transition-transform duration-200",
+                    mobileAboutOpen && "rotate-180"
+                  )} />
+                </button>
+                <div className={cn(
+                  "overflow-hidden transition-all duration-300 ease-in-out",
+                  mobileAboutOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+                )}>
+                  <div className="px-4 pb-4 space-y-1">
+                    {aboutCategories.map((cat) => {
+                      const isActive = pathname === cat.href;
+                      return (
+                        <Link
+                          key={cat.title}
+                          href={cat.href}
+                          onClick={() => setMobileMenuOpen(false)}
+                          className={cn(
+                            "flex items-center justify-between py-2.5 px-3 rounded-lg transition-all active:scale-95 text-sm",
+                            isActive
+                              ? "bg-primary/10 text-primary font-semibold"
+                              : "hover:bg-slate-50 text-foreground"
+                          )}
+                        >
+                          <span>{cat.title}</span>
+                          {isActive && (
+                            <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+                          )}
+                        </Link>
+                      );
+                    })}
+                    <Link
+                      href="/contact"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={cn(
+                        "flex items-center justify-between py-2.5 px-3 rounded-lg transition-all active:scale-95 text-sm",
+                        pathname === "/contact"
+                          ? "bg-primary/10 text-primary font-semibold"
+                          : "hover:bg-slate-50 text-foreground"
+                      )}
+                    >
+                      <span>Contact</span>
+                      {pathname === "/contact" && (
+                        <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+                      )}
+                    </Link>
+                  </div>
+                </div>
+              </div>
+
+              {/* Resources - Accordion */}
+              <div className="border-t">
+                <button
+                  onClick={() => setMobileResourcesOpen(!mobileResourcesOpen)}
+                  className="w-full flex items-center justify-between p-4 text-left hover:bg-slate-50 transition-all active:scale-[0.98]"
+                >
+                  <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Resources</span>
+                  <ChevronDown className={cn(
+                    "h-4 w-4 text-muted-foreground transition-transform duration-200",
+                    mobileResourcesOpen && "rotate-180"
+                  )} />
+                </button>
+                <div className={cn(
+                  "overflow-hidden transition-all duration-300 ease-in-out",
+                  mobileResourcesOpen ? "max-h-64 opacity-100" : "max-h-0 opacity-0"
+                )}>
+                  <div className="px-4 pb-4 space-y-1">
+                    {mobileResourceLinks.map((link) => {
+                      const isActive = pathname === link.href;
+                      return (
+                        <Link
+                          key={link.name}
+                          href={link.href}
+                          onClick={() => setMobileMenuOpen(false)}
+                          className={cn(
+                            "flex items-center justify-between py-2.5 px-3 rounded-lg transition-all active:scale-95 text-sm",
+                            isActive
+                              ? "bg-primary/10 text-primary font-semibold"
+                              : "hover:bg-slate-50 text-foreground"
+                          )}
+                        >
+                          <span>{link.name}</span>
+                          {isActive && (
+                            <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+                          )}
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
               </div>
             </div>
 
             {/* Footer */}
             <div className="p-4 border-t bg-slate-50">
-              <a href="tel:(909) 491-2203" className="flex items-center justify-center gap-2 mb-3 text-sm font-medium">
+              <a href="tel:(909) 491-2203" className="flex items-center justify-center gap-2 mb-3 text-sm font-medium transition-all active:scale-95 hover:text-primary">
                 <Phone className="h-4 w-4" /> (909) 491-2203
               </a>
               <Link href="/samples" onClick={() => setMobileMenuOpen(false)}>
-                <Button className="w-full bg-primary hover:bg-primary/90" size="lg">
+                <Button className="w-full bg-primary hover:bg-primary/90 transition-all active:scale-95" size="lg">
                   <Sparkles className="h-4 w-4 mr-1" /> Get Free Samples
                 </Button>
               </Link>

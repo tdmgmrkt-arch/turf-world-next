@@ -17,6 +17,7 @@ import {
   getBlogPostBySlug,
   getRecentPosts,
 } from "@/lib/blog-posts";
+import { BlogContent } from './blog-content';
 
 // Cast to work around React 19 JSX type incompatibility
 const Link = NextLink as any;
@@ -151,20 +152,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           <div className="grid lg:grid-cols-12 gap-12">
             {/* Main Content */}
             <article className="lg:col-span-8">
-              <div className="prose prose-lg max-w-none prose-headings:font-bold prose-h2:text-2xl prose-h2:mt-8 prose-h2:mb-4 prose-h3:text-xl prose-h3:mt-6 prose-h3:mb-3 prose-p:text-muted-foreground prose-p:leading-relaxed prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-strong:text-foreground prose-ul:my-4 prose-li:text-muted-foreground prose-table:my-6">
-                <div
-                  dangerouslySetInnerHTML={{
-                    __html: post.content
-                      .replace(/^## /gm, '<h2 class="font-bold text-2xl mt-8 mb-4">')
-                      .replace(/^### /gm, '<h3 class="font-bold text-xl mt-6 mb-3">')
-                      .replace(/\n\n/g, "</p><p>")
-                      .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
-                      .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-primary hover:underline">$1</a>')
-                      .replace(/^\d+\. /gm, "<li>")
-                      .replace(/^- /gm, "<li>"),
-                  }}
-                />
-              </div>
+              <BlogContent content={post.content} />
 
               {/* Share */}
               <div className="mt-12 pt-8 border-t">

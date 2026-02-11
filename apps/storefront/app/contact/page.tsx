@@ -126,7 +126,7 @@ export default function ContactPage() {
       {/* Contact Form + Business Info */}
       <section className="py-10 sm:py-14 md:py-20">
         <div className="container px-4 sm:px-6">
-          <div className="max-w-6xl mx-auto">
+          <div>
             <div className="grid gap-6 sm:gap-8 lg:grid-cols-2">
               {/* Contact Form Card */}
               <div className="relative overflow-hidden rounded-xl sm:rounded-2xl bg-white border border-border/50 shadow-xl">
@@ -377,7 +377,7 @@ export default function ContactPage() {
             </h2>
           </div>
 
-          <div className="grid gap-3 sm:gap-4 max-w-5xl mx-auto">
+          <div className="grid gap-3 sm:gap-4">
             {faqs.map((faq) => (
               <div
                 key={faq.question}

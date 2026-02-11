@@ -1,5 +1,6 @@
 import { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import {
   Shield as LucideShield,
   CheckCircle as LucideCheckCircle,
@@ -132,8 +133,14 @@ export default function WarrantyPage() {
 
       {/* Hero Section */}
       <section className="py-12 md:py-16 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-primary/20 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 left-0 w-64 h-64 bg-emerald-500/20 rounded-full blur-3xl" />
+        <Image
+          src="/turf-hero.webp"
+          alt="Warranty"
+          fill
+          className="object-cover"
+          priority
+        />
+        <div className="absolute inset-0 bg-slate-900/70" />
 
         <div className="container relative">
           <div className="mx-auto max-w-3xl text-center">
@@ -154,7 +161,7 @@ export default function WarrantyPage() {
       {/* Warranty Highlights */}
       <section className="py-12 md:py-16">
         <div className="container">
-          <div className="mx-auto max-w-4xl">
+          <div className="px-4 sm:px-6">
             <div className="grid sm:grid-cols-3 gap-4 mb-10">
               {[
                 {
@@ -524,7 +531,7 @@ export default function WarrantyPage() {
       {/* Landscape Care Guide */}
       <section className="py-12 md:py-16 border-t">
         <div className="container">
-          <div className="mx-auto max-w-4xl">
+          <div className="px-4 sm:px-6">
             <div className="text-center mb-8">
               <span className="text-xs sm:text-sm font-semibold text-primary uppercase tracking-wider">
                 Included Care Guide
