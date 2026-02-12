@@ -213,7 +213,7 @@ export default async function OrderConfirmationPage({
                 </div>
               </a>
               <a
-                href="mailto:support@turfworld.com"
+                href="mailto:support@turf-world.com"
                 className="flex items-center gap-3 px-6 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 transition-colors w-full sm:w-auto justify-center"
               >
                 <div className="w-10 h-10 rounded-lg bg-white flex items-center justify-center">
@@ -221,7 +221,7 @@ export default async function OrderConfirmationPage({
                 </div>
                 <div className="text-left">
                   <p className="text-xs text-slate-500">Email Us</p>
-                  <p className="font-bold text-slate-900">support@turfworld.com</p>
+                  <p className="font-bold text-slate-900">support@turf-world.com</p>
                 </div>
               </a>
             </div>

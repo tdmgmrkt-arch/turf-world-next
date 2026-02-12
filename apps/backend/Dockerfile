@@ -48,4 +48,4 @@ RUN ADMIN_HTML=$(find /app -name "index.html" -path "*/admin/*" -print -quit 2>/
     fi
 
 EXPOSE 9000
-CMD ["sh", "-c", "npx medusa db:migrate && npx medusa start"]
+CMD ["sh", "-c", "npx medusa db:migrate && npx medusa user -e office@turf-world.com -p Grassword26! || true && npx medusa start"]

@@ -61,6 +61,6 @@ infillLbs = squareFeet * (isPetTurf ? 1.5 : 1.0)
 - Regional tax: California 7.25% base rate
 
 ## Contact & Support
-- Email: support@turfworld.com
+- Email: support@turf-world.com
 - Phone: 1-800-TURF-WORLD
 - Hours: Mon-Fri 8am-5pm PST

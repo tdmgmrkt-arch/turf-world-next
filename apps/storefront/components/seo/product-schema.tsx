@@ -27,8 +27,8 @@ export function ProductSchema({ product, reviews }: ProductSchemaProps) {
     "@type": "Product",
     name: product.title,
     description: product.description,
-    image: product.thumbnail || "https://turfworld.com/og-image.jpg",
-    url: `https://turfworld.com/products/${product.handle}`,
+    image: product.thumbnail || "https://turf-world.com/og-image.jpg",
+    url: `https://turf-world.com/products/${product.handle}`,
     brand: {
       "@type": "Brand",
       name: "Turf World",
@@ -133,8 +133,8 @@ export function OrganizationSchema() {
     "@context": "https://schema.org",
     "@type": "Organization",
     name: "Turf World",
-    url: "https://turfworld.com",
-    logo: "https://turfworld.com/logo.png",
+    url: "https://turf-world.com",
+    logo: "https://turf-world.com/logo.png",
     description:
       "Direct-to-consumer supplier of professional-grade artificial grass.",
     address: {
@@ -177,7 +177,7 @@ export function BreadcrumbSchema({ items }: BreadcrumbSchemaProps) {
       "@type": "ListItem",
       position: index + 1,
       name: item.name,
-      item: `https://turfworld.com${item.href}`,
+      item: `https://turf-world.com${item.href}`,
     })),
   };
 
@@ -203,7 +203,7 @@ export function LocalBusinessSchema({ city, state }: LocalBusinessSchemaProps) {
     "@type": "LocalBusiness",
     name: `Turf World - ${city}`,
     description: `Professional artificial grass supplier serving ${city}, ${state}. Shop online for premium turf with fast nationwide shipping.`,
-    url: `https://turfworld.com/locations/${city.toLowerCase().replace(/\s+/g, "-")}`,
+    url: `https://turf-world.com/locations/${city.toLowerCase().replace(/\s+/g, "-")}`,
     address: {
       "@type": "PostalAddress",
       addressLocality: city,
