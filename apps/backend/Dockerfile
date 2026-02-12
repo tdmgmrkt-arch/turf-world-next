@@ -24,19 +24,8 @@ WORKDIR /app/apps/backend
 ENV MEDUSA_BACKEND_URL=$MEDUSA_BACKEND_URL
 RUN npx medusa build
 
-# Debug: show where admin build files ended up (visible in Railway build logs)
-RUN echo "=== All index.html files ===" && \
-    find /app -name "index.html" 2>/dev/null || true && \
-    echo "=== public/admin/ ===" && \
-    ls -la public/admin/ 2>/dev/null || echo "NOT FOUND" && \
-    echo "=== .medusa/server/public/admin/ ===" && \
-    ls -la .medusa/server/public/admin/ 2>/dev/null || echo "NOT FOUND" && \
-    echo "=== .medusa/admin/ ===" && \
-    ls -la .medusa/admin/ 2>/dev/null || echo "NOT FOUND" && \
-    echo "=== .medusa/server/ top-level ===" && \
-    ls -la .medusa/server/ 2>/dev/null || echo "NOT FOUND"
-
-# Copy admin build to all possible lookup paths
+# Fix Medusa v2 bug: admin build output path mismatch
+# Build outputs to public/admin/ but start may look in .medusa/server/public/admin/
 RUN ADMIN_HTML=$(find /app -name "index.html" -path "*/admin/*" -print -quit 2>/dev/null) && \
     if [ -n "$ADMIN_HTML" ]; then \
       ADMIN_DIR=$(dirname "$ADMIN_HTML") && \
@@ -48,4 +37,4 @@ RUN ADMIN_HTML=$(find /app -name "index.html" -path "*/admin/*" -print -quit 2>/
     fi
 
 EXPOSE 9000
-CMD ["sh", "-c", "npx medusa db:migrate && npx medusa user -e office@turf-world.com -p Grassword26! || true && npx medusa start"]
+CMD ["sh", "-c", "npx medusa db:migrate && npx medusa start"]

@@ -12,6 +12,10 @@ const nextConfig: NextConfig = {
         hostname: "localhost",
         port: "9000",
       },
+      {
+        protocol: "https",
+        hostname: "turf-worldbackend-production.up.railway.app",
+      },
     ],
   },
   // Medusa backend URL for server-side fetching
