@@ -16,8 +16,9 @@ RUN mkdir -p apps/storefront && \
 # Install only backend workspace deps (lockfile = fast resolution)
 RUN npm install --workspace=@turf-world/backend --include-workspace-root --no-audit --no-fund
 
-# Copy backend source only
+# Copy backend source and product import data
 COPY apps/backend/ ./apps/backend/
+COPY products-data.json ./products-data.json
 
 # Build Medusa (backend + admin frontend)
 WORKDIR /app/apps/backend
@@ -37,4 +38,4 @@ RUN ADMIN_HTML=$(find /app -name "index.html" -path "*/admin/*" -print -quit 2>/
     fi
 
 EXPOSE 9000
-CMD ["sh", "-c", "npx medusa db:migrate && npx medusa start"]
+CMD ["sh", "-c", "npx medusa db:migrate && npx medusa exec ./src/scripts/import-all-products.ts || true && npx medusa start"]

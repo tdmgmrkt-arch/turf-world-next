@@ -5,7 +5,8 @@ import { readFileSync } from "fs";
 import { join } from "path";
 
 // Default region ID for pricing (United States)
-const DEFAULT_REGION_ID = "reg_01KH2BZEE8K83YZTDS8TKW664W";
+const DEFAULT_REGION_ID = process.env.MEDUSA_REGION_ID || "reg_01KH2BZEE8K83YZTDS8TKW664W";
+const IMAGE_BASE_URL = process.env.STOREFRONT_URL || "https://turf-world-next-storefront.vercel.app";
 
 /**
  * Import All Products from Storefront
@@ -201,7 +202,7 @@ ${product.badge ? `**${product.badge}** - ` : ""}Professional-grade artificial t
     },
       // Images - reference from storefront public folder
       images: product.images.map((imgPath: string) => ({
-        url: `http://localhost:3008${imgPath}`, // Reference storefront images
+        url: `${IMAGE_BASE_URL}${imgPath}`,
       })),
     };
   });
@@ -257,7 +258,7 @@ ${product.badge ? `**${product.badge}** - ` : ""}Professional-grade artificial t
       badge_color: accessory.badgeColor,
     },
     images: accessory.images.map((imgPath: string) => ({
-      url: `http://localhost:3008${imgPath}`,
+      url: `${IMAGE_BASE_URL}${imgPath}`,
     })),
   }));
 
