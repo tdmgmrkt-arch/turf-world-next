@@ -23,7 +23,12 @@ import {
   Facebook as LucideFacebook,
   Instagram as LucideInstagram,
   ChevronDown as LucideChevronDown,
+  User as LucideUser,
+  LogOut as LucideLogOut,
 } from "lucide-react";
+import { AccountButton } from "@/components/account/account-dropdown";
+import { useAuthStore } from "@/lib/auth-store";
+import { useAuth } from "@/hooks/use-auth";
 
 // Cast Lucide icons to work around React 19 JSX type incompatibility
 const ShoppingCart = LucideShoppingCart as any;
@@ -41,6 +46,8 @@ const Heart = LucideHeart as any;
 const Facebook = LucideFacebook as any;
 const Instagram = LucideInstagram as any;
 const ChevronDown = LucideChevronDown as any;
+const UserIcon = LucideUser as any;
+const LogOutIcon = LucideLogOut as any;
 
 function YelpIcon({ className }: { className?: string }) {
   return (
@@ -181,6 +188,8 @@ export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mobileAboutOpen, setMobileAboutOpen] = useState(false);
   const [mobileResourcesOpen, setMobileResourcesOpen] = useState(false);
+  const { isAuthenticated } = useAuthStore();
+  const { logout } = useAuth();
   const turfTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const suppliesTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const aboutTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -323,6 +332,8 @@ export function Header() {
               <a href="tel:(909) 491-2203" className="hidden xl:flex items-center gap-2 text-sm font-medium hover:text-primary transition-colors">
                 <Phone className="h-4 w-4" /> (909) 491-2203
               </a>
+
+              <AccountButton />
 
               <Button
                 variant="ghost"
@@ -1035,6 +1046,49 @@ export function Header() {
                 </div>
               </div>
               </div>
+            </div>
+
+            {/* Account Section */}
+            <div className="p-4 border-t border-slate-200">
+              {isAuthenticated ? (
+                <div className="space-y-1">
+                  <div className="px-3 py-2 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                    Account
+                  </div>
+                  <Link
+                    href="/account"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-slate-700 rounded-lg hover:bg-slate-50 transition-colors"
+                  >
+                    <UserIcon className="h-4 w-4 text-slate-400" />
+                    My Account
+                  </Link>
+                  <Link
+                    href="/account"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-slate-700 rounded-lg hover:bg-slate-50 transition-colors"
+                  >
+                    <Package className="h-4 w-4 text-slate-400" />
+                    Order History
+                  </Link>
+                  <button
+                    onClick={() => { logout(); setMobileMenuOpen(false); }}
+                    className="flex items-center gap-3 w-full px-3 py-2.5 text-sm font-medium text-red-600 rounded-lg hover:bg-red-50 transition-colors"
+                  >
+                    <LogOutIcon className="h-4 w-4" />
+                    Sign Out
+                  </button>
+                </div>
+              ) : (
+                <Link
+                  href="/account/login"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center justify-center gap-2 w-full px-4 py-2.5 text-sm font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-xl hover:bg-emerald-100 transition-colors"
+                >
+                  <UserIcon className="h-4 w-4" />
+                  Sign In / Create Account
+                </Link>
+              )}
             </div>
 
             {/* Footer */}

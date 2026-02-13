@@ -116,6 +116,34 @@ export interface ProjectEstimate {
 }
 
 // ================================================
+// CUSTOMER
+// ================================================
+export interface Customer {
+  id: string;
+  email: string;
+  first_name: string | null;
+  last_name: string | null;
+  phone: string | null;
+  has_account: boolean;
+  created_at: string;
+}
+
+export interface CustomerAddress {
+  id: string;
+  first_name: string;
+  last_name: string;
+  company: string | null;
+  address_1: string;
+  address_2: string | null;
+  city: string;
+  province: string;
+  postal_code: string;
+  country_code: string;
+  phone: string | null;
+  is_default_shipping: boolean;
+}
+
+// ================================================
 // NAVIGATION
 // ================================================
 export interface NavCategory {

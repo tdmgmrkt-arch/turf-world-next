@@ -28,6 +28,8 @@ import {
 } from "lucide-react";
 import { Button as ShadcnButton } from "@/components/ui/button";
 import { Input as ShadcnInput } from "@/components/ui/input";
+import { useAuthStore } from "@/lib/auth-store";
+import { medusa } from "@/lib/medusa";
 import { Label as ShadcnLabel } from "@/components/ui/label";
 import { StripeProvider } from "@/components/stripe-provider";
 import { useCartStore } from "@/lib/store";
@@ -304,6 +306,26 @@ export function CheckoutForm() {
   } | null>(null);
 
   // Form state
+  const { isAuthenticated, customer } = useAuthStore();
+  const [savedAddresses, setSavedAddresses] = useState<any[]>([]);
+
+  // If logged in, pre-fill contact email and fetch saved addresses
+  useEffect(() => {
+    if (isAuthenticated && customer) {
+      setContact((prev) => ({
+        email: prev.email || customer.email || "",
+        phone: prev.phone || customer.phone || "",
+      }));
+      // Fetch saved addresses
+      medusa.store.customer.listAddress()
+        .then((res: any) => {
+          const addrs = res.addresses || [];
+          setSavedAddresses(addrs);
+        })
+        .catch(() => {});
+    }
+  }, [isAuthenticated, customer]);
+
   const [contact, setContact] = useState({ email: "", phone: "" });
   const [shipping, setShipping] = useState({
     firstName: "",
@@ -479,6 +501,46 @@ export function CheckoutForm() {
             </div>
 
             <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
+              {/* Auth Banner */}
+              {!isAuthenticated ? (
+                <div className="flex items-center justify-between bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3">
+                  <p className="text-sm text-emerald-800">
+                    Have an account?{" "}
+                    <Link href="/account/login?redirect=/checkout" className="font-semibold text-emerald-700 hover:text-emerald-800 underline">
+                      Log in
+                    </Link>{" "}
+                    for faster checkout
+                  </p>
+                </div>
+              ) : (
+                <div className="flex items-center justify-between bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3">
+                  <p className="text-sm text-emerald-800">
+                    Logged in as <span className="font-semibold">{customer?.email}</span>
+                  </p>
+                  {savedAddresses.length > 0 && (
+                    <button
+                      type="button"
+                      className="text-xs font-semibold text-emerald-700 hover:text-emerald-800 underline"
+                      onClick={() => {
+                        const addr = savedAddresses[0];
+                        setShipping({
+                          firstName: addr.first_name || "",
+                          lastName: addr.last_name || "",
+                          company: addr.company || "",
+                          address: addr.address_1 || "",
+                          apartment: addr.address_2 || "",
+                          city: addr.city || "",
+                          state: addr.province || "",
+                          zip: addr.postal_code || "",
+                        });
+                      }}
+                    >
+                      Use saved address
+                    </button>
+                  )}
+                </div>
+              )}
+
               {/* Contact Fields */}
               <div className="grid gap-3 sm:gap-4 sm:grid-cols-2">
                 <div className="space-y-1 sm:space-y-2">
