@@ -6,7 +6,8 @@ import { join } from "path";
 
 // Default region ID for pricing (United States)
 const DEFAULT_REGION_ID = process.env.MEDUSA_REGION_ID || "reg_01KH2BZEE8K83YZTDS8TKW664W";
-const IMAGE_BASE_URL = process.env.STOREFRONT_URL || "https://turf-world-next-storefront.vercel.app";
+// Store image paths as relative paths — the storefront adapter handles URL resolution
+const IMAGE_BASE_URL = "";
 
 /**
  * Import All Products from Storefront

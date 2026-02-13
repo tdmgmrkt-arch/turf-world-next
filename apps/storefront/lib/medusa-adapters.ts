@@ -11,6 +11,27 @@ import { Product, Accessory } from "./products";
 // Medusa Product type (simplified - using any for flexibility)
 type MedusaProduct = any;
 
+// Storefront URLs to strip from image paths (converts to local /public/ paths)
+const STOREFRONT_URLS = [
+  "http://localhost:3008",
+  process.env.NEXT_PUBLIC_SITE_URL || "",
+  "https://turf-world-next-storefront.vercel.app",
+].filter(Boolean);
+
+/**
+ * Normalize image URL — strip storefront URLs to use local /public/ paths,
+ * pass through external URLs (S3, CDN) as-is.
+ */
+function normalizeImageUrl(url: string): string {
+  for (const prefix of STOREFRONT_URLS) {
+    if (url.startsWith(prefix)) {
+      return url.replace(prefix, "");
+    }
+  }
+  // External URLs (S3, CDN, etc.) pass through as-is
+  return url;
+}
+
 /**
  * Transform Medusa product to Storefront Product interface
  *
@@ -68,20 +89,8 @@ export function transformMedusaProduct(medusaProduct: MedusaProduct): Product {
     warranty: turfAttrs.warranty_years ? `${turfAttrs.warranty_years} Year` : "15 Year",
     rollSize: formatRollSize(turfAttrs.roll_width),
 
-    // Images - convert Medusa URLs to local paths if needed
-    images: (medusaProduct.images || []).map((img: any) => {
-      const url = img.url || "";
-      // If image URL is from localhost:3008, convert to path
-      if (url.startsWith("http://localhost:3008")) {
-        return url.replace("http://localhost:3008", "");
-      }
-      // If it's a full URL, return as-is
-      if (url.startsWith("http")) {
-        return url;
-      }
-      // If it's already a path, return as-is
-      return url;
-    }),
+    // Images - convert Medusa URLs to local paths when possible
+    images: (medusaProduct.images || []).map((img: any) => normalizeImageUrl(img.url || "")),
 
     // Tags
     tags: (medusaProduct.tags || []).map((tag: any) => tag.value),
@@ -124,16 +133,7 @@ export function transformMedusaAccessory(medusaProduct: MedusaProduct): Accessor
     size: metadata.size || medusaProduct.subtitle || "",
 
     // Images
-    images: (medusaProduct.images || []).map((img: any) => {
-      const url = img.url || "";
-      if (url.startsWith("http://localhost:3008")) {
-        return url.replace("http://localhost:3008", "");
-      }
-      if (url.startsWith("http")) {
-        return url;
-      }
-      return url;
-    }),
+    images: (medusaProduct.images || []).map((img: any) => normalizeImageUrl(img.url || "")),
 
     // Tags
     tags: (medusaProduct.tags || []).map((tag: any) => tag.value),
