@@ -245,10 +245,14 @@ export function useMedusaCart() {
       // Retrieve the full cart object (SDK needs it for payment init)
       const { cart } = await medusa.store.cart.retrieve(cartId);
 
-      // Initialize Stripe payment session via SDK
-      // The SDK automatically creates a payment collection if needed
+      // Always create a fresh payment collection by stripping the old one.
+      // On retry, the old collection is stale (items were re-synced), so
+      // reusing it causes a 500. Passing no payment_collection forces the
+      // SDK to POST /store/payment-collections with the cart_id first.
+      const cartForPayment = { ...cart, payment_collection: undefined };
+
       const { payment_collection } = await (medusa.store.payment as any).initiatePaymentSession(
-        cart,
+        cartForPayment,
         { provider_id: "pp_stripe_stripe" },
       );
 
