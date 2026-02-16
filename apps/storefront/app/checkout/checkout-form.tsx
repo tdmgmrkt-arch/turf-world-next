@@ -289,6 +289,7 @@ export function CheckoutForm() {
     updateShippingAddress,
     createPaymentSession,
     syncLocalCartToMedusa,
+    addShippingMethod,
   } = useMedusaCart();
 
   const [currentStep, setCurrentStep] = useState<Step>("information");
@@ -408,7 +409,10 @@ export function CheckoutForm() {
         phone: contact.phone || undefined,
       });
 
-      // Step 3: Create payment session
+      // Step 3: Add Medusa shipping method (required for payment collection)
+      await addShippingMethod();
+
+      // Step 4: Create payment session
       const secret = await createPaymentSession();
       if (secret) {
         setClientSecret(secret);

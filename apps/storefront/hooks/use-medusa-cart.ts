@@ -239,50 +239,19 @@ export function useMedusaCart() {
 
   const createPaymentSession = useCallback(async () => {
     if (!cartId) return null;
-    const baseUrl = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "http://localhost:9000";
-
-    const headers: Record<string, string> = {
-      "Content-Type": "application/json",
-    };
-    const publishableKey = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY;
-    if (publishableKey) {
-      headers["x-publishable-api-key"] = publishableKey;
-    }
 
     try {
       setIsLoading(true);
 
-      // Step 1: Create payment collection for the cart
-      const collectionRes = await fetch(`${baseUrl}/store/carts/${cartId}/payment-collections`, {
-        method: "POST",
-        headers,
-      });
+      // Retrieve the full cart object (SDK needs it for payment init)
+      const { cart } = await medusa.store.cart.retrieve(cartId);
 
-      if (!collectionRes.ok) {
-        throw new Error("Failed to create payment collection");
-      }
-
-      const { cart } = await collectionRes.json();
-      const paymentCollectionId = cart?.payment_collection?.id;
-
-      if (!paymentCollectionId) {
-        throw new Error("No payment collection ID returned");
-      }
-
-      // Step 2: Initialize payment session with Stripe provider
-      const sessionRes = await fetch(`${baseUrl}/store/payment-collections/${paymentCollectionId}/payment-sessions`, {
-        method: "POST",
-        headers,
-        body: JSON.stringify({
-          provider_id: "pp_stripe_stripe",
-        }),
-      });
-
-      if (!sessionRes.ok) {
-        throw new Error("Failed to create payment session");
-      }
-
-      const { payment_collection } = await sessionRes.json();
+      // Initialize Stripe payment session via SDK
+      // The SDK automatically creates a payment collection if needed
+      const { payment_collection } = await (medusa.store.payment as any).initiatePaymentSession(
+        cart,
+        { provider_id: "pp_stripe_stripe" },
+      );
 
       // Find the Stripe payment session and return client secret
       const stripeSession = payment_collection?.payment_sessions?.find(
@@ -303,6 +272,30 @@ export function useMedusaCart() {
     }
   }, [cartId]);
 
+  // Add a Medusa shipping method to the cart (required before payment)
+  const addShippingMethod = useCallback(async () => {
+    if (!cartId) return;
+    try {
+      setIsLoading(true);
+      // Get available shipping options for this cart
+      const { shipping_options } = await medusa.store.fulfillment.listCartOptions({
+        cart_id: cartId,
+      });
+
+      if (shipping_options?.length > 0) {
+        await medusa.store.cart.addShippingMethod(cartId, {
+          option_id: shipping_options[0].id,
+        });
+        await refreshCart(cartId);
+      }
+    } catch (err) {
+      console.error("Failed to add shipping method:", err);
+      // Non-fatal: payment init will still attempt without it
+    } finally {
+      setIsLoading(false);
+    }
+  }, [cartId, refreshCart]);
+
   return {
     cart: medusaCart,
     isLoading,
@@ -315,5 +308,6 @@ export function useMedusaCart() {
     refreshCart,
     updateShippingAddress,
     createPaymentSession,
+    addShippingMethod,
   };
 }
