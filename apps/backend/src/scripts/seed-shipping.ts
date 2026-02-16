@@ -4,6 +4,8 @@ import {
   createServiceZonesWorkflow,
   createStockLocationsWorkflow,
   linkSalesChannelsToStockLocationWorkflow,
+  createShippingOptionsWorkflow,
+  deleteShippingOptionsWorkflow,
 } from "@medusajs/medusa/core-flows";
 
 /**
@@ -148,17 +150,45 @@ export default async function seedShipping({ container }: ExecArgs) {
     logger.info(`Created service zone: ${(serviceZones as any)[0].name} (${serviceZoneId})`);
   }
 
-  // 5. Check for existing shipping options
+  // 5. Check for existing shipping options (delete priceless ones)
   const existingOptions = await fulfillmentModule.listShippingOptions(
     { service_zone_id: serviceZoneId },
   );
   if (existingOptions.length > 0) {
-    logger.info("Shipping options already exist:");
-    for (const opt of existingOptions) {
-      logger.info(`  - ${opt.name} (${opt.id})`);
+    // Check if options have prices via the pricing module
+    const query = container.resolve("query") as any;
+    let hasValidPrices = false;
+    try {
+      const { data: optionsWithPrices } = await query.graph({
+        entity: "shipping_option",
+        fields: ["id", "name", "prices.*"],
+        filters: { id: existingOptions.map((o: any) => o.id) },
+      });
+      hasValidPrices = optionsWithPrices.some((o: any) => o.prices?.length > 0);
+      logger.info(`Existing options: ${optionsWithPrices.length}, has prices: ${hasValidPrices}`);
+    } catch {
+      // If we can't check prices, assume we need to recreate
     }
-    logger.info("Done! (no changes needed)");
-    return;
+
+    if (hasValidPrices) {
+      logger.info("Shipping options with prices already exist:");
+      for (const opt of existingOptions) {
+        logger.info(`  - ${opt.name} (${opt.id})`);
+      }
+      logger.info("Done! (no changes needed)");
+      return;
+    }
+
+    // Delete priceless options so we can recreate with prices
+    logger.info("Deleting shipping options without prices...");
+    try {
+      await deleteShippingOptionsWorkflow(container).run({
+        input: { ids: existingOptions.map((o: any) => o.id) },
+      });
+      logger.info("Deleted priceless shipping options");
+    } catch (err: any) {
+      logger.warn("Could not delete options: " + err.message);
+    }
   }
 
   // 6. Find fulfillment provider
@@ -177,53 +207,39 @@ export default async function seedShipping({ container }: ExecArgs) {
     logger.warn("Could not list providers, using default: " + providerId);
   }
 
-  // 7. Create shipping option
+  // 7. Create shipping option WITH prices using the workflow
   logger.info(`Creating shipping option with provider: ${providerId}...`);
   try {
-    const shippingOptions = await fulfillmentModule.createShippingOptions([
-      {
-        name: "Standard Shipping",
-        price_type: "flat",
-        service_zone_id: serviceZoneId,
-        shipping_profile_id: shippingProfile.id,
-        provider_id: providerId,
-        type: {
-          label: "Standard",
-          description: "Standard ground shipping",
-          code: "standard",
-        },
-        rules: [],
-      },
-    ]);
-
-    logger.info("Created shipping options:");
-    for (const opt of shippingOptions) {
-      logger.info(`  - ${opt.name} (${opt.id})`);
-    }
-  } catch (err: any) {
-    logger.error("Failed to create shipping option: " + err.message);
-    if (providerId !== "manual") {
-      logger.info("Retrying with provider_id 'manual'...");
-      const shippingOptions = await fulfillmentModule.createShippingOptions([
+    const { result } = await createShippingOptionsWorkflow(container).run({
+      input: [
         {
           name: "Standard Shipping",
           price_type: "flat",
           service_zone_id: serviceZoneId,
           shipping_profile_id: shippingProfile.id,
-          provider_id: "manual",
+          provider_id: providerId,
           type: {
             label: "Standard",
             description: "Standard ground shipping",
             code: "standard",
           },
+          prices: [
+            {
+              currency_code: "usd",
+              amount: 0, // $0 — actual shipping cost is calculated in the storefront
+            },
+          ],
           rules: [],
         },
-      ]);
-      logger.info("Created shipping options (retry):");
-      for (const opt of shippingOptions) {
-        logger.info(`  - ${opt.name} (${opt.id})`);
-      }
+      ],
+    });
+
+    logger.info("Created shipping options with prices:");
+    for (const opt of result as any[]) {
+      logger.info(`  - ${opt.name} (${opt.id})`);
     }
+  } catch (err: any) {
+    logger.error("Failed to create shipping option: " + err.message);
   }
 
   logger.info("Done!");

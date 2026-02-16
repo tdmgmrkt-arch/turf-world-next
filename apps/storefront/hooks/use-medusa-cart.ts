@@ -124,22 +124,21 @@ export function useMedusaCart() {
         }
       }
 
-      // Get region ID for product queries
+      // Get region ID for product queries (optional — omit if not set to avoid API error)
       const regionId = process.env.NEXT_PUBLIC_MEDUSA_REGION_ID;
+      const listParams: Record<string, any> = { limit: 100 };
+      if (regionId) listParams.region_id = regionId;
 
       // Add each local cart item to Medusa cart with metadata
       for (const localItem of localCartItems) {
         try {
           // Fetch the Medusa product to get its actual variant ID
           // The productId in local cart is the original product ID (e.g., "hawaii-80")
-          const { products } = await medusa.store.product.list({
-            region_id: regionId,
-            limit: 100, // Get all products to search
-          });
+          const { products } = await medusa.store.product.list(listParams);
 
-          // Find product by matching the original_id in metadata
+          // Find product by Medusa ID, original_id metadata, or handle
           const medusaProduct = products.find(
-            (p: any) => p.metadata?.original_id === localItem.productId || p.handle === localItem.productId
+            (p: any) => p.id === localItem.productId || p.metadata?.original_id === localItem.productId || p.handle === localItem.productId
           );
 
           if (!medusaProduct || !medusaProduct.variants?.[0]) {
