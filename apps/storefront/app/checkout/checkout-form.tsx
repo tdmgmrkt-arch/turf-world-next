@@ -308,6 +308,23 @@ export function CheckoutForm() {
   // Form state
   const { isAuthenticated, customer } = useAuthStore();
   const [savedAddresses, setSavedAddresses] = useState<any[]>([]);
+  const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
+  const [useNewAddress, setUseNewAddress] = useState(false);
+  const [saveNewAddress, setSaveNewAddress] = useState(true);
+  const [newAddressLabel, setNewAddressLabel] = useState("");
+
+  const applyAddress = (addr: any) => {
+    setShipping({
+      firstName: addr.first_name || "",
+      lastName: addr.last_name || "",
+      company: addr.company || "",
+      address: addr.address_1 || "",
+      apartment: addr.address_2 || "",
+      city: addr.city || "",
+      state: addr.province || "",
+      zip: addr.postal_code || "",
+    });
+  };
 
   // If logged in, pre-fill contact email and fetch saved addresses
   useEffect(() => {
@@ -316,11 +333,15 @@ export function CheckoutForm() {
         email: prev.email || customer.email || "",
         phone: prev.phone || customer.phone || "",
       }));
-      // Fetch saved addresses
+      // Fetch saved addresses and auto-fill the first one
       medusa.store.customer.listAddress()
         .then((res: any) => {
           const addrs = res.addresses || [];
           setSavedAddresses(addrs);
+          if (addrs.length > 0) {
+            setSelectedAddressId(addrs[0].id);
+            applyAddress(addrs[0]);
+          }
         })
         .catch(() => {});
     }
@@ -513,31 +534,10 @@ export function CheckoutForm() {
                   </p>
                 </div>
               ) : (
-                <div className="flex items-center justify-between bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3">
+                <div className="bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3">
                   <p className="text-sm text-emerald-800">
                     Logged in as <span className="font-semibold">{customer?.email}</span>
                   </p>
-                  {savedAddresses.length > 0 && (
-                    <button
-                      type="button"
-                      className="text-xs font-semibold text-emerald-700 hover:text-emerald-800 underline"
-                      onClick={() => {
-                        const addr = savedAddresses[0];
-                        setShipping({
-                          firstName: addr.first_name || "",
-                          lastName: addr.last_name || "",
-                          company: addr.company || "",
-                          address: addr.address_1 || "",
-                          apartment: addr.address_2 || "",
-                          city: addr.city || "",
-                          state: addr.province || "",
-                          zip: addr.postal_code || "",
-                        });
-                      }}
-                    >
-                      Use saved address
-                    </button>
-                  )}
                 </div>
               )}
 
@@ -582,6 +582,73 @@ export function CheckoutForm() {
                   <h3 className="text-sm sm:text-base font-bold text-slate-900">Shipping Address</h3>
                 </div>
 
+                {/* Saved Address Selector */}
+                {isAuthenticated && savedAddresses.length > 0 && (
+                  <div className="space-y-2 mb-4">
+                    {savedAddresses.map((addr: any) => (
+                      <button
+                        key={addr.id}
+                        type="button"
+                        onClick={() => {
+                          setSelectedAddressId(addr.id);
+                          setUseNewAddress(false);
+                          applyAddress(addr);
+                        }}
+                        className={`w-full text-left p-3 rounded-xl border-2 transition-all ${
+                          selectedAddressId === addr.id && !useNewAddress
+                            ? "border-emerald-500 bg-emerald-50/50"
+                            : "border-slate-200 hover:border-slate-300 bg-white"
+                        }`}
+                      >
+                        <div className="flex items-start justify-between">
+                          <div className="text-sm">
+                            {addr.metadata?.name && (
+                              <span className="text-xs font-semibold text-emerald-600 uppercase tracking-wide">{addr.metadata.name} &middot; </span>
+                            )}
+                            <span className="font-medium text-slate-900">{addr.first_name} {addr.last_name}</span>
+                            <p className="text-slate-500 mt-0.5">
+                              {addr.address_1}{addr.address_2 ? `, ${addr.address_2}` : ""}, {addr.city}, {addr.province} {addr.postal_code}
+                            </p>
+                          </div>
+                          <div className={`mt-0.5 w-4 h-4 rounded-full border-2 flex-shrink-0 flex items-center justify-center ${
+                            selectedAddressId === addr.id && !useNewAddress
+                              ? "border-emerald-500"
+                              : "border-slate-300"
+                          }`}>
+                            {selectedAddressId === addr.id && !useNewAddress && (
+                              <div className="w-2 h-2 rounded-full bg-emerald-500" />
+                            )}
+                          </div>
+                        </div>
+                      </button>
+                    ))}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setUseNewAddress(true);
+                        setSelectedAddressId(null);
+                        setShipping({ firstName: "", lastName: "", company: "", address: "", apartment: "", city: "", state: "", zip: "" });
+                      }}
+                      className={`w-full text-left p-3 rounded-xl border-2 transition-all ${
+                        useNewAddress
+                          ? "border-emerald-500 bg-emerald-50/50"
+                          : "border-slate-200 hover:border-slate-300 bg-white"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium text-slate-700">Use a different address</span>
+                        <div className={`w-4 h-4 rounded-full border-2 flex-shrink-0 flex items-center justify-center ${
+                          useNewAddress ? "border-emerald-500" : "border-slate-300"
+                        }`}>
+                          {useNewAddress && <div className="w-2 h-2 rounded-full bg-emerald-500" />}
+                        </div>
+                      </div>
+                    </button>
+                  </div>
+                )}
+
+                {/* Address form - show when no saved addresses OR "new address" selected */}
+                {(!isAuthenticated || savedAddresses.length === 0 || useNewAddress) && (
                 <div className="space-y-3 sm:space-y-4">
                   <div className="grid gap-3 sm:gap-4 sm:grid-cols-2">
                     <div className="space-y-1 sm:space-y-2">
@@ -686,12 +753,61 @@ export function CheckoutForm() {
                       />
                     </div>
                   </div>
+                  {/* Save address checkbox */}
+                  {isAuthenticated && (
+                    <div className="space-y-2 pt-1">
+                      <label className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={saveNewAddress}
+                          onChange={(e) => setSaveNewAddress(e.target.checked)}
+                          className="w-4 h-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                        />
+                        <span className="text-sm text-slate-600">Save this address to my account</span>
+                      </label>
+                      {saveNewAddress && (
+                        <div className="flex items-center gap-2 pl-6">
+                          <label className="text-xs text-slate-500 whitespace-nowrap">Label:</label>
+                          <input
+                            type="text"
+                            placeholder="e.g. Home, Work"
+                            value={newAddressLabel}
+                            onChange={(e) => setNewAddressLabel(e.target.value)}
+                            className="flex-1 h-8 px-2.5 rounded-md border border-dashed border-slate-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 placeholder:text-slate-400"
+                          />
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
+                )}
               </div>
 
               <Button
                 className="w-full h-12 sm:h-14 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-sm sm:text-base font-semibold"
-                onClick={() => setCurrentStep("shipping")}
+                onClick={async () => {
+                  // Save address to account if checked
+                  if (isAuthenticated && saveNewAddress && (useNewAddress || savedAddresses.length === 0)) {
+                    try {
+                      await medusa.store.customer.createAddress({
+                        first_name: shipping.firstName,
+                        last_name: shipping.lastName,
+                        company: shipping.company || undefined,
+                        address_1: shipping.address,
+                        address_2: shipping.apartment || undefined,
+                        city: shipping.city,
+                        province: shipping.state,
+                        postal_code: shipping.zip,
+                        country_code: "us",
+                        phone: contact.phone || undefined,
+                        metadata: newAddressLabel ? { name: newAddressLabel } : undefined,
+                      });
+                    } catch {
+                      // Don't block checkout if save fails
+                    }
+                  }
+                  setCurrentStep("shipping");
+                }}
                 disabled={
                   !contact.email ||
                   !shipping.firstName ||

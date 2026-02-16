@@ -5,7 +5,7 @@ import { AuthGuard } from "@/components/account/auth-guard";
 import { useAuth } from "@/hooks/use-auth";
 import { medusa } from "@/lib/medusa";
 import {
-  User, MapPin, Package, Save, Plus, Trash2, Loader2, CheckCircle, AlertCircle,
+  User, MapPin, Package, Save, Plus, Trash2, Loader2, CheckCircle, AlertCircle, Pencil,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -18,6 +18,7 @@ const TrashIcon = Trash2 as any;
 const LoaderIcon = Loader2 as any;
 const CheckIcon = CheckCircle as any;
 const AlertIcon = AlertCircle as any;
+const PencilIcon = Pencil as any;
 const NextLink = Link as any;
 
 type Tab = "profile" | "addresses" | "orders";
@@ -199,6 +200,8 @@ function AddressesTab() {
   const [addresses, setAddresses] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [addressName, setAddressName] = useState("");
   const [formData, setFormData] = useState({
     first_name: "",
     last_name: "",
@@ -226,19 +229,50 @@ function AddressesTab() {
     fetchAddresses();
   }, [fetchAddresses]);
 
-  const handleAdd = async (e: React.FormEvent) => {
+  const resetForm = () => {
+    setShowForm(false);
+    setEditingId(null);
+    setAddressName("");
+    setFormData({
+      first_name: "", last_name: "", address_1: "", address_2: "",
+      city: "", province: "", postal_code: "", country_code: "us", phone: "",
+    });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await medusa.store.customer.createAddress(formData);
-      setShowForm(false);
-      setFormData({
-        first_name: "", last_name: "", address_1: "", address_2: "",
-        city: "", province: "", postal_code: "", country_code: "us", phone: "",
-      });
+      const payload = {
+        ...formData,
+        metadata: addressName ? { name: addressName } : undefined,
+      };
+      if (editingId) {
+        await (medusa.store.customer as any).updateAddress(editingId, payload);
+      } else {
+        await medusa.store.customer.createAddress(payload);
+      }
+      resetForm();
       fetchAddresses();
     } catch {
       // ignore
     }
+  };
+
+  const startEdit = (addr: any) => {
+    setEditingId(addr.id);
+    setShowForm(true);
+    setAddressName(addr.metadata?.name || "");
+    setFormData({
+      first_name: addr.first_name || "",
+      last_name: addr.last_name || "",
+      address_1: addr.address_1 || "",
+      address_2: addr.address_2 || "",
+      city: addr.city || "",
+      province: addr.province || "",
+      postal_code: addr.postal_code || "",
+      country_code: addr.country_code || "us",
+      phone: addr.phone || "",
+    });
   };
 
   const handleDelete = async (id: string) => {
@@ -263,7 +297,9 @@ function AddressesTab() {
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold text-slate-900">Saved Addresses</h2>
         <button
-          onClick={() => setShowForm(!showForm)}
+          onClick={() => {
+            if (showForm) { resetForm(); } else { resetForm(); setShowForm(true); }
+          }}
           className="text-sm text-emerald-600 hover:text-emerald-700 font-medium flex items-center gap-1"
         >
           <PlusIcon className="h-4 w-4" />
@@ -272,7 +308,16 @@ function AddressesTab() {
       </div>
 
       {showForm && (
-        <form onSubmit={handleAdd} className="bg-slate-50 rounded-xl p-4 space-y-3 border border-slate-200">
+        <form onSubmit={handleSubmit} className="space-y-3">
+          <div className="flex items-center gap-3 px-1">
+            <label className="text-sm text-slate-500 whitespace-nowrap">Label Address:</label>
+            <input
+              type="text" placeholder="e.g. Home, Work" value={addressName}
+              onChange={(e) => setAddressName(e.target.value)}
+              className="flex-1 h-9 px-3 rounded-lg border border-dashed border-slate-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 placeholder:text-slate-400"
+            />
+          </div>
+          <div className="bg-slate-50 rounded-xl p-4 space-y-3 border border-slate-200">
           <div className="grid grid-cols-2 gap-3">
             <input
               type="text" required placeholder="First name" value={formData.first_name}
@@ -317,15 +362,16 @@ function AddressesTab() {
               type="submit"
               className="h-10 px-4 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium"
             >
-              Save Address
+              {editingId ? "Update Address" : "Save Address"}
             </button>
             <button
               type="button"
-              onClick={() => setShowForm(false)}
+              onClick={resetForm}
               className="h-10 px-4 rounded-lg border border-slate-200 text-slate-600 text-sm font-medium hover:bg-slate-50"
             >
               Cancel
             </button>
+          </div>
           </div>
         </form>
       )}
@@ -334,19 +380,30 @@ function AddressesTab() {
         <p className="text-sm text-slate-500 py-8 text-center">No saved addresses yet.</p>
       ) : (
         <div className="space-y-3">
-          {addresses.map((addr: any) => (
+          {addresses.filter((addr: any) => addr.id !== editingId).map((addr: any) => (
             <div key={addr.id} className="flex items-start justify-between p-4 bg-slate-50 rounded-xl border border-slate-200">
               <div className="text-sm text-slate-700">
+                {addr.metadata?.name && (
+                  <p className="text-xs font-semibold text-emerald-600 uppercase tracking-wide mb-1">{addr.metadata.name}</p>
+                )}
                 <p className="font-medium">{addr.first_name} {addr.last_name}</p>
                 <p>{addr.address_1}{addr.address_2 ? `, ${addr.address_2}` : ""}</p>
                 <p>{addr.city}, {addr.province} {addr.postal_code}</p>
               </div>
-              <button
-                onClick={() => handleDelete(addr.id)}
-                className="text-slate-400 hover:text-red-500 transition-colors p-1"
-              >
-                <TrashIcon className="h-4 w-4" />
-              </button>
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => startEdit(addr)}
+                  className="text-slate-400 hover:text-emerald-600 transition-colors p-1"
+                >
+                  <PencilIcon className="h-4 w-4" />
+                </button>
+                <button
+                  onClick={() => handleDelete(addr.id)}
+                  className="text-slate-400 hover:text-red-500 transition-colors p-1"
+                >
+                  <TrashIcon className="h-4 w-4" />
+                </button>
+              </div>
             </div>
           ))}
         </div>

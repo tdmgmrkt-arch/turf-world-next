@@ -141,6 +141,7 @@ export interface CustomerAddress {
   country_code: string;
   phone: string | null;
   is_default_shipping: boolean;
+  metadata?: { name?: string } & Record<string, unknown>;
 }
 
 // ================================================
