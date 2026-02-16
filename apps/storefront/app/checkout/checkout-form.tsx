@@ -382,12 +382,12 @@ export function CheckoutForm() {
   const tax = medusaCart?.tax_total || 0;
   const total = subtotal + shippingCost + tax;
 
-  // Initialize payment session when reaching payment step
+  // Initialize payment session when reaching payment step (once)
   useEffect(() => {
-    if (currentStep === "payment" && !clientSecret && !isInitializingPayment) {
+    if (currentStep === "payment" && !clientSecret && !isInitializingPayment && !paymentError) {
       initializePayment();
     }
-  }, [currentStep, clientSecret, isInitializingPayment]);
+  }, [currentStep, clientSecret, isInitializingPayment, paymentError]);
 
   const initializePayment = async () => {
     setIsInitializingPayment(true);
