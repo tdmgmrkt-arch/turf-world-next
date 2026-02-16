@@ -241,13 +241,21 @@ export function useMedusaCart() {
     if (!cartId) return null;
     const baseUrl = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "http://localhost:9000";
 
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+    };
+    const publishableKey = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY;
+    if (publishableKey) {
+      headers["x-publishable-api-key"] = publishableKey;
+    }
+
     try {
       setIsLoading(true);
 
       // Step 1: Create payment collection for the cart
       const collectionRes = await fetch(`${baseUrl}/store/carts/${cartId}/payment-collections`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers,
       });
 
       if (!collectionRes.ok) {
@@ -264,7 +272,7 @@ export function useMedusaCart() {
       // Step 2: Initialize payment session with Stripe provider
       const sessionRes = await fetch(`${baseUrl}/store/payment-collections/${paymentCollectionId}/payment-sessions`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers,
         body: JSON.stringify({
           provider_id: "pp_stripe_stripe",
         }),

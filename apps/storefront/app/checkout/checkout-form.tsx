@@ -295,6 +295,7 @@ export function CheckoutForm() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [isInitializingPayment, setIsInitializingPayment] = useState(false);
+  const [paymentError, setPaymentError] = useState<string | null>(null);
   const [orderId, setOrderId] = useState<string | null>(null);
   const [completedOrder, setCompletedOrder] = useState<{
     items: typeof items;
@@ -389,6 +390,7 @@ export function CheckoutForm() {
 
   const initializePayment = async () => {
     setIsInitializingPayment(true);
+    setPaymentError(null);
     try {
       // Step 1: Sync local cart items to Medusa with cut dimension metadata
       await syncLocalCartToMedusa(items);
@@ -410,9 +412,12 @@ export function CheckoutForm() {
       const secret = await createPaymentSession();
       if (secret) {
         setClientSecret(secret);
+      } else {
+        setPaymentError("Unable to initialize payment. Please try again.");
       }
     } catch (err) {
       console.error("Failed to initialize payment:", err);
+      setPaymentError("Unable to initialize payment. Please try again.");
     } finally {
       setIsInitializingPayment(false);
     }
@@ -946,6 +951,26 @@ export function CheckoutForm() {
                       <p className="font-semibold text-slate-900">Initializing secure payment...</p>
                       <p className="text-sm text-slate-500 mt-1">This will only take a moment</p>
                     </div>
+                  </div>
+                </div>
+              </div>
+            ) : paymentError && !clientSecret ? (
+              <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                <div className="py-16">
+                  <div className="flex flex-col items-center justify-center gap-4">
+                    <div className="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center">
+                      <AlertCircle className="h-8 w-8 text-red-500" />
+                    </div>
+                    <div className="text-center">
+                      <p className="font-semibold text-slate-900">{paymentError}</p>
+                      <p className="text-sm text-slate-500 mt-1">Check your connection and try again</p>
+                    </div>
+                    <button
+                      onClick={initializePayment}
+                      className="mt-2 px-6 h-10 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium transition-colors"
+                    >
+                      Try Again
+                    </button>
                   </div>
                 </div>
               </div>
