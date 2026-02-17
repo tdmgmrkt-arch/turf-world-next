@@ -246,35 +246,60 @@ export function useMedusaCart() {
     const activeCartId = getActiveCartId() || cartId;
     if (!activeCartId) throw new Error("No cart ID available");
 
+    const baseUrl = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "http://localhost:9000";
+    const pubKey = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || "";
+
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+      "x-publishable-api-key": pubKey,
+    };
+
     try {
       setIsLoading(true);
 
-      // Retrieve the full cart object (SDK needs it for payment init)
-      const { cart } = await medusa.store.cart.retrieve(activeCartId);
+      // Step A: Create payment collection for this cart
+      const collRes = await fetch(`${baseUrl}/store/payment-collections`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ cart_id: activeCartId }),
+      });
 
-      // Let the SDK handle payment collection creation/reuse naturally.
-      // Do NOT strip payment_collection — that causes duplicate collection errors.
-      const { payment_collection } = await (medusa.store.payment as any).initiatePaymentSession(
-        cart,
-        { provider_id: "pp_stripe_stripe" },
+      if (!collRes.ok) {
+        const errBody = await collRes.text();
+        throw new Error(`Create payment collection failed (${collRes.status}): ${errBody}`);
+      }
+
+      const { payment_collection } = await collRes.json();
+
+      // Step B: Create Stripe payment session within the collection
+      const sessRes = await fetch(
+        `${baseUrl}/store/payment-collections/${payment_collection.id}/payment-sessions`,
+        {
+          method: "POST",
+          headers,
+          body: JSON.stringify({ provider_id: "pp_stripe_stripe" }),
+        }
       );
 
-      // Find the Stripe payment session and return client secret
-      const stripeSession = payment_collection?.payment_sessions?.find(
-        (session: any) => session.provider_id === "pp_stripe_stripe"
+      if (!sessRes.ok) {
+        const errBody = await sessRes.text();
+        throw new Error(`Create payment session failed (${sessRes.status}): ${errBody}`);
+      }
+
+      const sessData = await sessRes.json();
+      const stripeSession = sessData.payment_collection?.payment_sessions?.find(
+        (s: any) => s.provider_id === "pp_stripe_stripe"
       );
 
       if (stripeSession?.data?.client_secret) {
         return stripeSession.data.client_secret as string;
       }
 
-      throw new Error("No client_secret in Stripe payment session");
+      throw new Error("No client_secret in response: " + JSON.stringify(sessData).slice(0, 500));
     } catch (err: any) {
       setError(err as Error);
       console.error("Failed to create payment session:", err);
-      // Extract as much detail as possible from the error
-      const detail = err?.response?.data?.message || err?.message || JSON.stringify(err);
-      throw new Error(detail);
+      throw err;
     } finally {
       setIsLoading(false);
     }
