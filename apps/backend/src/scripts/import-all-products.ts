@@ -263,8 +263,7 @@ ${product.badge ? `**${product.badge}** - ` : ""}Professional-grade artificial t
           },
         ],
         options: { Size: accessory.size },
-        manage_inventory: true,
-        inventory_quantity: accessory.inStock ? 500 : 0,
+        manage_inventory: false,
       },
     ],
     metadata: {
