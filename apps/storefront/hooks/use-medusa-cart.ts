@@ -6,6 +6,16 @@ import { useCartStore } from "@/lib/store";
 
 const CART_ID_KEY = "medusa_cart_id";
 
+/**
+ * Read the latest cart ID from localStorage.
+ * React state may be stale (e.g. after syncLocalCartToMedusa creates a fresh cart),
+ * so this is the single source of truth during the checkout flow.
+ */
+function getActiveCartId(): string | null {
+  if (typeof window === "undefined") return null;
+  return localStorage.getItem(CART_ID_KEY);
+}
+
 export function useMedusaCart() {
   const [medusaCart, setMedusaCart] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -108,44 +118,32 @@ export function useMedusaCart() {
   }, [cartId, refreshCart]);
 
   /**
-   * Sync local cart items to Medusa cart with metadata
-   * This ensures cut dimensions and other custom data are sent to the backend
+   * Sync local cart items to Medusa cart with metadata.
+   * Always creates a FRESH cart to avoid stale state from previous checkout attempts.
    */
   const syncLocalCartToMedusa = useCallback(async (localCartItems: any[]) => {
-    if (!cartId || localCartItems.length === 0) return;
+    if (localCartItems.length === 0) return;
 
     try {
       setIsLoading(true);
 
-      // If the existing cart can't be modified (e.g. locked by a payment collection
-      // from a previous attempt), create a fresh cart instead.
-      let activeCartId = cartId;
-
-      // Try to clear existing Medusa cart items to avoid duplicates
-      if (medusaCart?.items?.length > 0) {
-        try {
-          for (const item of medusaCart.items) {
-            await medusa.store.cart.deleteLineItem(activeCartId, item.id);
-          }
-        } catch (deleteErr) {
-          console.warn("Could not clear cart items, creating fresh cart:", deleteErr);
-          const { cart: freshCart } = await medusa.store.cart.create({});
-          activeCartId = freshCart.id;
-          localStorage.setItem(CART_ID_KEY, freshCart.id);
-          setCartId(freshCart.id);
-          setMedusaCart(freshCart);
-        }
-      }
+      // Always create a fresh cart for checkout to avoid stale payment collections,
+      // locked carts, or leftover items from previous attempts.
+      const { cart: freshCart } = await medusa.store.cart.create({});
+      const activeCartId = freshCart.id;
+      localStorage.setItem(CART_ID_KEY, activeCartId);
+      setCartId(activeCartId);
+      setMedusaCart(freshCart);
 
       // Don't pass region_id here — we only need to match products, not filter by region.
       const listParams: Record<string, any> = { limit: 100 };
 
+      // Fetch products once (not per-item)
+      const { products } = await medusa.store.product.list(listParams);
+
       // Add each local cart item to Medusa cart with metadata
       for (const localItem of localCartItems) {
         try {
-          // Fetch the Medusa product to get its actual variant ID
-          const { products } = await medusa.store.product.list(listParams);
-
           // Find product by Medusa ID, original_id metadata, or handle
           const medusaProduct = products.find(
             (p: any) => p.id === localItem.productId || p.metadata?.original_id === localItem.productId || p.handle === localItem.productId
@@ -172,7 +170,6 @@ export function useMedusaCart() {
             metadata.cut_label = `${localItem.dimensions.widthFeet}' × ${localItem.dimensions.lengthFeet}'`;
           }
 
-          // Create line item in Medusa cart (use activeCartId, not cartId)
           await medusa.store.cart.createLineItem(activeCartId, {
             variant_id: variantId,
             quantity: localItem.quantity,
@@ -192,13 +189,14 @@ export function useMedusaCart() {
     } finally {
       setIsLoading(false);
     }
-  }, [cartId, medusaCart, refreshCart, setCartId]);
+  }, [refreshCart, setCartId]);
 
   const completeCheckout = useCallback(async () => {
-    if (!cartId) return null;
+    const activeCartId = getActiveCartId() || cartId;
+    if (!activeCartId) return null;
     try {
       setIsLoading(true);
-      const response = await medusa.store.cart.complete(cartId);
+      const response = await medusa.store.cart.complete(activeCartId);
 
       // Handle v2 response structure which might differ based on success type
       if (response.type === "order" && response.order) {
@@ -227,14 +225,15 @@ export function useMedusaCart() {
     country_code: string;
     phone?: string;
   }) => {
-    if (!cartId) return;
+    const activeCartId = getActiveCartId() || cartId;
+    if (!activeCartId) return;
     try {
       setIsLoading(true);
-      await medusa.store.cart.update(cartId, {
+      await medusa.store.cart.update(activeCartId, {
         shipping_address: address,
         billing_address: address,
       });
-      await refreshCart(cartId);
+      await refreshCart(activeCartId);
     } catch (err) {
       setError(err as Error);
       throw err;
@@ -244,22 +243,19 @@ export function useMedusaCart() {
   }, [cartId, refreshCart]);
 
   const createPaymentSession = useCallback(async () => {
-    if (!cartId) return null;
+    const activeCartId = getActiveCartId() || cartId;
+    if (!activeCartId) throw new Error("No cart ID available");
 
     try {
       setIsLoading(true);
 
       // Retrieve the full cart object (SDK needs it for payment init)
-      const { cart } = await medusa.store.cart.retrieve(cartId);
+      const { cart } = await medusa.store.cart.retrieve(activeCartId);
 
-      // Always create a fresh payment collection by stripping the old one.
-      // On retry, the old collection is stale (items were re-synced), so
-      // reusing it causes a 500. Passing no payment_collection forces the
-      // SDK to POST /store/payment-collections with the cart_id first.
-      const cartForPayment = { ...cart, payment_collection: undefined };
-
+      // Let the SDK handle payment collection creation/reuse naturally.
+      // Do NOT strip payment_collection — that causes duplicate collection errors.
       const { payment_collection } = await (medusa.store.payment as any).initiatePaymentSession(
-        cartForPayment,
+        cart,
         { provider_id: "pp_stripe_stripe" },
       );
 
@@ -272,11 +268,13 @@ export function useMedusaCart() {
         return stripeSession.data.client_secret as string;
       }
 
-      return null;
+      throw new Error("No client_secret in Stripe payment session");
     } catch (err: any) {
       setError(err as Error);
       console.error("Failed to create payment session:", err);
-      throw err;
+      // Extract as much detail as possible from the error
+      const detail = err?.response?.data?.message || err?.message || JSON.stringify(err);
+      throw new Error(detail);
     } finally {
       setIsLoading(false);
     }
@@ -284,19 +282,20 @@ export function useMedusaCart() {
 
   // Add a Medusa shipping method to the cart (required before payment)
   const addShippingMethod = useCallback(async () => {
-    if (!cartId) return;
+    const activeCartId = getActiveCartId() || cartId;
+    if (!activeCartId) return;
     try {
       setIsLoading(true);
       // Get available shipping options for this cart
       const { shipping_options } = await medusa.store.fulfillment.listCartOptions({
-        cart_id: cartId,
+        cart_id: activeCartId,
       });
 
       if (shipping_options?.length > 0) {
-        await medusa.store.cart.addShippingMethod(cartId, {
+        await medusa.store.cart.addShippingMethod(activeCartId, {
           option_id: shipping_options[0].id,
         });
-        await refreshCart(cartId);
+        await refreshCart(activeCartId);
       }
     } catch (err) {
       console.error("Failed to add shipping method:", err);
