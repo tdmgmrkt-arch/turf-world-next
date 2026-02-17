@@ -19,6 +19,7 @@
     "@medusajs/framework": "^2.13.0",
     "@medusajs/medusa": "^2.13.0",
     "@medusajs/payment-stripe": "^2.13.0",
+    "stripe": "^19.1.0",
     "awilix": "^11.0.0",
     "pg": "^8.13.0"
   },
