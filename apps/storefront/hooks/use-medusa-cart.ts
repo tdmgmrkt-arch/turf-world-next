@@ -374,22 +374,36 @@ export function useMedusaCart() {
         );
       }
 
-      // Add the first option that has a price
-      const addRes = await fetch(
-        `${baseUrl}/store/carts/${activeCartId}/shipping-methods`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "x-publishable-api-key": pubKey,
-          },
-          body: JSON.stringify({ option_id: optionsWithPrices[0].id }),
+      // Add one shipping method per shipping profile to cover all cart items.
+      // Cart items may belong to different shipping profiles, and each profile
+      // needs a corresponding shipping method or cart completion will fail.
+      const byProfile = new Map<string, any>();
+      for (const opt of optionsWithPrices) {
+        const profileId = opt.shipping_profile_id || "unknown";
+        if (!byProfile.has(profileId)) {
+          byProfile.set(profileId, opt);
         }
-      );
+      }
 
-      if (!addRes.ok) {
-        const errBody = await addRes.text();
-        throw new Error(`Failed to add shipping method (${addRes.status}): ${errBody}`);
+      console.log(`Adding shipping methods for ${byProfile.size} shipping profile(s)`);
+
+      for (const [profileId, opt] of byProfile) {
+        const addRes = await fetch(
+          `${baseUrl}/store/carts/${activeCartId}/shipping-methods`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "x-publishable-api-key": pubKey,
+            },
+            body: JSON.stringify({ option_id: opt.id }),
+          }
+        );
+
+        if (!addRes.ok) {
+          const errBody = await addRes.text();
+          throw new Error(`Failed to add shipping method for profile ${profileId} (${addRes.status}): ${errBody}`);
+        }
       }
 
       await refreshCart(activeCartId);

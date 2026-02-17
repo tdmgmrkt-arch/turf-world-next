@@ -150,46 +150,11 @@ export default async function seedShipping({ container }: ExecArgs) {
     logger.info(`Created service zone: ${(serviceZones as any)[0].name} (${serviceZoneId})`);
   }
 
-  // 5. Check for existing shipping options (delete priceless ones)
+  // 5. Log existing shipping options (per-profile cleanup happens in step 7)
   const existingOptions = await fulfillmentModule.listShippingOptions(
     { service_zone_id: serviceZoneId },
   );
-  if (existingOptions.length > 0) {
-    // Check if options have prices via the pricing module
-    const query = container.resolve("query") as any;
-    let hasValidPrices = false;
-    try {
-      const { data: optionsWithPrices } = await query.graph({
-        entity: "shipping_option",
-        fields: ["id", "name", "prices.*"],
-        filters: { id: existingOptions.map((o: any) => o.id) },
-      });
-      hasValidPrices = optionsWithPrices.some((o: any) => o.prices?.length > 0);
-      logger.info(`Existing options: ${optionsWithPrices.length}, has prices: ${hasValidPrices}`);
-    } catch {
-      // If we can't check prices, assume we need to recreate
-    }
-
-    if (hasValidPrices) {
-      logger.info("Shipping options with prices already exist:");
-      for (const opt of existingOptions) {
-        logger.info(`  - ${opt.name} (${opt.id})`);
-      }
-      logger.info("Done! (no changes needed)");
-      return;
-    }
-
-    // Delete priceless options so we can recreate with prices
-    logger.info("Deleting shipping options without prices...");
-    try {
-      await deleteShippingOptionsWorkflow(container).run({
-        input: { ids: existingOptions.map((o: any) => o.id) },
-      });
-      logger.info("Deleted priceless shipping options");
-    } catch (err: any) {
-      logger.warn("Could not delete options: " + err.message);
-    }
-  }
+  logger.info(`Found ${existingOptions.length} existing shipping options in service zone`);
 
   // 6. Find fulfillment provider
   let providerId = "manual_manual";
@@ -207,39 +172,74 @@ export default async function seedShipping({ container }: ExecArgs) {
     logger.warn("Could not list providers, using default: " + providerId);
   }
 
-  // 7. Create shipping option WITH prices using the workflow
-  logger.info(`Creating shipping option with provider: ${providerId}...`);
-  try {
-    const { result } = await createShippingOptionsWorkflow(container).run({
-      input: [
-        {
-          name: "Standard Shipping",
-          price_type: "flat",
-          service_zone_id: serviceZoneId,
-          shipping_profile_id: shippingProfile.id,
-          provider_id: providerId,
-          type: {
-            label: "Standard",
-            description: "Standard ground shipping",
-            code: "standard",
-          },
-          prices: [
-            {
-              currency_code: "usd",
-              amount: 0, // $0 — actual shipping cost is calculated in the storefront
-            },
-          ],
-          rules: [],
-        },
-      ],
+  // 7. Create shipping options WITH prices for ALL shipping profiles.
+  // Products may be assigned to different profiles, and each profile needs
+  // a shipping option or cart completion fails with "shipping profiles not satisfied".
+  logger.info(`Creating shipping options with provider: ${providerId}...`);
+  for (const profile of profiles) {
+    // Check if this profile already has a priced option in the current service zone
+    const existingForProfile = await fulfillmentModule.listShippingOptions({
+      service_zone_id: serviceZoneId,
+      shipping_profile_id: profile.id,
     });
 
-    logger.info("Created shipping options with prices:");
-    for (const opt of result as any[]) {
-      logger.info(`  - ${opt.name} (${opt.id})`);
+    if (existingForProfile.length > 0) {
+      // Verify at least one has prices
+      let hasPrices = false;
+      try {
+        const query = container.resolve("query") as any;
+        const { data: withPrices } = await query.graph({
+          entity: "shipping_option",
+          fields: ["id", "prices.*"],
+          filters: { id: existingForProfile.map((o: any) => o.id) },
+        });
+        hasPrices = withPrices.some((o: any) => o.prices?.length > 0);
+      } catch { /* ignore */ }
+
+      if (hasPrices) {
+        logger.info(`Profile "${profile.name}" (${profile.id}) already has priced shipping options — skipping`);
+        continue;
+      }
+
+      // Delete priceless options for this profile
+      try {
+        await deleteShippingOptionsWorkflow(container).run({
+          input: { ids: existingForProfile.map((o: any) => o.id) },
+        });
+      } catch { /* ignore */ }
     }
-  } catch (err: any) {
-    logger.error("Failed to create shipping option: " + err.message);
+
+    try {
+      const { result } = await createShippingOptionsWorkflow(container).run({
+        input: [
+          {
+            name: `Standard Shipping (${profile.name})`,
+            price_type: "flat",
+            service_zone_id: serviceZoneId,
+            shipping_profile_id: profile.id,
+            provider_id: providerId,
+            type: {
+              label: "Standard",
+              description: "Standard ground shipping",
+              code: `standard-${profile.id}`,
+            },
+            prices: [
+              {
+                currency_code: "usd",
+                amount: 0, // $0 — actual shipping cost is calculated in the storefront
+              },
+            ],
+            rules: [],
+          },
+        ],
+      });
+
+      for (const opt of result as any[]) {
+        logger.info(`  Created: ${opt.name} (${opt.id}) for profile "${profile.name}"`);
+      }
+    } catch (err: any) {
+      logger.error(`Failed to create shipping option for profile "${profile.name}": ${err.message}`);
+    }
   }
 
   logger.info("Done!");
