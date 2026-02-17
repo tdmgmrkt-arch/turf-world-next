@@ -394,20 +394,32 @@ export function CheckoutForm() {
     setPaymentError(null);
     try {
       // Step 1: Sync local cart items to Medusa with cut dimension metadata
-      await syncLocalCartToMedusa(items);
+      try {
+        await syncLocalCartToMedusa(items);
+      } catch (err: any) {
+        console.error("Step 1 (syncLocalCartToMedusa) failed:", err);
+        setPaymentError("Failed to sync cart items. Please try again.");
+        return;
+      }
 
       // Step 2: Update shipping address
-      await updateShippingAddress({
-        first_name: shipping.firstName,
-        last_name: shipping.lastName,
-        address_1: shipping.address,
-        address_2: shipping.apartment || undefined,
-        city: shipping.city,
-        province: shipping.state,
-        postal_code: shipping.zip,
-        country_code: "us",
-        phone: contact.phone || undefined,
-      });
+      try {
+        await updateShippingAddress({
+          first_name: shipping.firstName,
+          last_name: shipping.lastName,
+          address_1: shipping.address,
+          address_2: shipping.apartment || undefined,
+          city: shipping.city,
+          province: shipping.state,
+          postal_code: shipping.zip,
+          country_code: "us",
+          phone: contact.phone || undefined,
+        });
+      } catch (err: any) {
+        console.error("Step 2 (updateShippingAddress) failed:", err);
+        setPaymentError("Failed to set shipping address. Please try again.");
+        return;
+      }
 
       // Step 3: Add Medusa shipping method (required for payment collection)
       await addShippingMethod();
