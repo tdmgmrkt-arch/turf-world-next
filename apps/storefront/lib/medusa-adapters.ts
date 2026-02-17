@@ -72,10 +72,12 @@ export function transformMedusaProduct(medusaProduct: MedusaProduct): Product {
     name: medusaProduct.title || "",
     description: description,
 
-    // Pricing (already in cents)
-    // If original_price exists, product has an active promotion
-    priceCents: variant?.calculated_price?.calculated_amount || 0,
-    comparePriceCents: variant?.original_price?.calculated_amount || variant?.metadata?.compare_at_price,
+    // Pricing — Medusa v2 amounts are in major currency units (dollars),
+    // but the storefront uses cents throughout, so multiply by 100.
+    priceCents: Math.round((variant?.calculated_price?.calculated_amount || 0) * 100),
+    comparePriceCents: Math.round(
+      ((variant?.original_price?.calculated_amount || variant?.metadata?.compare_at_price || 0) * 100)
+    ) || undefined,
     costCents: undefined, // Not exposed from Medusa
 
     // Category and classification (from collection)
@@ -121,10 +123,11 @@ export function transformMedusaAccessory(medusaProduct: MedusaProduct): Accessor
     name: medusaProduct.title || "",
     description: medusaProduct.description || "",
 
-    // Pricing
-    // If original_price exists, product has an active promotion
-    priceCents: variant?.calculated_price?.calculated_amount || 0,
-    comparePriceCents: variant?.original_price?.calculated_amount,
+    // Pricing — Medusa v2 amounts are in dollars, storefront uses cents
+    priceCents: Math.round((variant?.calculated_price?.calculated_amount || 0) * 100),
+    comparePriceCents: Math.round(
+      (variant?.original_price?.calculated_amount || 0) * 100
+    ) || undefined,
 
     // Category
     category: metadata.category || "installation",
