@@ -402,7 +402,7 @@ export function CheckoutForm() {
         return;
       }
 
-      // Step 2: Update shipping address
+      // Step 2: Update shipping address + email (email required for order completion)
       try {
         await updateShippingAddress({
           first_name: shipping.firstName,
@@ -414,7 +414,7 @@ export function CheckoutForm() {
           postal_code: shipping.zip,
           country_code: "us",
           phone: contact.phone || undefined,
-        });
+        }, contact.email);
       } catch (err: any) {
         console.error("Step 2 (updateShippingAddress) failed:", err);
         setPaymentError("Failed to set shipping address. Please try again.");

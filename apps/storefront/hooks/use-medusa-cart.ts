@@ -194,11 +194,30 @@ export function useMedusaCart() {
   const completeCheckout = useCallback(async () => {
     const activeCartId = getActiveCartId() || cartId;
     if (!activeCartId) return null;
+
+    const baseUrl = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "http://localhost:9000";
+    const pubKey = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || "";
+
     try {
       setIsLoading(true);
-      const response = await medusa.store.cart.complete(activeCartId);
 
-      // Handle v2 response structure which might differ based on success type
+      // Use direct fetch to avoid stale JWT tokens from the SDK
+      const res = await fetch(`${baseUrl}/store/carts/${activeCartId}/complete`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-publishable-api-key": pubKey,
+        },
+      });
+
+      if (!res.ok) {
+        const errBody = await res.text();
+        console.error(`Complete checkout failed (${res.status}):`, errBody);
+        return null;
+      }
+
+      const response = await res.json();
+
       if (response.type === "order" && response.order) {
         localStorage.removeItem(CART_ID_KEY);
         setCartId(null as any);
@@ -207,6 +226,7 @@ export function useMedusaCart() {
       }
       return null;
     } catch (err) {
+      console.error("Failed to complete checkout:", err);
       setError(err as Error);
       return null;
     } finally {
@@ -214,25 +234,30 @@ export function useMedusaCart() {
     }
   }, [cartId, setCartId]);
 
-  const updateShippingAddress = useCallback(async (address: {
-    first_name: string;
-    last_name: string;
-    address_1: string;
-    address_2?: string;
-    city: string;
-    province: string;
-    postal_code: string;
-    country_code: string;
-    phone?: string;
-  }) => {
+  const updateShippingAddress = useCallback(async (
+    address: {
+      first_name: string;
+      last_name: string;
+      address_1: string;
+      address_2?: string;
+      city: string;
+      province: string;
+      postal_code: string;
+      country_code: string;
+      phone?: string;
+    },
+    email?: string,
+  ) => {
     const activeCartId = getActiveCartId() || cartId;
     if (!activeCartId) return;
     try {
       setIsLoading(true);
-      await medusa.store.cart.update(activeCartId, {
+      const updateData: Record<string, any> = {
         shipping_address: address,
         billing_address: address,
-      });
+      };
+      if (email) updateData.email = email;
+      await medusa.store.cart.update(activeCartId, updateData);
       await refreshCart(activeCartId);
     } catch (err) {
       setError(err as Error);
