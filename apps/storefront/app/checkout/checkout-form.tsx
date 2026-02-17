@@ -207,16 +207,19 @@ function PaymentForm({
       }
 
       if (paymentIntent && paymentIntent.status === "succeeded") {
-        const order = await completeCheckout();
-        if (order) {
+        try {
+          const order = await completeCheckout();
           onSuccess(order.id);
-        } else {
-          onSuccess(paymentIntent.id);
+        } catch (completeErr: any) {
+          console.error("Order completion failed:", completeErr);
+          const msg = completeErr?.message || "Unknown error";
+          setErrorMessage(`Payment succeeded but order creation failed: ${msg}`);
+          setIsProcessing(false);
         }
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Payment error:", err);
-      setErrorMessage("An unexpected error occurred");
+      setErrorMessage(err?.message || "An unexpected error occurred");
       setIsProcessing(false);
     }
   };

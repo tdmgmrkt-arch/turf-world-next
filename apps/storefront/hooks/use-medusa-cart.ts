@@ -193,7 +193,7 @@ export function useMedusaCart() {
 
   const completeCheckout = useCallback(async () => {
     const activeCartId = getActiveCartId() || cartId;
-    if (!activeCartId) return null;
+    if (!activeCartId) throw new Error("No cart ID for checkout completion");
 
     const baseUrl = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "http://localhost:9000";
     const pubKey = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || "";
@@ -210,13 +210,13 @@ export function useMedusaCart() {
         },
       });
 
+      const responseText = await res.text();
+
       if (!res.ok) {
-        const errBody = await res.text();
-        console.error(`Complete checkout failed (${res.status}):`, errBody);
-        return null;
+        throw new Error(`Cart complete failed (${res.status}): ${responseText}`);
       }
 
-      const response = await res.json();
+      const response = JSON.parse(responseText);
 
       if (response.type === "order" && response.order) {
         localStorage.removeItem(CART_ID_KEY);
@@ -224,11 +224,13 @@ export function useMedusaCart() {
         setMedusaCart(null);
         return response.order;
       }
-      return null;
+
+      // Cart returned but not as an order — something is missing
+      throw new Error(`Cart not completed. Response type: ${response.type}. Details: ${responseText.slice(0, 500)}`);
     } catch (err) {
       console.error("Failed to complete checkout:", err);
       setError(err as Error);
-      return null;
+      throw err;
     } finally {
       setIsLoading(false);
     }
