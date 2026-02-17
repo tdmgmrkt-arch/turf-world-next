@@ -425,7 +425,13 @@ export function CheckoutForm() {
       }
 
       // Step 3: Add Medusa shipping method (required for payment collection)
-      await addShippingMethod();
+      try {
+        await addShippingMethod();
+      } catch (err: any) {
+        console.error("Step 3 (addShippingMethod) failed:", err);
+        setPaymentError("Failed to set shipping method. Please try again.");
+        return;
+      }
 
       // Step 4: Create payment session
       try {

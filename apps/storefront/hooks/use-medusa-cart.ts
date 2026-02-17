@@ -332,26 +332,70 @@ export function useMedusaCart() {
     }
   }, [cartId]);
 
-  // Add a Medusa shipping method to the cart (required before payment)
+  // Add a Medusa shipping method to the cart (REQUIRED before payment/completion)
   const addShippingMethod = useCallback(async () => {
     const activeCartId = getActiveCartId() || cartId;
-    if (!activeCartId) return;
+    if (!activeCartId) throw new Error("No cart ID for shipping method");
+
+    const baseUrl = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "http://localhost:9000";
+    const pubKey = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || "";
+
     try {
       setIsLoading(true);
-      // Get available shipping options for this cart
-      const { shipping_options } = await medusa.store.fulfillment.listCartOptions({
-        cart_id: activeCartId,
-      });
 
-      if (shipping_options?.length > 0) {
-        await medusa.store.cart.addShippingMethod(activeCartId, {
-          option_id: shipping_options[0].id,
-        });
-        await refreshCart(activeCartId);
+      // Use direct fetch to avoid stale JWT issues
+      const optionsRes = await fetch(
+        `${baseUrl}/store/shipping-options?cart_id=${activeCartId}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            "x-publishable-api-key": pubKey,
+          },
+        }
+      );
+
+      if (!optionsRes.ok) {
+        const errBody = await optionsRes.text();
+        throw new Error(`Failed to list shipping options (${optionsRes.status}): ${errBody}`);
       }
+
+      const { shipping_options } = await optionsRes.json();
+
+      // Filter to only options that have a calculated price (amount is set)
+      const optionsWithPrices = (shipping_options || []).filter(
+        (opt: any) => opt.amount !== undefined && opt.amount !== null
+      );
+
+      console.log(`Shipping options: ${shipping_options?.length || 0} total, ${optionsWithPrices.length} with prices`);
+
+      if (optionsWithPrices.length === 0) {
+        throw new Error(
+          `No shipping options with prices available. Found ${shipping_options?.length || 0} options without prices.`
+        );
+      }
+
+      // Add the first option that has a price
+      const addRes = await fetch(
+        `${baseUrl}/store/carts/${activeCartId}/shipping-methods`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-publishable-api-key": pubKey,
+          },
+          body: JSON.stringify({ option_id: optionsWithPrices[0].id }),
+        }
+      );
+
+      if (!addRes.ok) {
+        const errBody = await addRes.text();
+        throw new Error(`Failed to add shipping method (${addRes.status}): ${errBody}`);
+      }
+
+      await refreshCart(activeCartId);
     } catch (err) {
       console.error("Failed to add shipping method:", err);
-      // Non-fatal: payment init will still attempt without it
+      throw err;
     } finally {
       setIsLoading(false);
     }
