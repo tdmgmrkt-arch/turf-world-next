@@ -305,60 +305,67 @@ async function fixInventory(container: any, logger: any) {
   const stockLocationModule = container.resolve("stock_location") as any;
   const salesChannelModule = container.resolve("sales_channel") as any;
   const inventoryModule = container.resolve("inventory") as any;
+  const productModule = container.resolve("product") as any;
 
-  logger.info("[fix-inventory] Ensuring stock levels...");
+  logger.info("[fix-inventory] Disabling inventory tracking + linking sales channels...");
 
+  // 1. Ensure stock location exists and is linked to sales channels
   const stockLocations = await stockLocationModule.listStockLocations({});
-  if (stockLocations.length === 0) {
-    logger.warn("[fix-inventory] No stock locations — skipping");
-    return;
-  }
-  const location = stockLocations[0];
-
-  // Link all sales channels
-  const salesChannels = await salesChannelModule.listSalesChannels({});
-  if (salesChannels.length > 0) {
-    try {
-      await linkSalesChannelsToStockLocationWorkflow(container).run({
-        input: { id: location.id, add: salesChannels.map((sc: any) => sc.id) },
-      });
-    } catch { /* may already be linked */ }
-  }
-
-  // Create/update inventory levels
-  const inventoryItems = await inventoryModule.listInventoryItems(
-    {},
-    { relations: ["location_levels"], take: 500 }
-  );
-
-  let created = 0;
-  let updated = 0;
-  for (const item of inventoryItems) {
-    const existingLevel = item.location_levels?.find(
-      (ll: any) => ll.location_id === location.id
-    );
-
-    if (existingLevel) {
-      if (existingLevel.stocked_quantity < 999999) {
-        try {
-          await inventoryModule.updateInventoryLevels(existingLevel.id, {
-            stocked_quantity: 999999,
-          });
-          updated++;
-        } catch { /* ignore */ }
-      }
-      continue;
+  if (stockLocations.length > 0) {
+    const location = stockLocations[0];
+    const salesChannels = await salesChannelModule.listSalesChannels({});
+    if (salesChannels.length > 0) {
+      try {
+        await linkSalesChannelsToStockLocationWorkflow(container).run({
+          input: { id: location.id, add: salesChannels.map((sc: any) => sc.id) },
+        });
+      } catch { /* may already be linked */ }
     }
 
-    try {
-      await inventoryModule.createInventoryLevels({
-        inventory_item_id: item.id,
-        location_id: location.id,
-        stocked_quantity: 999999,
-      });
-      created++;
-    } catch { /* ignore */ }
+    // Create inventory levels for any items missing them
+    const inventoryItems = await inventoryModule.listInventoryItems(
+      {},
+      { relations: ["location_levels"], take: 500 }
+    );
+
+    let created = 0;
+    for (const item of inventoryItems) {
+      const hasLevel = item.location_levels?.some(
+        (ll: any) => ll.location_id === location.id
+      );
+      if (!hasLevel) {
+        try {
+          await inventoryModule.createInventoryLevels({
+            inventory_item_id: item.id,
+            location_id: location.id,
+            stocked_quantity: 999999,
+          });
+          created++;
+        } catch { /* ignore */ }
+      }
+    }
+    if (created > 0) logger.info(`[fix-inventory] Created ${created} inventory levels`);
   }
 
-  logger.info(`[fix-inventory] ${created} created, ${updated} updated`);
+  // 2. Disable manage_inventory on ALL product variants so Medusa
+  //    never blocks large sq-ft orders due to stock checks.
+  const products = await productModule.listProducts({}, { take: 500, relations: ["variants"] });
+  let disabled = 0;
+
+  for (const product of products) {
+    for (const variant of product.variants || []) {
+      if (variant.manage_inventory !== false) {
+        try {
+          await productModule.updateProductVariants(variant.id, {
+            manage_inventory: false,
+          });
+          disabled++;
+        } catch (err: any) {
+          logger.warn(`[fix-inventory] Failed to disable inventory for variant ${variant.id}: ${err.message}`);
+        }
+      }
+    }
+  }
+
+  logger.info(`[fix-inventory] Disabled inventory tracking on ${disabled} variants`);
 }
