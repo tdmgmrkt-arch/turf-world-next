@@ -7,6 +7,7 @@ import {
   linkSalesChannelsToStockLocationWorkflow,
   createShippingOptionsWorkflow,
   deleteShippingOptionsWorkflow,
+  createTaxRegionsWorkflow,
 } from "@medusajs/medusa/core-flows";
 
 /**
@@ -20,6 +21,7 @@ import {
  *  2. Fix shipping profiles (link products to default profile)
  *  3. Seed shipping (stock location, fulfillment set, shipping options)
  *  4. Fix inventory (high stock levels + sales channel links)
+ *  5. Seed tax (US tax region with Stripe Tax provider)
  *
  * Run: npx medusa exec ./src/scripts/post-deploy.ts
  */
@@ -50,6 +52,12 @@ export default async function postDeploy({ container }: ExecArgs) {
     await fixInventory(container, logger);
   } catch (err: any) {
     logger.warn("fix-inventory error (continuing): " + err.message);
+  }
+
+  try {
+    await seedTax(container, logger);
+  } catch (err: any) {
+    logger.warn("seed-tax error (continuing): " + err.message);
   }
 
   logger.info("=== POST-DEPLOY SETUP COMPLETE ===");
@@ -385,4 +393,56 @@ async function fixInventory(container: any, logger: any) {
   }
 
   logger.info(`[fix-inventory] Updated ${updated} variants (manage_inventory=false, allow_backorder=true)`);
+}
+
+// ─── 5. SEED TAX ─────────────────────────────────────────────────
+async function seedTax(container: any, logger: any) {
+  const taxModule = container.resolve("tax") as any;
+
+  logger.info("[seed-tax] Ensuring US tax region with Stripe Tax provider...");
+
+  // Check if US country-level tax region already exists
+  const existingRegions = await taxModule.listTaxRegions({});
+  const usRegion = existingRegions.find(
+    (r: any) => r.country_code === "us" && !r.province_code
+  );
+
+  if (usRegion) {
+    logger.info(`[seed-tax] US tax region already exists (id: ${usRegion.id}, provider: ${usRegion.provider_id || "system"}) — skipping`);
+    return;
+  }
+
+  // Discover the Stripe Tax provider ID from the tax module
+  let providerId: string | undefined;
+  try {
+    const providers = await taxModule.listTaxProviders();
+    const providerIds = providers.map((p: any) => (typeof p === "string" ? p : p.id));
+    logger.info(`[seed-tax] Available tax providers: ${JSON.stringify(providerIds)}`);
+
+    const stripeTax = providerIds.find((id: string) => id?.includes("stripe-tax"));
+    if (stripeTax) {
+      providerId = stripeTax;
+    }
+  } catch (err: any) {
+    logger.warn(`[seed-tax] Could not list tax providers: ${err.message}`);
+  }
+
+  // Create US country-level tax region.
+  // Stripe Tax calculates the actual rate dynamically, so default_tax_rate is 0.
+  await createTaxRegionsWorkflow(container).run({
+    input: {
+      tax_regions: [
+        {
+          country_code: "us",
+          ...(providerId ? { provider_id: providerId } : {}),
+          default_tax_rate: {
+            name: "US Sales Tax",
+            rate: 0,
+          },
+        },
+      ],
+    },
+  });
+
+  logger.info(`[seed-tax] Created US tax region (provider: ${providerId || "system default"})`);
 }

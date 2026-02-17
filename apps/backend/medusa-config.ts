@@ -46,6 +46,28 @@ export default defineConfig({
       : []),
 
     // ========================================
+    // TAX (Stripe Tax) - Destination-based tax via Stripe Tax API
+    // ========================================
+    ...(process.env.STRIPE_API_KEY && process.env.STRIPE_API_KEY !== "sk_test_INSERT_YOUR_SECRET_KEY_HERE"
+      ? [
+          {
+            resolve: "@medusajs/medusa/tax",
+            options: {
+              providers: [
+                {
+                  resolve: "./src/modules/stripe-tax-provider",
+                  id: "stripe-tax",
+                  options: {
+                    apiKey: process.env.STRIPE_API_KEY,
+                  },
+                },
+              ],
+            },
+          },
+        ]
+      : []),
+
+    // ========================================
     // FILE STORAGE - Using local for now (S3 can be added later)
     // ========================================
 
