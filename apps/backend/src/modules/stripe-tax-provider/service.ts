@@ -134,7 +134,7 @@ class StripeTaxService {
         currency: calcParams.currency,
         line_items_count: stripeLineItems.length,
         line_items_amounts: stripeLineItems.map(li => li.amount),
-        address: calcParams.customer_details.address,
+        address: calcParams.customer_details!.address,
         shipping_amount: shippingAmount,
       }));
 
