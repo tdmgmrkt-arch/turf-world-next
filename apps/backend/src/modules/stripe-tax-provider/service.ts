@@ -86,7 +86,7 @@ class StripeTaxService {
         address: {
           line1: address.address_1 || "",
           city: address.city || "",
-          state: (address.province_code || address.province || "").toUpperCase(),
+          state: (address.province_code || (address as any).province || "").toUpperCase(),
           postal_code: address.postal_code || "",
           country: address.country_code.toUpperCase(),
         },
