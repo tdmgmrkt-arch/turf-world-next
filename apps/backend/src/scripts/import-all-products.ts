@@ -101,6 +101,17 @@ export default async function importAllProducts({ container }: ExecArgs) {
 
   logger.info(`✅ Using ${collections.length} collections`);
 
+  // Get default shipping profile (required for cart completion)
+  const fulfillmentModule = container.resolve("fulfillment") as any;
+  const shippingProfiles = await fulfillmentModule.listShippingProfiles();
+  const defaultProfile = shippingProfiles.find((p: any) => p.type === "default") || shippingProfiles[0];
+  const shippingProfileId = defaultProfile?.id;
+  if (shippingProfileId) {
+    logger.info(`Using shipping profile: "${defaultProfile.name}" (${shippingProfileId})`);
+  } else {
+    logger.warn("No shipping profile found — products will not be shippable!");
+  }
+
   // ================================================
   // 2. CONVERT TURF PRODUCTS TO MEDUSA FORMAT
   // ================================================
@@ -118,6 +129,7 @@ export default async function importAllProducts({ container }: ExecArgs) {
       handle: product.handle,
       subtitle: `${product.weight}oz Total Weight | ${product.pileHeight}" Pile Height`,
       collection_id: collectionMap[collectionHandle],
+      ...(shippingProfileId && { shipping_profile_id: shippingProfileId }),
     description: `
 ${product.description}
 
@@ -217,6 +229,7 @@ ${product.badge ? `**${product.badge}** - ` : ""}Professional-grade artificial t
     subtitle: accessory.size,
     description: accessory.description,
     collection_id: collectionMap["supplies"], // All accessories go to supplies collection
+    ...(shippingProfileId && { shipping_profile_id: shippingProfileId }),
     status: accessory.inStock ? ProductStatus.PUBLISHED : ProductStatus.DRAFT,
     is_giftcard: false,
     discountable: true,
