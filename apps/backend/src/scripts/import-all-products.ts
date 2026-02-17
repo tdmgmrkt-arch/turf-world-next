@@ -166,7 +166,9 @@ ${product.badge ? `**${product.badge}** - ` : ""}Professional-grade artificial t
         sku: `${product.id.toUpperCase()}-100`,
         prices: [
           {
-            amount: product.priceCents,
+            // priceCents is the per-sq-ft price in cents (e.g. 259 = $2.59/sqft).
+            // Medusa v2 amounts are in major currency units, so divide by 100.
+            amount: product.priceCents / 100,
             currency_code: "usd",
             region_id: DEFAULT_REGION_ID,
           },
@@ -177,7 +179,7 @@ ${product.badge ? `**${product.badge}** - ` : ""}Professional-grade artificial t
         // Store compare price in metadata if exists
         ...(product.comparePriceCents && {
           metadata: {
-            compare_at_price: product.comparePriceCents,
+            compare_at_price: product.comparePriceCents / 100,
           },
         }),
       },
@@ -254,7 +256,7 @@ ${product.badge ? `**${product.badge}** - ` : ""}Professional-grade artificial t
         sku: `${accessory.id.toUpperCase()}`,
         prices: [
           {
-            amount: accessory.priceCents,
+            amount: accessory.priceCents / 100,
             currency_code: "usd",
             region_id: DEFAULT_REGION_ID,
           },

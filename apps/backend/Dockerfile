@@ -38,4 +38,4 @@ RUN ADMIN_HTML=$(find /app -name "index.html" -path "*/admin/*" -print -quit 2>/
     fi
 
 EXPOSE 9000
-CMD ["sh", "-c", "npx medusa db:migrate && npx medusa exec ./src/scripts/import-all-products.ts || true && npx medusa exec ./src/scripts/fix-shipping-profiles.ts || true && npx medusa exec ./src/scripts/seed-shipping.ts || true && npx medusa exec ./src/scripts/fix-inventory.ts || true && npx medusa start"]
+CMD ["sh", "-c", "npx medusa db:migrate && npx medusa exec ./src/scripts/import-all-products.ts || true && npx medusa exec ./src/scripts/fix-prices.ts || true && npx medusa exec ./src/scripts/fix-shipping-profiles.ts || true && npx medusa exec ./src/scripts/seed-shipping.ts || true && npx medusa exec ./src/scripts/fix-inventory.ts || true && npx medusa start"]

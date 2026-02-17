@@ -170,9 +170,13 @@ export function useMedusaCart() {
             metadata.cut_label = `${localItem.dimensions.widthFeet}' × ${localItem.dimensions.lengthFeet}'`;
           }
 
+          // Use square feet as quantity so Medusa calculates the correct total.
+          // Variant price is per sq ft (e.g. $2.59), so qty × price = cut total.
+          const quantity = localItem.dimensions?.squareFeet || localItem.quantity;
+
           await medusa.store.cart.createLineItem(activeCartId, {
             variant_id: variantId,
-            quantity: localItem.quantity,
+            quantity,
             metadata,
           });
         } catch (itemErr) {
