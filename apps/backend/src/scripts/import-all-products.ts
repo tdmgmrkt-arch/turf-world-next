@@ -174,8 +174,9 @@ ${product.badge ? `**${product.badge}** - ` : ""}Professional-grade artificial t
           },
         ],
         options: { Size: "15' x 100' Roll" },
-        manage_inventory: true,
-        inventory_quantity: product.inStock ? 1000 : 0,
+        // Turf is sold by the sq ft — disable inventory tracking so
+        // large-area orders (e.g. 1500 sq ft) aren't blocked.
+        manage_inventory: false,
         // Store compare price in metadata if exists
         ...(product.comparePriceCents && {
           metadata: {

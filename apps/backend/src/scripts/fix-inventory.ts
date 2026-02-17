@@ -59,16 +59,26 @@ export default async function fixInventory({ container }: ExecArgs) {
   );
   logger.info(`Found ${inventoryItems.length} inventory items`);
 
-  // 4. Create inventory levels at stock location for items that don't have one
+  // 4. Create or update inventory levels at stock location
   let created = 0;
-  let skipped = 0;
+  let updated = 0;
   for (const item of inventoryItems) {
-    const hasLevel = item.location_levels?.some(
+    const existingLevel = item.location_levels?.find(
       (ll: any) => ll.location_id === location.id
     );
 
-    if (hasLevel) {
-      skipped++;
+    if (existingLevel) {
+      // Update existing levels to high stock so large sq-ft orders aren't blocked
+      if (existingLevel.stocked_quantity < 999999) {
+        try {
+          await inventoryModule.updateInventoryLevels(existingLevel.id, {
+            stocked_quantity: 999999,
+          });
+          updated++;
+        } catch (err: any) {
+          logger.warn(`  Failed to update ${item.sku || item.id}: ${err.message}`);
+        }
+      }
       continue;
     }
 
@@ -76,15 +86,14 @@ export default async function fixInventory({ container }: ExecArgs) {
       await inventoryModule.createInventoryLevels({
         inventory_item_id: item.id,
         location_id: location.id,
-        stocked_quantity: 1000,
+        stocked_quantity: 999999,
       });
       created++;
-      logger.info(`  Created level for ${item.sku || item.id} (qty: 1000)`);
     } catch (err: any) {
       logger.warn(`  Failed for ${item.sku || item.id}: ${err.message}`);
     }
   }
 
-  logger.info(`Inventory levels: ${created} created, ${skipped} already existed`);
+  logger.info(`Inventory levels: ${created} created, ${updated} updated to 999999`);
   logger.info("Done!");
 }
