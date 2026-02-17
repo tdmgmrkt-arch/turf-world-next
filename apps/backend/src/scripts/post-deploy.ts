@@ -311,8 +311,11 @@ async function fixInventory(container: any, logger: any) {
 
   // 1. Ensure stock location exists and is linked to sales channels
   const stockLocations = await stockLocationModule.listStockLocations({});
+  let locationId: string | null = null;
+
   if (stockLocations.length > 0) {
     const location = stockLocations[0];
+    locationId = location.id;
     const salesChannels = await salesChannelModule.listSalesChannels({});
     if (salesChannels.length > 0) {
       try {
@@ -321,51 +324,65 @@ async function fixInventory(container: any, logger: any) {
         });
       } catch { /* may already be linked */ }
     }
+  }
 
-    // Create inventory levels for any items missing them
+  // 2. Bump inventory levels using correct API signature AND create missing ones
+  if (locationId) {
     const inventoryItems = await inventoryModule.listInventoryItems(
       {},
       { relations: ["location_levels"], take: 500 }
     );
 
-    let created = 0;
     for (const item of inventoryItems) {
-      const hasLevel = item.location_levels?.some(
-        (ll: any) => ll.location_id === location.id
+      const existingLevel = item.location_levels?.find(
+        (ll: any) => ll.location_id === locationId
       );
-      if (!hasLevel) {
+
+      if (existingLevel) {
+        // Correct API: pass object with inventory_item_id + location_id (not id + data)
+        try {
+          await inventoryModule.updateInventoryLevels({
+            inventory_item_id: item.id,
+            location_id: locationId,
+            stocked_quantity: 999999,
+          });
+        } catch (err: any) {
+          logger.warn(`[fix-inventory] updateLevel failed for ${item.sku}: ${err.message}`);
+        }
+      } else {
         try {
           await inventoryModule.createInventoryLevels({
             inventory_item_id: item.id,
-            location_id: location.id,
+            location_id: locationId,
             stocked_quantity: 999999,
           });
-          created++;
         } catch { /* ignore */ }
       }
     }
-    if (created > 0) logger.info(`[fix-inventory] Created ${created} inventory levels`);
+    logger.info(`[fix-inventory] Updated/created inventory levels for ${inventoryItems.length} items`);
   }
 
-  // 2. Disable manage_inventory on ALL product variants so Medusa
-  //    never blocks large sq-ft orders due to stock checks.
+  // 3. Disable manage_inventory AND enable allow_backorder on ALL variants.
+  //    Belt and suspenders: allow_backorder bypasses inventory checks even
+  //    if manage_inventory somehow stays true.
   const products = await productModule.listProducts({}, { take: 500, relations: ["variants"] });
-  let disabled = 0;
+  let updated = 0;
 
   for (const product of products) {
     for (const variant of product.variants || []) {
-      if (variant.manage_inventory !== false) {
+      if (variant.manage_inventory !== false || variant.allow_backorder !== true) {
         try {
           await productModule.updateProductVariants(variant.id, {
             manage_inventory: false,
+            allow_backorder: true,
           });
-          disabled++;
+          updated++;
         } catch (err: any) {
-          logger.warn(`[fix-inventory] Failed to disable inventory for variant ${variant.id}: ${err.message}`);
+          logger.warn(`[fix-inventory] Failed to update variant ${variant.id}: ${err.message}`);
         }
       }
     }
   }
 
-  logger.info(`[fix-inventory] Disabled inventory tracking on ${disabled} variants`);
+  logger.info(`[fix-inventory] Updated ${updated} variants (manage_inventory=false, allow_backorder=true)`);
 }

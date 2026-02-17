@@ -177,6 +177,7 @@ ${product.badge ? `**${product.badge}** - ` : ""}Professional-grade artificial t
         // Turf is sold by the sq ft — disable inventory tracking so
         // large-area orders (e.g. 1500 sq ft) aren't blocked.
         manage_inventory: false,
+        allow_backorder: true,
         // Store compare price in metadata if exists
         ...(product.comparePriceCents && {
           metadata: {
@@ -264,6 +265,7 @@ ${product.badge ? `**${product.badge}** - ` : ""}Professional-grade artificial t
         ],
         options: { Size: accessory.size },
         manage_inventory: false,
+        allow_backorder: true,
       },
     ],
     metadata: {
