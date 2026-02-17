@@ -425,15 +425,23 @@ export function CheckoutForm() {
       await addShippingMethod();
 
       // Step 4: Create payment session
-      const secret = await createPaymentSession();
-      if (secret) {
-        setClientSecret(secret);
-      } else {
-        setPaymentError("Unable to initialize payment. Please try again.");
+      try {
+        const secret = await createPaymentSession();
+        if (secret) {
+          setClientSecret(secret);
+        } else {
+          setPaymentError("Payment session returned no client secret.");
+        }
+      } catch (err: any) {
+        console.error("Step 4 (createPaymentSession) failed:", err);
+        const msg = err?.message || err?.toString() || "Unknown error";
+        setPaymentError(`Payment session failed: ${msg}`);
+        return;
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Failed to initialize payment:", err);
-      setPaymentError("Unable to initialize payment. Please try again.");
+      const msg = err?.message || err?.toString() || "Unknown error";
+      setPaymentError(`Checkout error: ${msg}`);
     } finally {
       setIsInitializingPayment(false);
     }

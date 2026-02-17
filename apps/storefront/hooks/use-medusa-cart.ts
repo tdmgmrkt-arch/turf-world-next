@@ -273,10 +273,10 @@ export function useMedusaCart() {
       }
 
       return null;
-    } catch (err) {
+    } catch (err: any) {
       setError(err as Error);
       console.error("Failed to create payment session:", err);
-      return null;
+      throw err;
     } finally {
       setIsLoading(false);
     }
