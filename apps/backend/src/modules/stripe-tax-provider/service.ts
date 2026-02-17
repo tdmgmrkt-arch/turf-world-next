@@ -8,6 +8,25 @@ import type {
 } from "@medusajs/framework/types";
 
 /**
+ * Safely convert BigNumberInput (number | string | BigNumber object) to a plain number.
+ * Medusa v2 uses BigNumberInput for monetary values which can be any of these formats.
+ */
+function toNumber(value: unknown): number {
+  if (value == null) return 0;
+  if (typeof value === "number") return value;
+  if (typeof value === "string") return parseFloat(value) || 0;
+  // BigNumber object — try common accessors
+  const obj = value as any;
+  if (typeof obj.numeric === "number") return obj.numeric;
+  if (typeof obj.valueOf === "function") {
+    const v = obj.valueOf();
+    if (typeof v === "number") return v;
+  }
+  if (obj.value !== undefined) return parseFloat(String(obj.value)) || 0;
+  return parseFloat(String(value)) || 0;
+}
+
+/**
  * Stripe Tax Provider for Medusa v2
  *
  * Uses Stripe Tax Calculations API to compute destination-based,
@@ -42,6 +61,11 @@ class StripeTaxService {
     shippingLines: ShippingTaxCalculationLine[],
     context: TaxCalculationContext
   ): Promise<(ItemTaxLineDTO | ShippingTaxLineDTO)[]> {
+    // No items to tax — return empty
+    if (!itemLines || itemLines.length === 0) {
+      return [];
+    }
+
     const address = context.address;
 
     // If no address or no country, we can't calculate tax
@@ -54,29 +78,30 @@ class StripeTaxService {
 
     for (const itemLine of itemLines) {
       const item = itemLine.line_item;
-      const unitPrice = Number(item.unit_price || 0);
-      const quantity = Number(item.quantity || 1);
+      const unitPrice = toNumber(item.unit_price);
+      const quantity = toNumber(item.quantity) || 1;
 
-      // Stripe expects amounts in smallest currency unit (cents for USD).
-      // Medusa v2 stores amounts in major units (dollars), so multiply by 100.
-      const amountInCents = Math.round(unitPrice * quantity * 100);
+      // Medusa v2 internal unit_price is in smallest currency unit (cents).
+      // Stripe Tax also expects amounts in smallest currency unit.
+      // So: total = unitPrice * quantity (no ×100 conversion needed).
+      const amount = Math.round(unitPrice * quantity);
 
       stripeLineItems.push({
-        amount: amountInCents,
+        amount,
         reference: item.id,
         tax_behavior: "exclusive",
-        // General tangible goods tax code
         tax_code: "txcd_99999999",
       });
     }
 
     // Calculate total shipping cost for Stripe
-    let shippingAmountCents = 0;
+    let shippingAmount = 0;
     for (const shippingLine of shippingLines) {
-      shippingAmountCents += Math.round(
-        Number(shippingLine.shipping_line.unit_price || 0) * 100
-      );
+      // shipping_line.unit_price is also in smallest currency unit
+      shippingAmount += Math.round(toNumber(shippingLine.shipping_line.unit_price));
     }
+
+    const state = (address.province_code || (address as any).province || "").toUpperCase();
 
     // Build Stripe Tax calculation request
     const calcParams: Stripe.Tax.CalculationCreateParams = {
@@ -84,10 +109,10 @@ class StripeTaxService {
       line_items: stripeLineItems,
       customer_details: {
         address: {
-          line1: address.address_1 || "",
-          city: address.city || "",
-          state: (address.province_code || (address as any).province || "").toUpperCase(),
-          postal_code: address.postal_code || "",
+          line1: address.address_1 || undefined,
+          city: address.city || undefined,
+          state: state || undefined,
+          postal_code: address.postal_code || undefined,
           country: address.country_code.toUpperCase(),
         },
         address_source: "shipping",
@@ -95,15 +120,35 @@ class StripeTaxService {
     };
 
     // Add shipping cost if any
-    if (shippingAmountCents > 0) {
+    if (shippingAmount > 0) {
       calcParams.shipping_cost = {
-        amount: shippingAmountCents,
+        amount: shippingAmount,
         tax_behavior: "exclusive",
       };
     }
 
-    // Call Stripe Tax API — do NOT silently fail; surface errors to block checkout
-    const calculation = await this.stripe.tax.calculations.create(calcParams);
+    // Call Stripe Tax API with logging for diagnostics
+    let calculation: Stripe.Tax.Calculation;
+    try {
+      console.log("[stripe-tax] Calling Stripe Tax API:", JSON.stringify({
+        currency: calcParams.currency,
+        line_items_count: stripeLineItems.length,
+        line_items_amounts: stripeLineItems.map(li => li.amount),
+        address: calcParams.customer_details.address,
+        shipping_amount: shippingAmount,
+      }));
+
+      calculation = await this.stripe.tax.calculations.create(calcParams);
+
+      console.log("[stripe-tax] Success:", {
+        tax_amount: calculation.tax_amount_exclusive,
+        line_items_count: calculation.line_items?.data?.length,
+      });
+    } catch (err: any) {
+      console.error("[stripe-tax] Stripe Tax API FAILED:", err.message);
+      console.error("[stripe-tax] Full params:", JSON.stringify(calcParams));
+      throw err;
+    }
 
     // Build Medusa tax lines from Stripe response
     const taxLines: (ItemTaxLineDTO | ShippingTaxLineDTO)[] = [];
@@ -122,7 +167,6 @@ class StripeTaxService {
       let effectiveRate = 0;
       if (itemAmount > 0 && itemTax > 0) {
         effectiveRate = (itemTax / itemAmount) * 100;
-        // Round to 4 decimal places for precision
         effectiveRate = Math.round(effectiveRate * 10000) / 10000;
       }
 
@@ -145,8 +189,8 @@ class StripeTaxService {
     if (shippingLines.length > 0 && calculation.shipping_cost) {
       const shippingTax = calculation.shipping_cost.amount_tax || 0;
       let shippingRate = 0;
-      if (shippingAmountCents > 0 && shippingTax > 0) {
-        shippingRate = (shippingTax / shippingAmountCents) * 100;
+      if (shippingAmount > 0 && shippingTax > 0) {
+        shippingRate = (shippingTax / shippingAmount) * 100;
         shippingRate = Math.round(shippingRate * 10000) / 10000;
       }
 
