@@ -117,23 +117,33 @@ export function useMedusaCart() {
     try {
       setIsLoading(true);
 
-      // Clear existing Medusa cart items to avoid duplicates
+      // If the existing cart can't be modified (e.g. locked by a payment collection
+      // from a previous attempt), create a fresh cart instead.
+      let activeCartId = cartId;
+
+      // Try to clear existing Medusa cart items to avoid duplicates
       if (medusaCart?.items?.length > 0) {
-        for (const item of medusaCart.items) {
-          await medusa.store.cart.deleteLineItem(cartId, item.id);
+        try {
+          for (const item of medusaCart.items) {
+            await medusa.store.cart.deleteLineItem(activeCartId, item.id);
+          }
+        } catch (deleteErr) {
+          console.warn("Could not clear cart items, creating fresh cart:", deleteErr);
+          const { cart: freshCart } = await medusa.store.cart.create({});
+          activeCartId = freshCart.id;
+          localStorage.setItem(CART_ID_KEY, freshCart.id);
+          setCartId(freshCart.id);
+          setMedusaCart(freshCart);
         }
       }
 
-      // Get region ID for product queries (optional — omit if not set to avoid API error)
-      const regionId = process.env.NEXT_PUBLIC_MEDUSA_REGION_ID;
+      // Don't pass region_id here — we only need to match products, not filter by region.
       const listParams: Record<string, any> = { limit: 100 };
-      if (regionId) listParams.region_id = regionId;
 
       // Add each local cart item to Medusa cart with metadata
       for (const localItem of localCartItems) {
         try {
           // Fetch the Medusa product to get its actual variant ID
-          // The productId in local cart is the original product ID (e.g., "hawaii-80")
           const { products } = await medusa.store.product.list(listParams);
 
           // Find product by Medusa ID, original_id metadata, or handle
@@ -146,17 +156,15 @@ export function useMedusaCart() {
             continue;
           }
 
-          // Use the first variant ID from the Medusa product
           const variantId = medusaProduct.variants[0].id;
 
           // Build metadata with cut dimensions
           const metadata: Record<string, any> = {
             local_cart_id: localItem.id,
             original_product_id: localItem.productId,
-            custom_title: localItem.title, // Preserve the custom title like "Hawaii 80 - Cut #1"
+            custom_title: localItem.title,
           };
 
-          // Add dimension metadata if present (for custom cuts)
           if (localItem.dimensions) {
             metadata.cut_width_ft = localItem.dimensions.widthFeet;
             metadata.cut_length_ft = localItem.dimensions.lengthFeet;
@@ -164,20 +172,19 @@ export function useMedusaCart() {
             metadata.cut_label = `${localItem.dimensions.widthFeet}' × ${localItem.dimensions.lengthFeet}'`;
           }
 
-          // Create line item in Medusa cart
-          await medusa.store.cart.createLineItem(cartId, {
+          // Create line item in Medusa cart (use activeCartId, not cartId)
+          await medusa.store.cart.createLineItem(activeCartId, {
             variant_id: variantId,
             quantity: localItem.quantity,
             metadata,
           });
         } catch (itemErr) {
           console.error(`Failed to add item ${localItem.id} to Medusa cart:`, itemErr);
-          // Continue with other items even if one fails
         }
       }
 
       // Refresh cart to get updated state
-      await refreshCart(cartId);
+      await refreshCart(activeCartId);
     } catch (err) {
       console.error("Failed to sync local cart to Medusa:", err);
       setError(err as Error);
@@ -185,7 +192,7 @@ export function useMedusaCart() {
     } finally {
       setIsLoading(false);
     }
-  }, [cartId, medusaCart, refreshCart]);
+  }, [cartId, medusaCart, refreshCart, setCartId]);
 
   const completeCheckout = useCallback(async () => {
     if (!cartId) return null;
