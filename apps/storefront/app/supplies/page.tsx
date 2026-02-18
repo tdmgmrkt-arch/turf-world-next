@@ -18,8 +18,6 @@ import { Button } from "@/components/ui/button";
 import { Breadcrumb } from "@/components/ui/breadcrumb";
 import { formatPrice, cn } from "@/lib/utils";
 import { ACCESSORIES, type Accessory } from "@/lib/products";
-import { fetchAllAccessories } from "@/lib/medusa-products";
-import { USE_MEDUSA_API } from "@/lib/medusa-client";
 
 export const metadata: Metadata = {
   title: "Turf Installation Supplies | Infill, Seam Tape, Nails & More",
@@ -75,8 +73,10 @@ const CATEGORIES: { name: Accessory["category"]; displayName: string; icon: type
 ];
 
 export default async function SuppliesPage() {
-  // Fetch accessories from API or use hardcoded data based on feature flag
-  const accessories = USE_MEDUSA_API ? await fetchAllAccessories() : ACCESSORIES;
+  // Always use local ACCESSORIES data — Medusa prices have been unreliable.
+  // The import script ensures Medusa DB prices match, but we don't depend on
+  // Medusa API here since local products-data.json is the source of truth.
+  const accessories = ACCESSORIES;
 
   return (
     <div className="min-h-screen">

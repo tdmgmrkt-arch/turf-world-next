@@ -281,29 +281,25 @@ ${product.badge ? `**${product.badge}** - ` : ""}Professional-grade artificial t
   }));
 
   // ================================================
-  // 4. DELETE EXISTING PRODUCTS (so reimport gets fresh prices)
+  // 4. DELETE ALL EXISTING PRODUCTS (so reimport gets fresh prices)
   // ================================================
-  const allHandles = [...PRODUCTS, ...ACCESSORIES].map((p: any) => p.handle);
+  // Uses the exact same query pattern as delete-all-products.ts (proven to work).
+  // No filters — just fetch all and delete all, then recreate from source data.
   const { data: existingProducts } = await query.graph({
     entity: "product",
-    fields: ["id", "handle"],
-    filters: { handle: allHandles },
+    fields: ["id", "title", "handle"],
+    pagination: { take: 1000 },
   });
 
-  if (existingProducts.length > 0) {
+  if (existingProducts && existingProducts.length > 0) {
     logger.info(`Deleting ${existingProducts.length} existing products for reimport...`);
-    await deleteProductsWorkflow(container).run({
-      input: { ids: existingProducts.map((p: any) => p.id) },
-    });
-    logger.info(`✅ Deleted ${existingProducts.length} products`);
 
-    // Also clean up turf_attributes for deleted products
+    const productIds = existingProducts.map((p: any) => p.id);
+
+    // Clean up turf_attributes first (before products are deleted)
     try {
       const turfAttributesService = container.resolve("turf_attributes") as any;
-      const existingIds = existingProducts.map((p: any) => p.id);
-      const existingAttrs = await turfAttributesService.listTurfAttributes({
-        product_id: existingIds,
-      });
+      const existingAttrs = await turfAttributesService.listTurfAttributes({});
       if (existingAttrs.length > 0) {
         await turfAttributesService.deleteTurfAttributes(
           existingAttrs.map((a: any) => a.id)
@@ -311,8 +307,13 @@ ${product.badge ? `**${product.badge}** - ` : ""}Professional-grade artificial t
         logger.info(`✅ Deleted ${existingAttrs.length} turf attribute records`);
       }
     } catch (err: any) {
-      logger.warn(`Could not clean up turf attributes: ${err.message}`);
+      logger.warn(`Could not clean up turf attributes (continuing): ${err.message}`);
     }
+
+    await deleteProductsWorkflow(container).run({
+      input: { ids: productIds },
+    });
+    logger.info(`✅ Deleted ${existingProducts.length} products`);
   } else {
     logger.info("No existing products found — fresh import");
   }
