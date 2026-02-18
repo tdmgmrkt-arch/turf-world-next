@@ -8,6 +8,7 @@ import {
   createShippingOptionsWorkflow,
   deleteShippingOptionsWorkflow,
   createTaxRegionsWorkflow,
+  updateRegionsWorkflow,
 } from "@medusajs/medusa/core-flows";
 
 /**
@@ -21,7 +22,8 @@ import {
  *  2. Fix shipping profiles (link products to default profile)
  *  3. Seed shipping (stock location, fulfillment set, shipping options)
  *  4. Fix inventory (high stock levels + sales channel links)
- *  5. Seed tax (US tax region with Stripe Tax provider)
+ *  5. Seed payment providers (link Stripe to regions)
+ *  6. Seed tax (US tax region with Stripe Tax provider)
  *
  * Run: npx medusa exec ./src/scripts/post-deploy.ts
  */
@@ -52,6 +54,12 @@ export default async function postDeploy({ container }: ExecArgs) {
     await fixInventory(container, logger);
   } catch (err: any) {
     logger.warn("fix-inventory error (continuing): " + err.message);
+  }
+
+  try {
+    await seedPaymentProviders(container, logger);
+  } catch (err: any) {
+    logger.warn("seed-payment error (continuing): " + err.message);
   }
 
   try {
@@ -395,7 +403,54 @@ async function fixInventory(container: any, logger: any) {
   logger.info(`[fix-inventory] Updated ${updated} variants (manage_inventory=false, allow_backorder=true)`);
 }
 
-// ─── 5. SEED TAX ─────────────────────────────────────────────────
+// ─── 5. SEED PAYMENT PROVIDERS ───────────────────────────────────
+async function seedPaymentProviders(container: any, logger: any) {
+  const query = container.resolve("query") as any;
+  const paymentModule = container.resolve("payment") as any;
+
+  logger.info("[seed-payment] Linking payment providers to regions...");
+
+  // Get all regions
+  const { data: regions } = await query.graph({
+    entity: "region",
+    fields: ["id", "name"],
+  });
+
+  if (!regions?.length) {
+    logger.warn("[seed-payment] No regions found — skipping");
+    return;
+  }
+
+  // Get all enabled payment providers
+  const providers = await paymentModule.listPaymentProviders({ is_enabled: true });
+  if (!providers?.length) {
+    logger.warn("[seed-payment] No enabled payment providers found — skipping");
+    return;
+  }
+
+  const providerIds = providers.map((p: any) => p.id);
+  logger.info(`[seed-payment] Providers: ${JSON.stringify(providerIds)}`);
+  logger.info(`[seed-payment] Regions: ${regions.map((r: any) => r.name).join(", ")}`);
+
+  // Link providers to each region
+  for (const region of regions) {
+    try {
+      await updateRegionsWorkflow(container).run({
+        input: {
+          selector: { id: region.id },
+          update: { payment_providers: providerIds },
+        },
+      });
+      logger.info(`[seed-payment] Linked ${providerIds.length} providers to "${region.name}"`);
+    } catch (err: any) {
+      logger.warn(`[seed-payment] Failed for "${region.name}": ${err.message}`);
+    }
+  }
+
+  logger.info("[seed-payment] Done");
+}
+
+// ─── 6. SEED TAX ─────────────────────────────────────────────────
 async function seedTax(container: any, logger: any) {
   const taxModule = container.resolve("tax") as any;
 
