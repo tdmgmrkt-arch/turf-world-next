@@ -25,6 +25,9 @@ import {
   Mail,
   Phone,
   Zap,
+  Trash2,
+  Minus,
+  Plus,
 } from "lucide-react";
 import { Button as ShadcnButton } from "@/components/ui/button";
 import { Input as ShadcnInput } from "@/components/ui/input";
@@ -286,7 +289,7 @@ function PaymentForm({
 }
 
 export function CheckoutForm() {
-  const { items, getSubtotal, clearCart } = useCartStore();
+  const { items, clearCart, removeItem, updateQuantity } = useCartStore();
   const {
     cart: medusaCart,
     updateShippingAddress,
@@ -365,7 +368,9 @@ export function CheckoutForm() {
   });
   const [selectedShipping, setSelectedShipping] = useState("");
 
-  const subtotal = getSubtotal();
+  // Compute subtotal directly from items (not via store getter) so React
+  // properly re-derives it whenever items change (add/remove/qty update).
+  const subtotal = items.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0);
   const shippingOptions = getShippingOptions(shipping.zip, subtotal, items);
 
   // Always auto-select cheapest (first) option when zip, cart, or subtotal changes
@@ -1271,7 +1276,7 @@ export function CheckoutForm() {
 
           <div className="p-6 space-y-4">
             {/* Items */}
-            <div className="space-y-3 max-h-64 overflow-y-auto">
+            <div className="space-y-3 max-h-[32rem] overflow-y-auto">
               {(completedOrder?.items || items).map((item) => (
                 <div key={item.id} className="flex gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
                   <div className="h-16 w-16 flex-shrink-0 rounded-lg bg-white overflow-hidden border border-slate-200">
@@ -1290,7 +1295,18 @@ export function CheckoutForm() {
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-slate-900 truncate">{item.title}</p>
+                    <div className="flex items-start justify-between gap-2">
+                      <p className="text-sm font-semibold text-slate-900 truncate">{item.title}</p>
+                      {!completedOrder && (
+                        <button
+                          onClick={() => removeItem(item.id)}
+                          className="flex-shrink-0 p-1 rounded-md text-slate-400 hover:text-red-500 hover:bg-red-50 transition-colors"
+                          aria-label={`Remove ${item.title}`}
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </button>
+                      )}
+                    </div>
                     {item.dimensions && (
                       <p className="text-xs text-slate-500 mt-0.5">
                         {item.dimensions.widthFeet}&apos; × {item.dimensions.lengthFeet}&apos;
@@ -1299,7 +1315,27 @@ export function CheckoutForm() {
                       </p>
                     )}
                     <div className="flex items-center justify-between mt-2">
-                      <span className="text-xs text-slate-500">Qty: {item.quantity}</span>
+                      {!completedOrder ? (
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                            className="h-6 w-6 rounded-md border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-slate-100 transition-colors"
+                            aria-label="Decrease quantity"
+                          >
+                            <Minus className="h-3 w-3" />
+                          </button>
+                          <span className="text-xs font-medium text-slate-700 w-6 text-center">{item.quantity}</span>
+                          <button
+                            onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                            className="h-6 w-6 rounded-md border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-slate-100 transition-colors"
+                            aria-label="Increase quantity"
+                          >
+                            <Plus className="h-3 w-3" />
+                          </button>
+                        </div>
+                      ) : (
+                        <span className="text-xs text-slate-500">Qty: {item.quantity}</span>
+                      )}
                       <span className="text-sm font-bold text-slate-900">
                         {formatPrice(item.unitPrice * item.quantity)}
                       </span>
@@ -1334,7 +1370,7 @@ export function CheckoutForm() {
                 <span className="font-medium">
                   {completedOrder
                     ? formatPrice(completedOrder.tax)
-                    : !shipping.zip
+                    : !shipping.zip || (tax === 0 && (currentStep === "information" || currentStep === "shipping"))
                       ? "TBD"
                       : formatPrice(tax)}
                 </span>
