@@ -18,7 +18,7 @@ import {
  * so the framework only bootstraps once (saves ~4-5 min on Railway).
  *
  * Steps:
- *  1. Fix prices (÷100 for any that are still in cents)
+ *  1. Restore accessory prices (undo damage from old fixPrices)
  *  2. Fix shipping profiles (link products to default profile)
  *  3. Seed shipping (stock location, fulfillment set, shipping options)
  *  4. Fix inventory (high stock levels + sales channel links)
@@ -33,9 +33,9 @@ export default async function postDeploy({ container }: ExecArgs) {
   logger.info("=== POST-DEPLOY SETUP START ===");
 
   try {
-    await fixPrices(container, logger);
+    await restoreAccessoryPrices(container, logger);
   } catch (err: any) {
-    logger.warn("fix-prices error (continuing): " + err.message);
+    logger.warn("restore-prices error (continuing): " + err.message);
   }
 
   try {
@@ -71,16 +71,19 @@ export default async function postDeploy({ container }: ExecArgs) {
   logger.info("=== POST-DEPLOY SETUP COMPLETE ===");
 }
 
-// ─── 1. FIX PRICES ────────────────────────────────────────────────
-async function fixPrices(container: any, logger: any) {
+// ─── 1. RESTORE ACCESSORY PRICES ─────────────────────────────────
+// The old fixPrices function divided any price > $10 by 100, assuming cents.
+// But the import script already converts priceCents/100 to dollars. So
+// accessories like Landscape Nails ($79) became $0.79. This restores them.
+async function restoreAccessoryPrices(container: any, logger: any) {
   const query = container.resolve("query") as any;
   const pricingModule = container.resolve("pricing") as any;
 
-  logger.info("[fix-prices] Checking for prices still in cents...");
+  logger.info("[restore-prices] Checking for incorrectly divided accessory prices...");
 
   const { data: products } = await query.graph({
     entity: "product",
-    fields: ["id", "title", "variants.*", "variants.prices.*"],
+    fields: ["id", "title", "variants.*", "variants.prices.*", "collection.*"],
     filters: {},
   });
 
@@ -88,15 +91,25 @@ async function fixPrices(container: any, logger: any) {
   let skipped = 0;
 
   for (const product of products) {
+    // Only fix accessories (supplies collection). Turf prices ($1.30-$2.59/sqft) are correct.
+    const isSupplies = product.collection?.handle === "supplies";
+    if (!isSupplies) {
+      skipped++;
+      continue;
+    }
+
     for (const variant of product.variants || []) {
       for (const price of variant.prices || []) {
-        if (price.amount > 10) {
-          const newAmount = Math.round((price.amount / 100) * 100) / 100;
+        // Prices < $1 for supplies are almost certainly divided incorrectly.
+        // e.g., $0.79 should be $79, $0.45 should be $45
+        if (price.amount < 1) {
+          const restored = Math.round(price.amount * 100 * 100) / 100;
           try {
-            await pricingModule.updatePrices([{ id: price.id, amount: newAmount }]);
+            await pricingModule.updatePrices([{ id: price.id, amount: restored }]);
+            logger.info(`[restore-prices] ${product.title}: $${price.amount} → $${restored}`);
             fixed++;
           } catch (err: any) {
-            logger.warn(`  Failed to fix ${product.title} price: ${err.message}`);
+            logger.warn(`[restore-prices] Failed for ${product.title}: ${err.message}`);
           }
         } else {
           skipped++;
@@ -105,7 +118,7 @@ async function fixPrices(container: any, logger: any) {
     }
   }
 
-  logger.info(`[fix-prices] Fixed ${fixed}, skipped ${skipped} (already correct)`);
+  logger.info(`[restore-prices] Restored ${fixed} prices, skipped ${skipped}`);
 }
 
 // ─── 2. FIX SHIPPING PROFILES ─────────────────────────────────────
