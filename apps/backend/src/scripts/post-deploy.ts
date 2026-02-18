@@ -84,18 +84,28 @@ async function restoreAccessoryPrices(container: any, logger: any) {
   logger.info("[restore-prices] Checking accessory prices against source data...");
 
   // Load expected prices from products-data.json (same file the import script uses)
-  const productsFilePath = join(__dirname, "../../../../products-data.json");
-  let expectedPrices: Record<string, number>;
-  try {
-    const data = JSON.parse(readFileSync(productsFilePath, "utf-8"));
-    // Build handle → expected dollar amount map for accessories only
-    expectedPrices = {};
-    for (const acc of data.accessories || []) {
-      expectedPrices[acc.handle] = acc.priceCents / 100;
+  // Try multiple paths: __dirname varies between TS source and compiled .medusa/server/ output
+  const candidatePaths = [
+    join(process.cwd(), "../../products-data.json"),   // Docker: /app/apps/backend/../../ = /app/
+    join(__dirname, "../../../../products-data.json"),  // TS source: src/scripts/../../../../ = repo root
+    join(process.cwd(), "products-data.json"),          // Fallback: CWD directly
+  ];
+  let expectedPrices: Record<string, number> | undefined;
+  for (const filePath of candidatePaths) {
+    try {
+      const data = JSON.parse(readFileSync(filePath, "utf-8"));
+      expectedPrices = {};
+      for (const acc of data.accessories || []) {
+        expectedPrices[acc.handle] = acc.priceCents / 100;
+      }
+      logger.info(`[restore-prices] Loaded ${Object.keys(expectedPrices).length} accessory prices from: ${filePath}`);
+      break;
+    } catch {
+      // Try next path
     }
-    logger.info(`[restore-prices] Loaded ${Object.keys(expectedPrices).length} accessory prices from source`);
-  } catch (err: any) {
-    logger.warn(`[restore-prices] Could not load products-data.json: ${err.message}`);
+  }
+  if (!expectedPrices) {
+    logger.warn(`[restore-prices] Could not find products-data.json in any of: ${candidatePaths.join(", ")}`);
     return;
   }
 
