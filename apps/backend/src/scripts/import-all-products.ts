@@ -1,5 +1,5 @@
 import { ExecArgs } from "@medusajs/framework/types";
-import { createProductsWorkflow, createCollectionsWorkflow } from "@medusajs/medusa/core-flows";
+import { createProductsWorkflow, createCollectionsWorkflow, deleteProductsWorkflow } from "@medusajs/medusa/core-flows";
 import { ProductStatus } from "@medusajs/framework/utils";
 import { readFileSync } from "fs";
 import { join } from "path";
@@ -281,7 +281,44 @@ ${product.badge ? `**${product.badge}** - ` : ""}Professional-grade artificial t
   }));
 
   // ================================================
-  // 4. BATCH CREATE ALL PRODUCTS
+  // 4. DELETE EXISTING PRODUCTS (so reimport gets fresh prices)
+  // ================================================
+  const allHandles = [...PRODUCTS, ...ACCESSORIES].map((p: any) => p.handle);
+  const { data: existingProducts } = await query.graph({
+    entity: "product",
+    fields: ["id", "handle"],
+    filters: { handle: allHandles },
+  });
+
+  if (existingProducts.length > 0) {
+    logger.info(`Deleting ${existingProducts.length} existing products for reimport...`);
+    await deleteProductsWorkflow(container).run({
+      input: { ids: existingProducts.map((p: any) => p.id) },
+    });
+    logger.info(`✅ Deleted ${existingProducts.length} products`);
+
+    // Also clean up turf_attributes for deleted products
+    try {
+      const turfAttributesService = container.resolve("turf_attributes") as any;
+      const existingIds = existingProducts.map((p: any) => p.id);
+      const existingAttrs = await turfAttributesService.listTurfAttributes({
+        product_id: existingIds,
+      });
+      if (existingAttrs.length > 0) {
+        await turfAttributesService.deleteTurfAttributes(
+          existingAttrs.map((a: any) => a.id)
+        );
+        logger.info(`✅ Deleted ${existingAttrs.length} turf attribute records`);
+      }
+    } catch (err: any) {
+      logger.warn(`Could not clean up turf attributes: ${err.message}`);
+    }
+  } else {
+    logger.info("No existing products found — fresh import");
+  }
+
+  // ================================================
+  // 5. BATCH CREATE ALL PRODUCTS
   // ================================================
   const allProducts = [...medusaProducts, ...medusaAccessories];
 
@@ -297,7 +334,7 @@ ${product.badge ? `**${product.badge}** - ` : ""}Professional-grade artificial t
     logger.info(`✅ Successfully imported ${result.length} products!`);
 
     // ================================================
-    // 5. CREATE TURF ATTRIBUTES FOR TURF PRODUCTS
+    // 6. CREATE TURF ATTRIBUTES FOR TURF PRODUCTS
     // ================================================
     logger.info("Creating turf attributes for products...");
 

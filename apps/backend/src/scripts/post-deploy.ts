@@ -8,10 +8,7 @@ import {
   createShippingOptionsWorkflow,
   deleteShippingOptionsWorkflow,
   createTaxRegionsWorkflow,
-  updateRegionsWorkflow,
 } from "@medusajs/medusa/core-flows";
-import { readFileSync } from "fs";
-import { join } from "path";
 
 /**
  * Post-Deploy Setup — runs once per container start.
@@ -20,12 +17,11 @@ import { join } from "path";
  * so the framework only bootstraps once (saves ~4-5 min on Railway).
  *
  * Steps:
- *  1. Restore accessory prices (undo damage from old fixPrices)
- *  2. Fix shipping profiles (link products to default profile)
- *  3. Seed shipping (stock location, fulfillment set, shipping options)
- *  4. Fix inventory (high stock levels + sales channel links)
- *  5. Seed payment providers (link Stripe to regions)
- *  6. Seed tax (US tax region with Stripe Tax provider)
+ *  1. Fix shipping profiles (link products to default profile)
+ *  2. Seed shipping (stock location, fulfillment set, shipping options)
+ *  3. Fix inventory (high stock levels + sales channel links)
+ *  4. Seed payment providers (link Stripe to regions)
+ *  5. Seed tax (US tax region with Stripe Tax provider)
  *
  * Run: npx medusa exec ./src/scripts/post-deploy.ts
  */
@@ -33,12 +29,6 @@ export default async function postDeploy({ container }: ExecArgs) {
   const logger = container.resolve("logger") as any;
 
   logger.info("=== POST-DEPLOY SETUP START ===");
-
-  try {
-    await restoreAccessoryPrices(container, logger);
-  } catch (err: any) {
-    logger.warn("restore-prices error (continuing): " + err.message);
-  }
 
   try {
     await fixShippingProfiles(container, logger);
@@ -73,114 +63,7 @@ export default async function postDeploy({ container }: ExecArgs) {
   logger.info("=== POST-DEPLOY SETUP COMPLETE ===");
 }
 
-// ─── 1. RESTORE ACCESSORY PRICES ─────────────────────────────────
-// Compares actual Medusa prices against products-data.json and fixes any
-// that don't match. Uses removePrices() + addPrices() since Medusa v2's
-// pricing module has no updatePrices() method.
-async function restoreAccessoryPrices(container: any, logger: any) {
-  const query = container.resolve("query") as any;
-  const pricingModule = container.resolve("pricing") as any;
-
-  logger.info("[restore-prices] Checking accessory prices against source data...");
-
-  // Load expected prices from products-data.json (same file the import script uses)
-  // Try multiple paths: __dirname varies between TS source and compiled .medusa/server/ output
-  const candidatePaths = [
-    join(process.cwd(), "../../products-data.json"),   // Docker: /app/apps/backend/../../ = /app/
-    join(__dirname, "../../../../products-data.json"),  // TS source: src/scripts/../../../../ = repo root
-    join(process.cwd(), "products-data.json"),          // Fallback: CWD directly
-  ];
-  let expectedPrices: Record<string, number> | undefined;
-  for (const filePath of candidatePaths) {
-    try {
-      const data = JSON.parse(readFileSync(filePath, "utf-8"));
-      expectedPrices = {};
-      // Load both turf and accessory prices — source JSON is ground truth for all products
-      for (const product of data.products || []) {
-        expectedPrices[product.handle] = product.priceCents / 100;
-      }
-      for (const acc of data.accessories || []) {
-        expectedPrices[acc.handle] = acc.priceCents / 100;
-      }
-      logger.info(`[restore-prices] Loaded ${Object.keys(expectedPrices).length} expected prices from: ${filePath}`);
-      break;
-    } catch {
-      // Try next path
-    }
-  }
-  if (!expectedPrices) {
-    logger.warn(`[restore-prices] Could not find products-data.json in any of: ${candidatePaths.join(", ")}`);
-    return;
-  }
-
-  // Query products with price_set (needed for addPrices) and price_rules (to preserve rules)
-  const { data: products } = await query.graph({
-    entity: "product",
-    fields: [
-      "id", "handle", "title",
-      "variants.*",
-      "variants.price_set.id",
-      "variants.prices.*",
-      "variants.prices.price_rules.*",
-    ],
-    filters: {},
-  });
-
-  let fixed = 0;
-  let skipped = 0;
-
-  for (const product of products) {
-    const expected = expectedPrices[product.handle];
-    if (expected === undefined) {
-      skipped++;
-      continue;
-    }
-
-    for (const variant of product.variants || []) {
-      const priceSetId = variant.price_set?.id;
-      if (!priceSetId) {
-        logger.warn(`[restore-prices] No price_set for variant of "${product.title}" — skipping`);
-        continue;
-      }
-
-      for (const price of variant.prices || []) {
-        const current = typeof price.amount === "number" ? price.amount : parseFloat(String(price.amount));
-        if (Math.abs(current - expected) > 0.01) {
-          try {
-            // Preserve existing price rules (e.g. region_id)
-            const rules: Record<string, string> = {};
-            for (const rule of price.price_rules || []) {
-              if (rule.attribute && rule.value) {
-                rules[rule.attribute] = rule.value;
-              }
-            }
-
-            // Medusa v2 has no updatePrices — must remove + re-add
-            await pricingModule.removePrices([price.id]);
-            await pricingModule.addPrices({
-              priceSetId,
-              prices: [{
-                amount: expected,
-                currency_code: price.currency_code || "usd",
-                rules,
-              }],
-            });
-            logger.info(`[restore-prices] ${product.title}: $${current} → $${expected}`);
-            fixed++;
-          } catch (err: any) {
-            logger.warn(`[restore-prices] Failed for ${product.title}: ${err.message}`);
-          }
-        } else {
-          skipped++;
-        }
-      }
-    }
-  }
-
-  logger.info(`[restore-prices] Fixed ${fixed} prices, skipped ${skipped}`);
-}
-
-// ─── 2. FIX SHIPPING PROFILES ─────────────────────────────────────
+// ─── 1. FIX SHIPPING PROFILES ──────────────────────────────────────
 async function fixShippingProfiles(container: any, logger: any) {
   const fulfillmentModule = container.resolve("fulfillment") as any;
   const productModule = container.resolve("product") as any;
@@ -230,7 +113,7 @@ async function fixShippingProfiles(container: any, logger: any) {
   logger.info(`[fix-shipping-profiles] Linked ${linked}, ${alreadyLinked} already had profile`);
 }
 
-// ─── 3. SEED SHIPPING ─────────────────────────────────────────────
+// ─── 2. SEED SHIPPING ─────────────────────────────────────────────
 async function seedShipping(container: any, logger: any) {
   const fulfillmentModule = container.resolve("fulfillment") as any;
   const stockLocationModule = container.resolve("stock_location") as any;
@@ -388,7 +271,7 @@ async function seedShipping(container: any, logger: any) {
   logger.info("[seed-shipping] Done");
 }
 
-// ─── 4. FIX INVENTORY ─────────────────────────────────────────────
+// ─── 3. FIX INVENTORY ─────────────────────────────────────────────
 async function fixInventory(container: any, logger: any) {
   const stockLocationModule = container.resolve("stock_location") as any;
   const salesChannelModule = container.resolve("sales_channel") as any;
@@ -475,7 +358,7 @@ async function fixInventory(container: any, logger: any) {
   logger.info(`[fix-inventory] Updated ${updated} variants (manage_inventory=false, allow_backorder=true)`);
 }
 
-// ─── 5. SEED PAYMENT PROVIDERS ───────────────────────────────────
+// ─── 4. SEED PAYMENT PROVIDERS ───────────────────────────────────
 async function seedPaymentProviders(container: any, logger: any) {
   const query = container.resolve("query") as any;
   const paymentModule = container.resolve("payment") as any;
@@ -549,7 +432,7 @@ async function seedPaymentProviders(container: any, logger: any) {
   logger.info("[seed-payment] Done");
 }
 
-// ─── 6. SEED TAX ─────────────────────────────────────────────────
+// ─── 5. SEED TAX ─────────────────────────────────────────────────
 async function seedTax(container: any, logger: any) {
   const taxModule = container.resolve("tax") as any;
 
