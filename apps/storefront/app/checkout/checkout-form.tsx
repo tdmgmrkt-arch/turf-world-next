@@ -1316,7 +1316,9 @@ export function CheckoutForm() {
                 <span className="font-medium">{formatPrice(completedOrder?.subtotal ?? subtotal)}</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-slate-500">Shipping</span>
+                <span className="text-slate-500">
+                  {(completedOrder?.selectedShipping ?? selectedShipping).startsWith("willcall-") ? "Local Pickup" : "Shipping"}
+                </span>
                 <span className={cn("font-medium", (completedOrder?.shippingCost ?? shippingCost) === 0 && !completedOrder && selectedShipping && "text-emerald-600")}>
                   {completedOrder
                     ? (completedOrder.shippingCost === 0 ? "FREE" : formatPrice(completedOrder.shippingCost))
