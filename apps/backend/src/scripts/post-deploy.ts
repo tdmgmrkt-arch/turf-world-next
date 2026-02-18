@@ -100,9 +100,10 @@ async function restoreAccessoryPrices(container: any, logger: any) {
 
     for (const variant of product.variants || []) {
       for (const price of variant.prices || []) {
-        // Prices < $1 for supplies are almost certainly divided incorrectly.
-        // e.g., $0.79 should be $79, $0.45 should be $45
-        if (price.amount < 1) {
+        // Prices < $5 for supplies are almost certainly divided incorrectly.
+        // e.g., $0.79 should be $79, $1.39 should be $139, $1.59 should be $159
+        // Cheapest correct supply is Silica Sand at $8.49, so $5 threshold is safe.
+        if (price.amount < 5) {
           const restored = Math.round(price.amount * 100 * 100) / 100;
           try {
             await pricingModule.updatePrices([{ id: price.id, amount: restored }]);
