@@ -68,9 +68,12 @@ class StripeTaxService {
 
     const address = context.address;
 
-    // If no address or no country, we can't calculate tax
+    // If no address or no country, we can't calculate tax yet — return 0% rather
+    // than crashing, because Medusa may recalculate tax during payment session
+    // creation before the address is fully populated in the context.
     if (!address?.country_code) {
-      throw new Error("Cannot calculate tax: no shipping address provided");
+      console.warn("[stripe-tax] No shipping address in context — returning 0% tax");
+      return [];
     }
 
     // Build Stripe Tax line items from Medusa cart items
@@ -147,7 +150,9 @@ class StripeTaxService {
     } catch (err: any) {
       console.error("[stripe-tax] Stripe Tax API FAILED:", err.message);
       console.error("[stripe-tax] Full params:", JSON.stringify(calcParams));
-      throw err;
+      // Return 0% tax instead of crashing checkout.
+      // The error is logged above for debugging.
+      return [];
     }
 
     // Build Medusa tax lines from Stripe response

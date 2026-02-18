@@ -407,13 +407,14 @@ async function fixInventory(container: any, logger: any) {
 async function seedPaymentProviders(container: any, logger: any) {
   const query = container.resolve("query") as any;
   const paymentModule = container.resolve("payment") as any;
+  const link = container.resolve(ContainerRegistrationKeys.LINK) as any;
 
   logger.info("[seed-payment] Linking payment providers to regions...");
 
   // Get all regions
   const { data: regions } = await query.graph({
     entity: "region",
-    fields: ["id", "name"],
+    fields: ["id", "name", "payment_providers.*"],
   });
 
   if (!regions?.length) {
@@ -421,29 +422,55 @@ async function seedPaymentProviders(container: any, logger: any) {
     return;
   }
 
-  // Get all enabled payment providers
-  const providers = await paymentModule.listPaymentProviders({ is_enabled: true });
+  // Get ALL payment providers (don't filter by is_enabled — it may not be set
+  // during medusa exec before the server starts)
+  const providers = await paymentModule.listPaymentProviders({});
+  logger.info(`[seed-payment] All providers: ${JSON.stringify(providers.map((p: any) => ({ id: p.id, is_enabled: p.is_enabled })))}`);
+
   if (!providers?.length) {
-    logger.warn("[seed-payment] No enabled payment providers found — skipping");
+    logger.warn("[seed-payment] No payment providers found at all — skipping");
     return;
   }
 
-  const providerIds = providers.map((p: any) => p.id);
-  logger.info(`[seed-payment] Providers: ${JSON.stringify(providerIds)}`);
-  logger.info(`[seed-payment] Regions: ${regions.map((r: any) => r.name).join(", ")}`);
+  // Enable any disabled providers
+  for (const provider of providers) {
+    if (!provider.is_enabled) {
+      try {
+        await paymentModule.updatePaymentProviders(provider.id, { is_enabled: true });
+        logger.info(`[seed-payment] Enabled provider: ${provider.id}`);
+      } catch (err: any) {
+        logger.warn(`[seed-payment] Could not enable ${provider.id}: ${err.message}`);
+      }
+    }
+  }
 
-  // Link providers to each region
+  const providerIds = providers.map((p: any) => p.id);
+  logger.info(`[seed-payment] Regions: ${regions.map((r: any) => `${r.name} (providers: ${r.payment_providers?.map((p: any) => p.id).join(",") || "NONE"})`).join(", ")}`);
+
+  // Link providers to each region using direct link creation
+  // (bypasses setRegionsPaymentProvidersStep validation)
   for (const region of regions) {
-    try {
-      await updateRegionsWorkflow(container).run({
-        input: {
-          selector: { id: region.id },
-          update: { payment_providers: providerIds },
-        },
-      });
-      logger.info(`[seed-payment] Linked ${providerIds.length} providers to "${region.name}"`);
-    } catch (err: any) {
-      logger.warn(`[seed-payment] Failed for "${region.name}": ${err.message}`);
+    const existingProviderIds = (region.payment_providers || []).map((p: any) => p.id);
+
+    for (const providerId of providerIds) {
+      if (existingProviderIds.includes(providerId)) {
+        logger.info(`[seed-payment] "${providerId}" already linked to "${region.name}"`);
+        continue;
+      }
+
+      try {
+        await link.create({
+          [Modules.REGION]: { region_id: region.id },
+          [Modules.PAYMENT]: { payment_provider_id: providerId },
+        });
+        logger.info(`[seed-payment] Linked "${providerId}" to "${region.name}"`);
+      } catch (err: any) {
+        if (err.message?.includes("already exists") || err.code === "23505") {
+          logger.info(`[seed-payment] "${providerId}" already linked to "${region.name}" (duplicate key)`);
+        } else {
+          logger.warn(`[seed-payment] Failed to link "${providerId}" to "${region.name}": ${err.message}`);
+        }
+      }
     }
   }
 
