@@ -92,10 +92,10 @@ class StripeTaxService {
       const unitPrice = toNumber(item.unit_price);
       const quantity = toNumber(item.quantity) || 1;
 
-      // Medusa v2 internal unit_price is in smallest currency unit (cents).
-      // Stripe Tax also expects amounts in smallest currency unit.
-      // So: total = unitPrice * quantity (no ×100 conversion needed).
-      const amount = Math.round(unitPrice * quantity);
+      // Medusa v2 stores unit_price in major currency units (dollars).
+      // Stripe Tax expects amounts in smallest currency unit (cents).
+      // So: total = unitPrice * quantity * 100.
+      const amount = Math.round(unitPrice * quantity * 100);
 
       stripeLineItems.push({
         amount,
@@ -108,8 +108,8 @@ class StripeTaxService {
     // Calculate total shipping cost for Stripe
     let shippingAmount = 0;
     for (const shippingLine of shippingLines) {
-      // shipping_line.unit_price is also in smallest currency unit
-      shippingAmount += Math.round(toNumber(shippingLine.shipping_line.unit_price));
+      // shipping_line.unit_price is in dollars — convert to cents for Stripe
+      shippingAmount += Math.round(toNumber(shippingLine.shipping_line.unit_price) * 100);
     }
 
     const state = (address.province_code || (address as any).province || "").toUpperCase();
@@ -163,37 +163,30 @@ class StripeTaxService {
       return [];
     }
 
-    // Build Medusa tax lines from Stripe response
+    // Build Medusa tax lines from Stripe response.
+    // Stripe's create() does NOT return line items inline — they require a
+    // separate listLineItems() call. Instead, compute the overall effective
+    // tax rate from the calculation totals and apply it to all Medusa items.
     const taxLines: (ItemTaxLineDTO | ShippingTaxLineDTO)[] = [];
 
-    // Map Stripe line items back to Medusa items by reference
-    const stripeItems = calculation.line_items?.data || [];
+    const totalAmount = stripeLineItems.reduce((sum, li) => sum + li.amount, 0);
+    const totalTax = calculation.tax_amount_exclusive;
 
-    for (const stripeItem of stripeItems) {
-      const medusaItemId = stripeItem.reference;
-      if (!medusaItemId) continue;
+    let effectiveRate = 0;
+    if (totalAmount > 0 && totalTax > 0) {
+      effectiveRate = (totalTax / totalAmount) * 100;
+      effectiveRate = Math.round(effectiveRate * 10000) / 10000;
+    }
 
-      // Calculate effective tax rate percentage from Stripe's amounts
-      const itemAmount = stripeItem.amount;
-      const itemTax = stripeItem.amount_tax;
+    console.log("[stripe-tax] Effective rate:", effectiveRate, "%");
 
-      let effectiveRate = 0;
-      if (itemAmount > 0 && itemTax > 0) {
-        effectiveRate = (itemTax / itemAmount) * 100;
-        effectiveRate = Math.round(effectiveRate * 10000) / 10000;
-      }
-
-      // Get tax breakdown details for name/code
-      const breakdown = stripeItem.tax_breakdown?.[0];
-      const taxName =
-        breakdown?.tax_rate_details?.display_name || "Sales Tax";
-      const taxCode = breakdown?.tax_rate_details?.tax_type || "sales_tax";
-
+    // Apply the computed rate to all item lines
+    for (const itemLine of itemLines) {
       taxLines.push({
         rate: effectiveRate,
-        name: taxName,
-        code: taxCode,
-        line_item_id: medusaItemId,
+        name: "Sales Tax",
+        code: "sales_tax",
+        line_item_id: itemLine.line_item.id,
         provider_id: this.getIdentifier(),
       });
     }
