@@ -10,6 +10,8 @@ import {
   createTaxRegionsWorkflow,
   updateRegionsWorkflow,
 } from "@medusajs/medusa/core-flows";
+import { readFileSync } from "fs";
+import { join } from "path";
 
 /**
  * Post-Deploy Setup — runs once per container start.
@@ -72,18 +74,34 @@ export default async function postDeploy({ container }: ExecArgs) {
 }
 
 // ─── 1. RESTORE ACCESSORY PRICES ─────────────────────────────────
-// The old fixPrices function divided any price > $10 by 100, assuming cents.
-// But the import script already converts priceCents/100 to dollars. So
-// accessories like Landscape Nails ($79) became $0.79. This restores them.
+// Compares actual Medusa prices against products-data.json and fixes any
+// that don't match. This handles the old fixPrices damage (divided by 100)
+// and any other price drift, by using the source JSON as ground truth.
 async function restoreAccessoryPrices(container: any, logger: any) {
   const query = container.resolve("query") as any;
   const pricingModule = container.resolve("pricing") as any;
 
-  logger.info("[restore-prices] Checking for incorrectly divided accessory prices...");
+  logger.info("[restore-prices] Checking accessory prices against source data...");
+
+  // Load expected prices from products-data.json (same file the import script uses)
+  const productsFilePath = join(__dirname, "../../../../products-data.json");
+  let expectedPrices: Record<string, number>;
+  try {
+    const data = JSON.parse(readFileSync(productsFilePath, "utf-8"));
+    // Build handle → expected dollar amount map for accessories only
+    expectedPrices = {};
+    for (const acc of data.accessories || []) {
+      expectedPrices[acc.handle] = acc.priceCents / 100;
+    }
+    logger.info(`[restore-prices] Loaded ${Object.keys(expectedPrices).length} accessory prices from source`);
+  } catch (err: any) {
+    logger.warn(`[restore-prices] Could not load products-data.json: ${err.message}`);
+    return;
+  }
 
   const { data: products } = await query.graph({
     entity: "product",
-    fields: ["id", "title", "variants.*", "variants.prices.*", "collection.*"],
+    fields: ["id", "handle", "title", "variants.*", "variants.prices.*"],
     filters: {},
   });
 
@@ -91,23 +109,20 @@ async function restoreAccessoryPrices(container: any, logger: any) {
   let skipped = 0;
 
   for (const product of products) {
-    // Only fix accessories (supplies collection). Turf prices ($1.30-$2.59/sqft) are correct.
-    const isSupplies = product.collection?.handle === "supplies";
-    if (!isSupplies) {
+    const expected = expectedPrices[product.handle];
+    if (expected === undefined) {
       skipped++;
       continue;
     }
 
     for (const variant of product.variants || []) {
       for (const price of variant.prices || []) {
-        // Prices < $5 for supplies are almost certainly divided incorrectly.
-        // e.g., $0.79 should be $79, $1.39 should be $139, $1.59 should be $159
-        // Cheapest correct supply is Silica Sand at $8.49, so $5 threshold is safe.
-        if (price.amount < 5) {
-          const restored = Math.round(price.amount * 100 * 100) / 100;
+        const current = typeof price.amount === "number" ? price.amount : parseFloat(String(price.amount));
+        // Fix if the price doesn't match expected (with small tolerance for floating point)
+        if (Math.abs(current - expected) > 0.01) {
           try {
-            await pricingModule.updatePrices([{ id: price.id, amount: restored }]);
-            logger.info(`[restore-prices] ${product.title}: $${price.amount} → $${restored}`);
+            await pricingModule.updatePrices([{ id: price.id, amount: expected }]);
+            logger.info(`[restore-prices] ${product.title}: $${current} → $${expected}`);
             fixed++;
           } catch (err: any) {
             logger.warn(`[restore-prices] Failed for ${product.title}: ${err.message}`);
@@ -119,7 +134,7 @@ async function restoreAccessoryPrices(container: any, logger: any) {
     }
   }
 
-  logger.info(`[restore-prices] Restored ${fixed} prices, skipped ${skipped}`);
+  logger.info(`[restore-prices] Fixed ${fixed} prices, skipped ${skipped}`);
 }
 
 // ─── 2. FIX SHIPPING PROFILES ─────────────────────────────────────
