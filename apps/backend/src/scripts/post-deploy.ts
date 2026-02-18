@@ -75,8 +75,8 @@ export default async function postDeploy({ container }: ExecArgs) {
 
 // ─── 1. RESTORE ACCESSORY PRICES ─────────────────────────────────
 // Compares actual Medusa prices against products-data.json and fixes any
-// that don't match. This handles the old fixPrices damage (divided by 100)
-// and any other price drift, by using the source JSON as ground truth.
+// that don't match. Uses removePrices() + addPrices() since Medusa v2's
+// pricing module has no updatePrices() method.
 async function restoreAccessoryPrices(container: any, logger: any) {
   const query = container.resolve("query") as any;
   const pricingModule = container.resolve("pricing") as any;
@@ -95,10 +95,14 @@ async function restoreAccessoryPrices(container: any, logger: any) {
     try {
       const data = JSON.parse(readFileSync(filePath, "utf-8"));
       expectedPrices = {};
+      // Load both turf and accessory prices — source JSON is ground truth for all products
+      for (const product of data.products || []) {
+        expectedPrices[product.handle] = product.priceCents / 100;
+      }
       for (const acc of data.accessories || []) {
         expectedPrices[acc.handle] = acc.priceCents / 100;
       }
-      logger.info(`[restore-prices] Loaded ${Object.keys(expectedPrices).length} accessory prices from: ${filePath}`);
+      logger.info(`[restore-prices] Loaded ${Object.keys(expectedPrices).length} expected prices from: ${filePath}`);
       break;
     } catch {
       // Try next path
@@ -109,9 +113,16 @@ async function restoreAccessoryPrices(container: any, logger: any) {
     return;
   }
 
+  // Query products with price_set (needed for addPrices) and price_rules (to preserve rules)
   const { data: products } = await query.graph({
     entity: "product",
-    fields: ["id", "handle", "title", "variants.*", "variants.prices.*"],
+    fields: [
+      "id", "handle", "title",
+      "variants.*",
+      "variants.price_set.id",
+      "variants.prices.*",
+      "variants.prices.price_rules.*",
+    ],
     filters: {},
   });
 
@@ -126,12 +137,34 @@ async function restoreAccessoryPrices(container: any, logger: any) {
     }
 
     for (const variant of product.variants || []) {
+      const priceSetId = variant.price_set?.id;
+      if (!priceSetId) {
+        logger.warn(`[restore-prices] No price_set for variant of "${product.title}" — skipping`);
+        continue;
+      }
+
       for (const price of variant.prices || []) {
         const current = typeof price.amount === "number" ? price.amount : parseFloat(String(price.amount));
-        // Fix if the price doesn't match expected (with small tolerance for floating point)
         if (Math.abs(current - expected) > 0.01) {
           try {
-            await pricingModule.updatePrices([{ id: price.id, amount: expected }]);
+            // Preserve existing price rules (e.g. region_id)
+            const rules: Record<string, string> = {};
+            for (const rule of price.price_rules || []) {
+              if (rule.attribute && rule.value) {
+                rules[rule.attribute] = rule.value;
+              }
+            }
+
+            // Medusa v2 has no updatePrices — must remove + re-add
+            await pricingModule.removePrices([price.id]);
+            await pricingModule.addPrices({
+              priceSetId,
+              prices: [{
+                amount: expected,
+                currency_code: price.currency_code || "usd",
+                rules,
+              }],
+            });
             logger.info(`[restore-prices] ${product.title}: $${current} → $${expected}`);
             fixed++;
           } catch (err: any) {
