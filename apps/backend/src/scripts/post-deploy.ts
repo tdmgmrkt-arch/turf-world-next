@@ -504,41 +504,52 @@ async function seedTax(container: any, logger: any) {
   );
 
   if (usRegion) {
-    logger.info(`[seed-tax] US tax region already exists (id: ${usRegion.id}, provider: ${usRegion.provider_id || "system"}) — skipping`);
-    return;
-  }
+    logger.info(`[seed-tax] US tax region already exists (id: ${usRegion.id}, provider: ${usRegion.provider_id || "system"}) — skipping creation`);
+  } else {
+    // Discover the Stripe Tax provider ID from the tax module
+    let providerId: string | undefined;
+    try {
+      const providers = await taxModule.listTaxProviders();
+      const providerIds = providers.map((p: any) => (typeof p === "string" ? p : p.id));
+      logger.info(`[seed-tax] Available tax providers: ${JSON.stringify(providerIds)}`);
 
-  // Discover the Stripe Tax provider ID from the tax module
-  let providerId: string | undefined;
-  try {
-    const providers = await taxModule.listTaxProviders();
-    const providerIds = providers.map((p: any) => (typeof p === "string" ? p : p.id));
-    logger.info(`[seed-tax] Available tax providers: ${JSON.stringify(providerIds)}`);
-
-    const stripeTax = providerIds.find((id: string) => id?.includes("stripe-tax"));
-    if (stripeTax) {
-      providerId = stripeTax;
+      const stripeTax = providerIds.find((id: string) => id?.includes("stripe-tax"));
+      if (stripeTax) {
+        providerId = stripeTax;
+      }
+    } catch (err: any) {
+      logger.warn(`[seed-tax] Could not list tax providers: ${err.message}`);
     }
-  } catch (err: any) {
-    logger.warn(`[seed-tax] Could not list tax providers: ${err.message}`);
+
+    // Create US country-level tax region.
+    // Stripe Tax calculates the actual rate dynamically, so default_tax_rate is 0.
+    await createTaxRegionsWorkflow(container).run({
+      input: {
+        tax_regions: [
+          {
+            country_code: "us",
+            ...(providerId ? { provider_id: providerId } : {}),
+            default_tax_rate: {
+              name: "US Sales Tax",
+              rate: 0,
+            },
+          },
+        ],
+      },
+    });
+
+    logger.info(`[seed-tax] Created US tax region (provider: ${providerId || "system default"})`);
   }
 
-  // Create US country-level tax region.
-  // Stripe Tax calculates the actual rate dynamically, so default_tax_rate is 0.
-  await createTaxRegionsWorkflow(container).run({
-    input: {
-      tax_regions: [
-        {
-          country_code: "us",
-          ...(providerId ? { provider_id: providerId } : {}),
-          default_tax_rate: {
-            name: "US Sales Tax",
-            rate: 0,
-          },
-        },
-      ],
-    },
-  });
-
-  logger.info(`[seed-tax] Created US tax region (provider: ${providerId || "system default"})`);
+  // Enable automatic_taxes on all regions — required for Medusa v2 to trigger
+  // tax calculation during cart updates (updateCartWorkflow → refreshCartItemsWorkflow).
+  // Without this flag, normalizeTaxModuleContext() returns null and skips tax entirely.
+  const regionModule = container.resolve("region") as any;
+  const regions = await regionModule.listRegions();
+  for (const region of regions) {
+    if (!region.automatic_taxes) {
+      await regionModule.updateRegions(region.id, { automatic_taxes: true });
+      logger.info(`[seed-tax] Enabled automatic_taxes on region: ${region.name} (${region.id})`);
+    }
+  }
 }

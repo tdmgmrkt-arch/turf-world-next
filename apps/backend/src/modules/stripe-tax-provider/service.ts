@@ -76,6 +76,14 @@ class StripeTaxService {
       return [];
     }
 
+    // For US addresses, Stripe requires postal_code to calculate tax.
+    // This is called early (e.g. on cart creation) before the customer enters their
+    // address — skip the API call rather than letting it fail.
+    if (address.country_code.toUpperCase() === "US" && !address.postal_code) {
+      console.warn("[stripe-tax] US address missing postal_code — returning 0% tax");
+      return [];
+    }
+
     // Build Stripe Tax line items from Medusa cart items
     const stripeLineItems: Stripe.Tax.CalculationCreateParams.LineItem[] = [];
 
