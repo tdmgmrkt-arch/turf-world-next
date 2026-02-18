@@ -172,12 +172,14 @@ function PaymentForm({
   total,
   isProcessing,
   setIsProcessing,
+  customerEmail,
 }: {
   onSuccess: (orderId: string) => void;
   onBack: () => void;
   total: number;
   isProcessing: boolean;
   setIsProcessing: (v: boolean) => void;
+  customerEmail?: string;
 }) {
   const stripe = useStripe();
   const elements = useElements();
@@ -244,7 +246,14 @@ function PaymentForm({
 
         <div className="p-6 space-y-4">
           <div className="rounded-xl border border-slate-200 p-4 bg-slate-50">
-            <PaymentElement options={{ layout: "tabs" }} />
+            <PaymentElement options={{
+              layout: "tabs",
+              ...(customerEmail && {
+                defaultValues: {
+                  billingDetails: { email: customerEmail },
+                },
+              }),
+            }} />
           </div>
 
           {errorMessage && (
@@ -443,6 +452,20 @@ export function CheckoutForm() {
       try {
         const secret = await createPaymentSession();
         if (secret) {
+          // For logged-in users, remove Stripe Link ("Save my information")
+          // from the PaymentElement by switching the PaymentIntent to
+          // explicit card-only payment methods.
+          if (isAuthenticated) {
+            try {
+              await fetch("/api/stripe/disable-link", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ clientSecret: secret }),
+              });
+            } catch {
+              // Non-critical — Link will still show but checkout works fine
+            }
+          }
           setClientSecret(secret);
         } else {
           setPaymentError("Payment session returned no client secret.");
@@ -1021,6 +1044,7 @@ export function CheckoutForm() {
                   total={total}
                   isProcessing={isProcessing}
                   setIsProcessing={setIsProcessing}
+                  customerEmail={isAuthenticated ? contact.email : undefined}
                 />
               </StripeProvider>
             ) : (
