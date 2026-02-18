@@ -817,7 +817,7 @@ export const ACCESSORIES: Accessory[] = [
     handle: "seam-tape-8x50",
     name: "Seam Tape 8\" x 50'",
     description: "Extra-wide seaming tape with longer length. Best value for large projects. 8\" wide x 50' roll.",
-    priceCents: 450,
+    priceCents: 4500,
     category: "seaming",
     size: "8\" x 50'",
     images: ["/products/SeamTape_6568_SDRT.jpg", "/products/SeamTape_6569_SDRT.jpg"],

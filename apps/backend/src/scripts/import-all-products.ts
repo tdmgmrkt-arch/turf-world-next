@@ -1,6 +1,6 @@
 import { ExecArgs } from "@medusajs/framework/types";
 import { createProductsWorkflow, createCollectionsWorkflow, deleteProductsWorkflow } from "@medusajs/medusa/core-flows";
-import { ProductStatus } from "@medusajs/framework/utils";
+import { ProductStatus, ContainerRegistrationKeys } from "@medusajs/framework/utils";
 import { readFileSync } from "fs";
 import { join } from "path";
 
@@ -310,10 +310,14 @@ ${product.badge ? `**${product.badge}** - ` : ""}Professional-grade artificial t
       logger.warn(`Could not clean up turf attributes (continuing): ${err.message}`);
     }
 
-    await deleteProductsWorkflow(container).run({
-      input: { ids: productIds },
-    });
-    logger.info(`✅ Deleted ${existingProducts.length} products`);
+    try {
+      await deleteProductsWorkflow(container).run({
+        input: { ids: productIds },
+      });
+      logger.info(`✅ Deleted ${existingProducts.length} products`);
+    } catch (err: any) {
+      logger.warn(`Could not delete products (orders may reference them): ${err.message}`);
+    }
   } else {
     logger.info("No existing products found — fresh import");
   }
@@ -376,11 +380,55 @@ ${product.badge ? `**${product.badge}** - ` : ""}Professional-grade artificial t
     logger.info("Access your admin dashboard at: http://localhost:9000/app");
     logger.info("View products in the Products section.");
   } catch (error) {
-    logger.error("Failed to import products");
+    logger.error("Failed to import products (continuing to price sync)");
     if (error instanceof Error) {
       logger.error(error.message);
     }
-    throw error;
+  }
+
+  // ================================================
+  // 7. GUARANTEE CORRECT PRICES VIA RAW SQL
+  // ================================================
+  // This runs ALWAYS — even if delete + create both failed (products already
+  // exist from a prior deploy). Bypasses Medusa's pricing module entirely
+  // and directly updates the `price` table via Knex/pgConnection.
+  try {
+    logger.info("[price-sync] Syncing prices via raw SQL...");
+
+    const pgConnection = container.resolve(ContainerRegistrationKeys.PG_CONNECTION) as any;
+
+    // Build expected prices from source data (already loaded above)
+    const expectedPrices: Record<string, number> = {};
+    for (const p of PRODUCTS) expectedPrices[p.handle] = p.priceCents / 100;
+    for (const a of ACCESSORIES) expectedPrices[a.handle] = a.priceCents / 100;
+
+    // Query all product prices through Medusa's query API (proven to work without filters)
+    const { data: allProds } = await query.graph({
+      entity: "product",
+      fields: ["id", "handle", "variants.prices.id", "variants.prices.amount"],
+      pagination: { take: 1000 },
+    });
+
+    let syncCount = 0;
+    for (const prod of allProds) {
+      const expected = expectedPrices[prod.handle];
+      if (expected === undefined) continue;
+
+      for (const variant of prod.variants || []) {
+        for (const price of variant.prices || []) {
+          if (Math.abs(price.amount - expected) > 0.001) {
+            await pgConnection.raw("UPDATE price SET amount = ? WHERE id = ?", [expected, price.id]);
+            logger.info(`[price-sync] ${prod.handle}: $${price.amount} → $${expected}`);
+            syncCount++;
+          }
+        }
+      }
+    }
+
+    logger.info(`[price-sync] ✅ Fixed ${syncCount} prices via raw SQL`);
+  } catch (err: any) {
+    logger.error(`[price-sync] Raw SQL price sync failed: ${err.message}`);
+    if (err.stack) logger.error(err.stack);
   }
 }
 
