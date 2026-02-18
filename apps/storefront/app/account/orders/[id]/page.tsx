@@ -97,7 +97,7 @@ function OrderDetail() {
                   <p className="text-xs text-slate-500">Qty: {item.quantity}</p>
                 </div>
                 <p className="text-sm font-semibold text-slate-900">
-                  ${((item.unit_price * item.quantity) / 100).toFixed(2)}
+                  ${(item.unit_price * item.quantity).toFixed(2)}
                 </p>
               </div>
             ))}
@@ -124,19 +124,19 @@ function OrderDetail() {
           <div className="bg-slate-50 p-4 rounded-xl space-y-2 text-sm">
             <div className="flex justify-between text-slate-600">
               <span>Subtotal</span>
-              <span>${((order.subtotal || 0) / 100).toFixed(2)}</span>
+              <span>${(order.subtotal || 0).toFixed(2)}</span>
             </div>
             <div className="flex justify-between text-slate-600">
               <span>Shipping</span>
-              <span>${((order.shipping_total || 0) / 100).toFixed(2)}</span>
+              <span>${(order.shipping_total || 0).toFixed(2)}</span>
             </div>
             <div className="flex justify-between text-slate-600">
               <span>Tax</span>
-              <span>${((order.tax_total || 0) / 100).toFixed(2)}</span>
+              <span>${(order.tax_total || 0).toFixed(2)}</span>
             </div>
             <div className="flex justify-between font-semibold text-slate-900 pt-2 border-t border-slate-200">
               <span>Total</span>
-              <span>${((order.total || 0) / 100).toFixed(2)}</span>
+              <span>${(order.total || 0).toFixed(2)}</span>
             </div>
           </div>
         </div>

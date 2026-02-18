@@ -478,7 +478,7 @@ function OrdersTab() {
             </div>
             <div className="text-right">
               <p className="text-sm font-semibold text-slate-900">
-                ${((order.total || 0) / 100).toFixed(2)}
+                ${(order.total || 0).toFixed(2)}
               </p>
               <span className="inline-block mt-1 px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700">
                 {order.fulfillment_status || order.status || "processing"}
