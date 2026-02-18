@@ -1317,13 +1317,25 @@ export function CheckoutForm() {
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-slate-500">Shipping</span>
-                <span className={cn("font-medium", (completedOrder?.shippingCost ?? shippingCost) === 0 && "text-emerald-600")}>
-                  {(completedOrder?.shippingCost ?? shippingCost) === 0 ? "FREE" : formatPrice(completedOrder?.shippingCost ?? shippingCost)}
+                <span className={cn("font-medium", (completedOrder?.shippingCost ?? shippingCost) === 0 && !completedOrder && selectedShipping && "text-emerald-600")}>
+                  {completedOrder
+                    ? (completedOrder.shippingCost === 0 ? "FREE" : formatPrice(completedOrder.shippingCost))
+                    : !selectedShipping || currentStep === "information"
+                      ? "TBD"
+                      : shippingCost === 0
+                        ? "FREE"
+                        : formatPrice(shippingCost)}
                 </span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-slate-500">Tax</span>
-                <span className="font-medium">{formatPrice(completedOrder?.tax ?? tax)}</span>
+                <span className="font-medium">
+                  {completedOrder
+                    ? formatPrice(completedOrder.tax)
+                    : !shipping.zip
+                      ? "TBD"
+                      : formatPrice(tax)}
+                </span>
               </div>
               <div className="flex justify-between pt-3 border-t border-slate-200">
                 <span className="text-lg font-bold text-slate-900">Total</span>
