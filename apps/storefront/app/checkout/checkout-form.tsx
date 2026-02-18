@@ -382,7 +382,8 @@ export function CheckoutForm() {
 
   const shippingCost = shippingOptions.find((o) => o.id === selectedShipping)?.price || 0;
   // Use Medusa's calculated tax if available, otherwise 0 (tax calculated after shipping address is set)
-  const tax = medusaCart?.tax_total || 0;
+  // Medusa returns tax_total in dollars; convert to cents to match storefront's cents-based system.
+  const tax = Math.round((medusaCart?.tax_total || 0) * 100);
   const total = subtotal + shippingCost + tax;
 
   // Initialize payment session when reaching payment step (once)
