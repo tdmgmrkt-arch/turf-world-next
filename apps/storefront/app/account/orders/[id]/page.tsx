@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
+import Image from "next/image";
 import { AuthGuard } from "@/components/account/auth-guard";
 import { medusa } from "@/lib/medusa";
 import { ArrowLeft, Package, Loader2 } from "lucide-react";
@@ -11,6 +12,43 @@ const ArrowLeftIcon = ArrowLeft as any;
 const PackageIcon = Package as any;
 const LoaderIcon = Loader2 as any;
 const NextLink = Link as any;
+const NextImage = Image as any;
+
+/** Map Medusa fulfillment status to a customer-friendly label + color */
+function friendlyStatus(status: string | undefined) {
+  switch (status) {
+    case "fulfilled":
+      return { label: "Shipped", cls: "bg-emerald-500/20 text-emerald-300" };
+    case "partially_fulfilled":
+      return { label: "Partially Shipped", cls: "bg-amber-500/20 text-amber-300" };
+    case "shipped":
+      return { label: "Shipped", cls: "bg-emerald-500/20 text-emerald-300" };
+    case "delivered":
+      return { label: "Delivered", cls: "bg-emerald-500/20 text-emerald-300" };
+    case "canceled":
+    case "cancelled":
+      return { label: "Cancelled", cls: "bg-red-500/20 text-red-300" };
+    case "returned":
+      return { label: "Returned", cls: "bg-slate-500/20 text-slate-300" };
+    case "not_fulfilled":
+    default:
+      return { label: "Processing", cls: "bg-blue-500/20 text-blue-300" };
+  }
+}
+
+/** Get display title and quantity label for an order line item */
+function getItemDisplay(item: any) {
+  const meta = item.metadata || {};
+  const title = meta.custom_title || item.title || item.product_title;
+  const isTurf = !!meta.cut_square_feet;
+  const qtyLabel = isTurf
+    ? `${Math.round(meta.cut_square_feet)} sq ft`
+    : `Qty: ${item.quantity}`;
+  const dimensions = isTurf && meta.cut_width_ft && meta.cut_length_ft
+    ? `${meta.cut_width_ft}' × ${meta.cut_length_ft}'`
+    : null;
+  return { title, qtyLabel, dimensions };
+}
 
 function OrderDetail() {
   const { id } = useParams();
@@ -51,6 +89,7 @@ function OrderDetail() {
   }
 
   const shippingAddr = order.shipping_address;
+  const status = friendlyStatus(order.fulfillment_status || order.status);
 
   return (
     <div className="space-y-6">
@@ -80,8 +119,8 @@ function OrderDetail() {
                 })}
               </p>
             </div>
-            <span className="ml-auto px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/20 text-emerald-300">
-              {order.fulfillment_status || order.status || "processing"}
+            <span className={`ml-auto px-3 py-1 rounded-full text-xs font-medium ${status.cls}`}>
+              {status.label}
             </span>
           </div>
         </div>
@@ -90,17 +129,32 @@ function OrderDetail() {
         <div className="p-6 space-y-4">
           <h2 className="text-sm font-semibold text-slate-900 uppercase tracking-wider">Items</h2>
           <div className="space-y-3">
-            {(order.items || []).map((item: any) => (
-              <div key={item.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-xl">
-                <div>
-                  <p className="text-sm font-medium text-slate-900">{item.title || item.product_title}</p>
-                  <p className="text-xs text-slate-500">Qty: {item.quantity}</p>
+            {(order.items || []).map((item: any) => {
+              const display = getItemDisplay(item);
+              return (
+                <div key={item.id} className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl">
+                  <div className="h-14 w-14 flex-shrink-0 rounded-lg bg-white overflow-hidden border border-slate-200">
+                    {item.thumbnail ? (
+                      <NextImage src={item.thumbnail} alt={display.title} width={56} height={56} className="h-full w-full object-cover" />
+                    ) : (
+                      <div className="h-full w-full flex items-center justify-center">
+                        <PackageIcon className="h-6 w-6 text-slate-300" />
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-slate-900">{display.title}</p>
+                    <p className="text-xs text-slate-500">
+                      {display.dimensions && <>{display.dimensions}<span className="mx-1">·</span></>}
+                      {display.qtyLabel}
+                    </p>
+                  </div>
+                  <p className="text-sm font-semibold text-slate-900 flex-shrink-0">
+                    ${(item.unit_price * item.quantity).toFixed(2)}
+                  </p>
                 </div>
-                <p className="text-sm font-semibold text-slate-900">
-                  ${(item.unit_price * item.quantity).toFixed(2)}
-                </p>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           {/* Shipping Address */}

@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { AuthGuard } from "@/components/account/auth-guard";
 import { useAuth } from "@/hooks/use-auth";
 import { medusa } from "@/lib/medusa";
+import Image from "next/image";
 import {
   User, MapPin, Package, Save, Plus, Trash2, Loader2, CheckCircle, AlertCircle, Pencil,
 } from "lucide-react";
@@ -20,6 +21,45 @@ const CheckIcon = CheckCircle as any;
 const AlertIcon = AlertCircle as any;
 const PencilIcon = Pencil as any;
 const NextLink = Link as any;
+const NextImage = Image as any;
+
+/** Map Medusa fulfillment status to a customer-friendly label + color */
+function friendlyStatus(status: string | undefined) {
+  switch (status) {
+    case "fulfilled":
+      return { label: "Shipped", cls: "bg-emerald-100 text-emerald-700" };
+    case "partially_fulfilled":
+      return { label: "Partially Shipped", cls: "bg-amber-100 text-amber-700" };
+    case "shipped":
+      return { label: "Shipped", cls: "bg-emerald-100 text-emerald-700" };
+    case "delivered":
+      return { label: "Delivered", cls: "bg-emerald-100 text-emerald-700" };
+    case "canceled":
+    case "cancelled":
+      return { label: "Cancelled", cls: "bg-red-100 text-red-700" };
+    case "returned":
+      return { label: "Returned", cls: "bg-slate-100 text-slate-700" };
+    case "not_fulfilled":
+    default:
+      return { label: "Processing", cls: "bg-blue-100 text-blue-700" };
+  }
+}
+
+/** Get display title and quantity label for an order line item */
+function getItemDisplay(item: any) {
+  const meta = item.metadata || {};
+  // Use custom_title from cart sync (includes "Cut #1" etc.)
+  const title = meta.custom_title || item.title || item.product_title;
+  // If the item has cut dimensions, show SQ FT instead of Qty
+  const isTurf = !!meta.cut_square_feet;
+  const qtyLabel = isTurf
+    ? `${Math.round(meta.cut_square_feet)} sq ft`
+    : `Qty: ${item.quantity}`;
+  const dimensions = isTurf && meta.cut_width_ft && meta.cut_length_ft
+    ? `${meta.cut_width_ft}' × ${meta.cut_length_ft}'`
+    : null;
+  return { title, qtyLabel, dimensions };
+}
 
 type Tab = "profile" | "addresses" | "orders";
 
@@ -459,34 +499,70 @@ function OrdersTab() {
   return (
     <div className="p-6 space-y-3">
       <h2 className="text-lg font-semibold text-slate-900">Order History</h2>
-      {orders.map((order: any) => (
-        <NextLink
-          key={order.id}
-          href={`/account/orders/${order.id}`}
-          className="block p-4 bg-slate-50 rounded-xl border border-slate-200 hover:border-emerald-300 transition-colors"
-        >
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-slate-900">
-                Order #{order.display_id || order.id.slice(-8)}
-              </p>
-              <p className="text-xs text-slate-500 mt-1">
-                {new Date(order.created_at).toLocaleDateString("en-US", {
-                  year: "numeric", month: "long", day: "numeric",
+      {orders.map((order: any) => {
+        const status = friendlyStatus(order.fulfillment_status || order.status);
+        const orderItems = order.items || [];
+        return (
+          <NextLink
+            key={order.id}
+            href={`/account/orders/${order.id}`}
+            className="block p-4 bg-slate-50 rounded-xl border border-slate-200 hover:border-emerald-300 transition-colors"
+          >
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-slate-900">
+                  Order #{order.display_id || order.id.slice(-8)}
+                </p>
+                <p className="text-xs text-slate-500 mt-1">
+                  {new Date(order.created_at).toLocaleDateString("en-US", {
+                    year: "numeric", month: "long", day: "numeric",
+                  })}
+                </p>
+              </div>
+              <div className="text-right">
+                <p className="text-sm font-semibold text-slate-900">
+                  ${(order.total || 0).toFixed(2)}
+                </p>
+                <span className={`inline-block mt-1 px-2 py-0.5 rounded-full text-xs font-medium ${status.cls}`}>
+                  {status.label}
+                </span>
+              </div>
+            </div>
+
+            {/* Item previews with images */}
+            {orderItems.length > 0 && (
+              <div className="mt-3 pt-3 border-t border-slate-200 space-y-2">
+                {orderItems.slice(0, 4).map((item: any) => {
+                  const display = getItemDisplay(item);
+                  return (
+                    <div key={item.id} className="flex items-center gap-3">
+                      <div className="h-10 w-10 flex-shrink-0 rounded-lg bg-white overflow-hidden border border-slate-200">
+                        {item.thumbnail ? (
+                          <NextImage src={item.thumbnail} alt={display.title} width={40} height={40} className="h-full w-full object-cover" />
+                        ) : (
+                          <div className="h-full w-full flex items-center justify-center">
+                            <PackageIcon className="h-4 w-4 text-slate-300" />
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-medium text-slate-700 truncate">{display.title}</p>
+                        <p className="text-[10px] text-slate-500">
+                          {display.dimensions && <>{display.dimensions}<span className="mx-1">·</span></>}
+                          {display.qtyLabel}
+                        </p>
+                      </div>
+                    </div>
+                  );
                 })}
-              </p>
-            </div>
-            <div className="text-right">
-              <p className="text-sm font-semibold text-slate-900">
-                ${(order.total || 0).toFixed(2)}
-              </p>
-              <span className="inline-block mt-1 px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700">
-                {order.fulfillment_status || order.status || "processing"}
-              </span>
-            </div>
-          </div>
-        </NextLink>
-      ))}
+                {orderItems.length > 4 && (
+                  <p className="text-[10px] text-slate-400">+{orderItems.length - 4} more items</p>
+                )}
+              </div>
+            )}
+          </NextLink>
+        );
+      })}
     </div>
   );
 }
