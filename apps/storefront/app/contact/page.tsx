@@ -175,7 +175,7 @@ export default function ContactPage() {
                     </a>
 
                     <a
-                      href="mailto:sales@turf.world"
+                      href="mailto:orders@turf-world.com"
                       className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-xl bg-muted/50 hover:bg-muted transition-colors group"
                     >
                       <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
@@ -183,7 +183,7 @@ export default function ContactPage() {
                       </div>
                       <div>
                         <p className="font-semibold text-sm sm:text-base group-hover:text-primary transition-colors">
-                          sales@turf.world
+                          orders@turf-world.com
                         </p>
                         <p className="text-xs sm:text-sm text-muted-foreground">24hr response time</p>
                       </div>
