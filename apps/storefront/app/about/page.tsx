@@ -46,7 +46,7 @@ const values = [
   },
   {
     icon: Truck,
-    title: "Free Nationwide Shipping",
+    title: "Nationwide Shipping",
     description:
       "We offer free freight shipping on all orders across the United States. Large orders ship via liftgate delivery right to your location.",
   },
