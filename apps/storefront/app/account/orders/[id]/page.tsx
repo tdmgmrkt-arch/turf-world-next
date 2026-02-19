@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import Image from "next/image";
 import { AuthGuard } from "@/components/account/auth-guard";
 import { medusa } from "@/lib/medusa";
+import { normalizeImageUrl } from "@/lib/medusa-adapters";
 import { ArrowLeft, Package, Loader2 } from "lucide-react";
 import Link from "next/link";
 
@@ -53,7 +54,8 @@ function getItemDisplay(item: any) {
 /** Image with error fallback for order line items */
 function OrderItemImage({ src, alt, size }: { src: string | null; alt: string; size: number }) {
   const [failed, setFailed] = useState(false);
-  if (!src || failed) {
+  const normalizedSrc = src ? normalizeImageUrl(src) : null;
+  if (!normalizedSrc || failed) {
     return (
       <div className="h-full w-full flex items-center justify-center">
         <PackageIcon className={size > 40 ? "h-6 w-6 text-slate-300" : "h-4 w-4 text-slate-300"} />
@@ -62,7 +64,7 @@ function OrderItemImage({ src, alt, size }: { src: string | null; alt: string; s
   }
   return (
     <NextImage
-      src={src}
+      src={normalizedSrc}
       alt={alt}
       width={size}
       height={size}
@@ -70,6 +72,24 @@ function OrderItemImage({ src, alt, size }: { src: string | null; alt: string; s
       onError={() => setFailed(true)}
     />
   );
+}
+
+/** Sort order items: turf cuts first (by cut number), then other items */
+function sortOrderItems(items: any[]): any[] {
+  return [...items].sort((a, b) => {
+    const aMeta = a.metadata || {};
+    const bMeta = b.metadata || {};
+    const aIsCut = !!aMeta.cut_square_feet;
+    const bIsCut = !!bMeta.cut_square_feet;
+    if (aIsCut && !bIsCut) return -1;
+    if (!aIsCut && bIsCut) return 1;
+    if (aIsCut && bIsCut) {
+      const aNum = parseInt(((aMeta.custom_title || "").match(/Cut\s*#(\d+)/i) || [])[1] || "0", 10);
+      const bNum = parseInt(((bMeta.custom_title || "").match(/Cut\s*#(\d+)/i) || [])[1] || "0", 10);
+      return aNum - bNum;
+    }
+    return 0;
+  });
 }
 
 function OrderDetail() {
@@ -151,7 +171,7 @@ function OrderDetail() {
         <div className="p-6 space-y-4">
           <h2 className="text-sm font-semibold text-slate-900 uppercase tracking-wider">Items</h2>
           <div className="space-y-3">
-            {(order.items || []).map((item: any) => {
+            {sortOrderItems(order.items || []).map((item: any) => {
               const display = getItemDisplay(item);
               return (
                 <div key={item.id} className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl">

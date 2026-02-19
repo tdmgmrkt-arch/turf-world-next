@@ -22,7 +22,7 @@ const STOREFRONT_URLS = [
  * Normalize image URL — strip storefront URLs to use local /public/ paths,
  * pass through external URLs (S3, CDN) as-is.
  */
-function normalizeImageUrl(url: string): string {
+export function normalizeImageUrl(url: string): string {
   for (const prefix of STOREFRONT_URLS) {
     if (url.startsWith(prefix)) {
       return url.replace(prefix, "");

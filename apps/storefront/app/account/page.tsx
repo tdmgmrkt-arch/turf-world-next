@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { AuthGuard } from "@/components/account/auth-guard";
 import { useAuth } from "@/hooks/use-auth";
 import { medusa } from "@/lib/medusa";
+import { normalizeImageUrl } from "@/lib/medusa-adapters";
 import Image from "next/image";
 import {
   User, MapPin, Package, Save, Plus, Trash2, Loader2, CheckCircle, AlertCircle, Pencil,
@@ -64,7 +65,8 @@ function getItemDisplay(item: any) {
 /** Image with error fallback for order line items */
 function OrderItemImage({ src, alt, size }: { src: string | null; alt: string; size: number }) {
   const [failed, setFailed] = useState(false);
-  if (!src || failed) {
+  const normalizedSrc = src ? normalizeImageUrl(src) : null;
+  if (!normalizedSrc || failed) {
     return (
       <div className="h-full w-full flex items-center justify-center">
         <PackageIcon className={size > 40 ? "h-6 w-6 text-slate-300" : "h-4 w-4 text-slate-300"} />
@@ -73,7 +75,7 @@ function OrderItemImage({ src, alt, size }: { src: string | null; alt: string; s
   }
   return (
     <NextImage
-      src={src}
+      src={normalizedSrc}
       alt={alt}
       width={size}
       height={size}
@@ -83,18 +85,27 @@ function OrderItemImage({ src, alt, size }: { src: string | null; alt: string; s
   );
 }
 
+/** Sort order items: turf cuts first (by cut number), then other items */
+function sortOrderItems(items: any[]): any[] {
+  return [...items].sort((a, b) => {
+    const aMeta = a.metadata || {};
+    const bMeta = b.metadata || {};
+    const aIsCut = !!aMeta.cut_square_feet;
+    const bIsCut = !!bMeta.cut_square_feet;
+    if (aIsCut && !bIsCut) return -1;
+    if (!aIsCut && bIsCut) return 1;
+    if (aIsCut && bIsCut) {
+      const aNum = parseInt(((aMeta.custom_title || "").match(/Cut\s*#(\d+)/i) || [])[1] || "0", 10);
+      const bNum = parseInt(((bMeta.custom_title || "").match(/Cut\s*#(\d+)/i) || [])[1] || "0", 10);
+      return aNum - bNum;
+    }
+    return 0;
+  });
+}
+
 const SORT_OPTIONS = [
   { label: "Newest", value: "-created_at" },
   { label: "Oldest", value: "created_at" },
-  { label: "Highest Total", value: "-total" },
-  { label: "Lowest Total", value: "total" },
-];
-
-const STATUS_FILTERS = [
-  { label: "All Orders", value: "all" },
-  { label: "Pending", value: "pending" },
-  { label: "Completed", value: "completed" },
-  { label: "Canceled", value: "canceled" },
 ];
 
 type Tab = "profile" | "addresses" | "orders";
@@ -499,7 +510,6 @@ function OrdersTab() {
   const [totalCount, setTotalCount] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [sortKey, setSortKey] = useState("-created_at");
-  const [statusFilter, setStatusFilter] = useState("all");
 
   const totalPages = Math.ceil(totalCount / PAGE_SIZE);
 
@@ -511,7 +521,6 @@ function OrdersTab() {
         offset: (currentPage - 1) * PAGE_SIZE,
         order: sortKey,
       };
-      if (statusFilter !== "all") query.status = statusFilter;
       const res = await medusa.store.order.list(query) as any;
       setOrders(res.orders || []);
       setTotalCount(res.count || 0);
@@ -520,7 +529,7 @@ function OrdersTab() {
     } finally {
       setLoading(false);
     }
-  }, [currentPage, sortKey, statusFilter]);
+  }, [currentPage, sortKey]);
 
   useEffect(() => {
     fetchOrders();
@@ -538,11 +547,6 @@ function OrdersTab() {
     setCurrentPage(1);
   };
 
-  const handleStatusChange = (v: string) => {
-    setStatusFilter(v);
-    setCurrentPage(1);
-  };
-
   // Initial load — show full spinner
   if (loading && orders.length === 0 && totalCount === 0) {
     return (
@@ -552,8 +556,8 @@ function OrdersTab() {
     );
   }
 
-  // No orders at all (no filters active)
-  if (!loading && totalCount === 0 && statusFilter === "all") {
+  // No orders at all
+  if (!loading && totalCount === 0) {
     return (
       <div className="p-6 text-center py-12">
         <PackageIcon className="h-12 w-12 text-slate-300 mx-auto mb-3" />
@@ -573,61 +577,24 @@ function OrdersTab() {
       <h2 className="text-lg font-semibold text-slate-900">Order History</h2>
 
       {/* Sort controls */}
-      <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-        <div className="flex items-center gap-2">
-          <span className="text-xs text-slate-500 whitespace-nowrap">Sort:</span>
-          <div className="flex gap-0.5 bg-slate-100 rounded-full p-0.5">
-            {SORT_OPTIONS.map((option) => (
-              <button
-                key={option.value}
-                onClick={() => handleSortChange(option.value)}
-                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                  sortKey === option.value
-                    ? "bg-white text-emerald-700 shadow-sm"
-                    : "text-slate-500 hover:text-slate-700"
-                }`}
-              >
-                {option.label}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <span className="text-xs text-slate-500 whitespace-nowrap">Status:</span>
-          <div className="flex gap-0.5 bg-slate-100 rounded-full p-0.5 flex-wrap">
-            {STATUS_FILTERS.map((option) => (
-              <button
-                key={option.value}
-                onClick={() => handleStatusChange(option.value)}
-                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                  statusFilter === option.value
-                    ? "bg-white text-emerald-700 shadow-sm"
-                    : "text-slate-500 hover:text-slate-700"
-                }`}
-              >
-                {option.label}
-              </button>
-            ))}
-          </div>
+      <div className="flex items-center gap-2">
+        <span className="text-xs text-slate-500 whitespace-nowrap">Sort:</span>
+        <div className="flex gap-0.5 bg-slate-100 rounded-full p-0.5">
+          {SORT_OPTIONS.map((option) => (
+            <button
+              key={option.value}
+              onClick={() => handleSortChange(option.value)}
+              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                sortKey === option.value
+                  ? "bg-white text-emerald-700 shadow-sm"
+                  : "text-slate-500 hover:text-slate-700"
+              }`}
+            >
+              {option.label}
+            </button>
+          ))}
         </div>
       </div>
-
-      {/* Active filter indicator */}
-      {statusFilter !== "all" && (
-        <div className="flex items-center gap-2 text-xs">
-          <span className="text-slate-500">Filtered by:</span>
-          <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-medium">
-            {STATUS_FILTERS.find((f) => f.value === statusFilter)?.label}
-          </span>
-          <button
-            onClick={() => handleStatusChange("all")}
-            className="text-slate-400 hover:text-slate-600 underline"
-          >
-            Clear Filters
-          </button>
-        </div>
-      )}
 
       {/* Results count */}
       <p className="text-xs text-slate-400">
@@ -636,26 +603,12 @@ function OrdersTab() {
           : `Showing ${(currentPage - 1) * PAGE_SIZE + 1}–${Math.min(currentPage * PAGE_SIZE, totalCount)} of ${totalCount} orders`}
       </p>
 
-      {/* Loading overlay for page/filter transitions */}
+      {/* Loading overlay for page transitions */}
       <div className={`space-y-3 transition-opacity ${loading ? "opacity-50" : ""}`}>
-        {/* Empty state with filters */}
-        {!loading && orders.length === 0 && statusFilter !== "all" && (
-          <div className="text-center py-8">
-            <PackageIcon className="h-10 w-10 text-slate-300 mx-auto mb-2" />
-            <p className="text-sm text-slate-500 mb-3">No orders match your filters</p>
-            <button
-              onClick={() => handleStatusChange("all")}
-              className="text-sm text-emerald-600 hover:text-emerald-700 font-medium underline"
-            >
-              Clear Filters
-            </button>
-          </div>
-        )}
-
         {/* Order cards */}
         {orders.map((order: any) => {
           const status = friendlyStatus(order.fulfillment_status || order.status);
-          const orderItems = order.items || [];
+          const orderItems = sortOrderItems(order.items || []);
           return (
             <NextLink
               key={order.id}
