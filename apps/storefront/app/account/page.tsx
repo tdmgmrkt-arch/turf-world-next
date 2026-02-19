@@ -61,6 +61,42 @@ function getItemDisplay(item: any) {
   return { title, qtyLabel, dimensions };
 }
 
+/** Image with error fallback for order line items */
+function OrderItemImage({ src, alt, size }: { src: string | null; alt: string; size: number }) {
+  const [failed, setFailed] = useState(false);
+  if (!src || failed) {
+    return (
+      <div className="h-full w-full flex items-center justify-center">
+        <PackageIcon className={size > 40 ? "h-6 w-6 text-slate-300" : "h-4 w-4 text-slate-300"} />
+      </div>
+    );
+  }
+  return (
+    <NextImage
+      src={src}
+      alt={alt}
+      width={size}
+      height={size}
+      className="h-full w-full object-cover"
+      onError={() => setFailed(true)}
+    />
+  );
+}
+
+const SORT_OPTIONS = [
+  { label: "Newest", value: "-created_at" },
+  { label: "Oldest", value: "created_at" },
+  { label: "Highest Total", value: "-total" },
+  { label: "Lowest Total", value: "total" },
+];
+
+const STATUS_FILTERS = [
+  { label: "All Orders", value: "all" },
+  { label: "Pending", value: "pending" },
+  { label: "Completed", value: "completed" },
+  { label: "Canceled", value: "canceled" },
+];
+
 type Tab = "profile" | "addresses" | "orders";
 
 function AccountDashboard() {
@@ -455,25 +491,60 @@ function AddressesTab() {
 // ============================================
 // ORDERS TAB
 // ============================================
+const PAGE_SIZE = 10;
+
 function OrdersTab() {
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [totalCount, setTotalCount] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [sortKey, setSortKey] = useState("-created_at");
+  const [statusFilter, setStatusFilter] = useState("all");
+
+  const totalPages = Math.ceil(totalCount / PAGE_SIZE);
+
+  const fetchOrders = useCallback(async () => {
+    setLoading(true);
+    try {
+      const query: any = {
+        limit: PAGE_SIZE,
+        offset: (currentPage - 1) * PAGE_SIZE,
+        order: sortKey,
+      };
+      if (statusFilter !== "all") query.status = statusFilter;
+      const res = await medusa.store.order.list(query) as any;
+      setOrders(res.orders || []);
+      setTotalCount(res.count || 0);
+    } catch {
+      // silent
+    } finally {
+      setLoading(false);
+    }
+  }, [currentPage, sortKey, statusFilter]);
 
   useEffect(() => {
-    async function fetchOrders() {
-      try {
-        const { orders: data } = await medusa.store.order.list() as any;
-        setOrders(data || []);
-      } catch {
-        // ignore
-      } finally {
-        setLoading(false);
-      }
-    }
     fetchOrders();
-  }, []);
+  }, [fetchOrders]);
 
-  if (loading) {
+  // Reset to page 1 if current page exceeds total after filter change
+  useEffect(() => {
+    if (currentPage > totalPages && totalPages > 0) {
+      setCurrentPage(totalPages);
+    }
+  }, [totalPages, currentPage]);
+
+  const handleSortChange = (v: string) => {
+    setSortKey(v);
+    setCurrentPage(1);
+  };
+
+  const handleStatusChange = (v: string) => {
+    setStatusFilter(v);
+    setCurrentPage(1);
+  };
+
+  // Initial load — show full spinner
+  if (loading && orders.length === 0 && totalCount === 0) {
     return (
       <div className="flex items-center justify-center py-12">
         <LoaderIcon className="h-6 w-6 animate-spin text-emerald-600" />
@@ -481,7 +552,8 @@ function OrdersTab() {
     );
   }
 
-  if (orders.length === 0) {
+  // No orders at all (no filters active)
+  if (!loading && totalCount === 0 && statusFilter === "all") {
     return (
       <div className="p-6 text-center py-12">
         <PackageIcon className="h-12 w-12 text-slate-300 mx-auto mb-3" />
@@ -497,72 +569,172 @@ function OrdersTab() {
   }
 
   return (
-    <div className="p-6 space-y-3">
+    <div className="p-6 space-y-4">
       <h2 className="text-lg font-semibold text-slate-900">Order History</h2>
-      {orders.map((order: any) => {
-        const status = friendlyStatus(order.fulfillment_status || order.status);
-        const orderItems = order.items || [];
-        return (
-          <NextLink
-            key={order.id}
-            href={`/account/orders/${order.id}`}
-            className="block p-4 bg-slate-50 rounded-xl border border-slate-200 hover:border-emerald-300 transition-colors"
-          >
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-slate-900">
-                  Order #{order.display_id || order.id.slice(-8)}
-                </p>
-                <p className="text-xs text-slate-500 mt-1">
-                  {new Date(order.created_at).toLocaleDateString("en-US", {
-                    year: "numeric", month: "long", day: "numeric",
-                  })}
-                </p>
-              </div>
-              <div className="text-right">
-                <p className="text-sm font-semibold text-slate-900">
-                  ${(order.total || 0).toFixed(2)}
-                </p>
-                <span className={`inline-block mt-1 px-2 py-0.5 rounded-full text-xs font-medium ${status.cls}`}>
-                  {status.label}
-                </span>
-              </div>
-            </div>
 
-            {/* Item previews with images */}
-            {orderItems.length > 0 && (
-              <div className="mt-3 pt-3 border-t border-slate-200 space-y-2">
-                {orderItems.slice(0, 4).map((item: any) => {
-                  const display = getItemDisplay(item);
-                  return (
-                    <div key={item.id} className="flex items-center gap-3">
-                      <div className="h-10 w-10 flex-shrink-0 rounded-lg bg-white overflow-hidden border border-slate-200">
-                        {item.thumbnail ? (
-                          <NextImage src={item.thumbnail} alt={display.title} width={40} height={40} className="h-full w-full object-cover" />
-                        ) : (
-                          <div className="h-full w-full flex items-center justify-center">
-                            <PackageIcon className="h-4 w-4 text-slate-300" />
-                          </div>
-                        )}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-xs font-medium text-slate-700 truncate">{display.title}</p>
-                        <p className="text-[10px] text-slate-500">
-                          {display.dimensions && <>{display.dimensions}<span className="mx-1">·</span></>}
-                          {display.qtyLabel}
-                        </p>
-                      </div>
-                    </div>
-                  );
-                })}
-                {orderItems.length > 4 && (
-                  <p className="text-[10px] text-slate-400">+{orderItems.length - 4} more items</p>
-                )}
+      {/* Sort controls */}
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-slate-500 whitespace-nowrap">Sort:</span>
+          <div className="flex gap-0.5 bg-slate-100 rounded-full p-0.5">
+            {SORT_OPTIONS.map((option) => (
+              <button
+                key={option.value}
+                onClick={() => handleSortChange(option.value)}
+                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                  sortKey === option.value
+                    ? "bg-white text-emerald-700 shadow-sm"
+                    : "text-slate-500 hover:text-slate-700"
+                }`}
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-slate-500 whitespace-nowrap">Status:</span>
+          <div className="flex gap-0.5 bg-slate-100 rounded-full p-0.5 flex-wrap">
+            {STATUS_FILTERS.map((option) => (
+              <button
+                key={option.value}
+                onClick={() => handleStatusChange(option.value)}
+                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                  statusFilter === option.value
+                    ? "bg-white text-emerald-700 shadow-sm"
+                    : "text-slate-500 hover:text-slate-700"
+                }`}
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Active filter indicator */}
+      {statusFilter !== "all" && (
+        <div className="flex items-center gap-2 text-xs">
+          <span className="text-slate-500">Filtered by:</span>
+          <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-medium">
+            {STATUS_FILTERS.find((f) => f.value === statusFilter)?.label}
+          </span>
+          <button
+            onClick={() => handleStatusChange("all")}
+            className="text-slate-400 hover:text-slate-600 underline"
+          >
+            Clear Filters
+          </button>
+        </div>
+      )}
+
+      {/* Results count */}
+      <p className="text-xs text-slate-400">
+        {totalCount === 0
+          ? "No orders found"
+          : `Showing ${(currentPage - 1) * PAGE_SIZE + 1}–${Math.min(currentPage * PAGE_SIZE, totalCount)} of ${totalCount} orders`}
+      </p>
+
+      {/* Loading overlay for page/filter transitions */}
+      <div className={`space-y-3 transition-opacity ${loading ? "opacity-50" : ""}`}>
+        {/* Empty state with filters */}
+        {!loading && orders.length === 0 && statusFilter !== "all" && (
+          <div className="text-center py-8">
+            <PackageIcon className="h-10 w-10 text-slate-300 mx-auto mb-2" />
+            <p className="text-sm text-slate-500 mb-3">No orders match your filters</p>
+            <button
+              onClick={() => handleStatusChange("all")}
+              className="text-sm text-emerald-600 hover:text-emerald-700 font-medium underline"
+            >
+              Clear Filters
+            </button>
+          </div>
+        )}
+
+        {/* Order cards */}
+        {orders.map((order: any) => {
+          const status = friendlyStatus(order.fulfillment_status || order.status);
+          const orderItems = order.items || [];
+          return (
+            <NextLink
+              key={order.id}
+              href={`/account/orders/${order.id}`}
+              className="block p-4 bg-slate-50 rounded-xl border border-slate-200 hover:border-emerald-300 transition-colors"
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-slate-900">
+                    Order #{order.display_id || order.id.slice(-8)}
+                  </p>
+                  <p className="text-xs text-slate-500 mt-1">
+                    {new Date(order.created_at).toLocaleDateString("en-US", {
+                      year: "numeric", month: "long", day: "numeric",
+                    })}
+                  </p>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm font-semibold text-slate-900">
+                    ${(order.total || 0).toFixed(2)}
+                  </p>
+                  <span className={`inline-block mt-1 px-2 py-0.5 rounded-full text-xs font-medium ${status.cls}`}>
+                    {status.label}
+                  </span>
+                </div>
               </div>
-            )}
-          </NextLink>
-        );
-      })}
+
+              {/* Item previews with images */}
+              {orderItems.length > 0 && (
+                <div className="mt-3 pt-3 border-t border-slate-200 space-y-2">
+                  {orderItems.slice(0, 4).map((item: any) => {
+                    const display = getItemDisplay(item);
+                    return (
+                      <div key={item.id} className="flex items-center gap-3">
+                        <div className="h-10 w-10 flex-shrink-0 rounded-lg bg-white overflow-hidden border border-slate-200">
+                          <OrderItemImage src={item.thumbnail} alt={display.title} size={40} />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-medium text-slate-700 truncate">{display.title}</p>
+                          <p className="text-[10px] text-slate-500">
+                            {display.dimensions && <>{display.dimensions}<span className="mx-1">·</span></>}
+                            {display.qtyLabel}
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                  {orderItems.length > 4 && (
+                    <p className="text-[10px] text-slate-400">+{orderItems.length - 4} more items</p>
+                  )}
+                </div>
+              )}
+            </NextLink>
+          );
+        })}
+      </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between pt-4 border-t border-slate-200">
+          <button
+            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+            disabled={currentPage <= 1}
+            className="h-9 px-4 rounded-xl border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          >
+            Previous
+          </button>
+          <span className="text-sm text-slate-500">
+            Page {currentPage} of {totalPages}
+          </span>
+          <button
+            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+            disabled={currentPage >= totalPages}
+            className="h-9 px-4 rounded-xl border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          >
+            Next
+          </button>
+        </div>
+      )}
     </div>
   );
 }

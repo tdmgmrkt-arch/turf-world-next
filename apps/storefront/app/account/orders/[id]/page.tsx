@@ -50,6 +50,28 @@ function getItemDisplay(item: any) {
   return { title, qtyLabel, dimensions };
 }
 
+/** Image with error fallback for order line items */
+function OrderItemImage({ src, alt, size }: { src: string | null; alt: string; size: number }) {
+  const [failed, setFailed] = useState(false);
+  if (!src || failed) {
+    return (
+      <div className="h-full w-full flex items-center justify-center">
+        <PackageIcon className={size > 40 ? "h-6 w-6 text-slate-300" : "h-4 w-4 text-slate-300"} />
+      </div>
+    );
+  }
+  return (
+    <NextImage
+      src={src}
+      alt={alt}
+      width={size}
+      height={size}
+      className="h-full w-full object-cover"
+      onError={() => setFailed(true)}
+    />
+  );
+}
+
 function OrderDetail() {
   const { id } = useParams();
   const [order, setOrder] = useState<any>(null);
@@ -134,13 +156,7 @@ function OrderDetail() {
               return (
                 <div key={item.id} className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl">
                   <div className="h-14 w-14 flex-shrink-0 rounded-lg bg-white overflow-hidden border border-slate-200">
-                    {item.thumbnail ? (
-                      <NextImage src={item.thumbnail} alt={display.title} width={56} height={56} className="h-full w-full object-cover" />
-                    ) : (
-                      <div className="h-full w-full flex items-center justify-center">
-                        <PackageIcon className="h-6 w-6 text-slate-300" />
-                      </div>
-                    )}
+                    <OrderItemImage src={item.thumbnail} alt={display.title} size={56} />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-slate-900">{display.title}</p>
