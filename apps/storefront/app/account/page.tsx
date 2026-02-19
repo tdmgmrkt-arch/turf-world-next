@@ -119,8 +119,8 @@ function AccountDashboard() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">My Account</h1>
-          <p className="text-sm text-slate-500 mt-1">
+          <h1 className="text-xl sm:text-2xl font-bold text-slate-900">My Account</h1>
+          <p className="text-sm text-slate-500 mt-1 truncate max-w-[200px] sm:max-w-none">
             {customer?.email}
           </p>
         </div>
@@ -142,13 +142,13 @@ function AccountDashboard() {
           <button
             key={key}
             onClick={() => setActiveTab(key)}
-            className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg text-sm font-medium transition-all ${
+            className={`flex-1 flex items-center justify-center gap-1.5 sm:gap-2 py-2.5 px-2 sm:px-4 rounded-lg text-xs sm:text-sm font-medium transition-all ${
               activeTab === key
                 ? "bg-emerald-50 text-emerald-700 shadow-sm"
                 : "text-slate-500 hover:text-slate-700"
             }`}
           >
-            <Icon className="h-4 w-4" />
+            <Icon className="h-4 w-4 hidden sm:block" />
             {label}
           </button>
         ))}
@@ -205,7 +205,7 @@ function ProfileTab() {
   };
 
   return (
-    <form onSubmit={handleSave} className="p-6 space-y-4">
+    <form onSubmit={handleSave} className="p-4 sm:p-6 space-y-4">
       <h2 className="text-lg font-semibold text-slate-900">Profile Information</h2>
 
       {error && (
@@ -222,7 +222,7 @@ function ProfileTab() {
         </div>
       )}
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
         <div className="space-y-2">
           <label className="text-sm font-medium text-slate-700">First Name</label>
           <input
@@ -380,7 +380,7 @@ function AddressesTab() {
   }
 
   return (
-    <div className="p-6 space-y-4">
+    <div className="p-4 sm:p-6 space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold text-slate-900">Saved Addresses</h2>
         <button
@@ -404,8 +404,8 @@ function AddressesTab() {
               className="flex-1 h-9 px-3 rounded-lg border border-dashed border-slate-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 placeholder:text-slate-400"
             />
           </div>
-          <div className="bg-slate-50 rounded-xl p-4 space-y-3 border border-slate-200">
-          <div className="grid grid-cols-2 gap-3">
+          <div className="bg-slate-50 rounded-xl p-3 sm:p-4 space-y-3 border border-slate-200">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <input
               type="text" required placeholder="First name" value={formData.first_name}
               onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
@@ -427,11 +427,11 @@ function AddressesTab() {
             onChange={(e) => setFormData({ ...formData, address_2: e.target.value })}
             className="w-full h-10 px-3 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
           />
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             <input
               type="text" required placeholder="City" value={formData.city}
               onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-              className="h-10 px-3 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              className="col-span-2 sm:col-span-1 h-10 px-3 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
             />
             <input
               type="text" required placeholder="State" value={formData.province}
@@ -573,7 +573,7 @@ function OrdersTab() {
   }
 
   return (
-    <div className="p-6 space-y-4">
+    <div className="p-4 sm:p-6 space-y-4">
       <h2 className="text-lg font-semibold text-slate-900">Order History</h2>
 
       {/* Sort controls */}
@@ -613,7 +613,7 @@ function OrdersTab() {
             <NextLink
               key={order.id}
               href={`/account/orders/${order.id}`}
-              className="block p-4 bg-slate-50 rounded-xl border border-slate-200 hover:border-emerald-300 transition-colors"
+              className="block p-3 sm:p-4 bg-slate-50 rounded-xl border border-slate-200 hover:border-emerald-300 transition-colors"
             >
               <div className="flex items-center justify-between">
                 <div>
@@ -672,17 +672,17 @@ function OrdersTab() {
           <button
             onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
             disabled={currentPage <= 1}
-            className="h-9 px-4 rounded-xl border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            className="h-9 px-3 sm:px-4 rounded-xl border border-slate-200 text-xs sm:text-sm font-medium text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           >
             Previous
           </button>
-          <span className="text-sm text-slate-500">
+          <span className="text-xs sm:text-sm text-slate-500">
             Page {currentPage} of {totalPages}
           </span>
           <button
             onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
             disabled={currentPage >= totalPages}
-            className="h-9 px-4 rounded-xl border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            className="h-9 px-3 sm:px-4 rounded-xl border border-slate-200 text-xs sm:text-sm font-medium text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           >
             Next
           </button>

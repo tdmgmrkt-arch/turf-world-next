@@ -134,7 +134,7 @@ function OrderDetail() {
   const status = friendlyStatus(order.fulfillment_status || order.status);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Back link */}
       <NextLink
         href="/account"
@@ -146,46 +146,48 @@ function OrderDetail() {
 
       {/* Order Header */}
       <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
-        <div className="bg-gradient-to-r from-slate-900 to-slate-800 px-6 py-5">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
-              <PackageIcon className="w-5 h-5 text-white" />
+        <div className="bg-gradient-to-r from-slate-900 to-slate-800 px-4 sm:px-6 py-4 sm:py-5">
+          <div className="flex items-start sm:items-center gap-3">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-white/10 flex items-center justify-center flex-shrink-0">
+              <PackageIcon className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
             </div>
-            <div>
-              <h1 className="text-lg font-bold text-white">
-                Order #{order.display_id || order.id.slice(-8)}
-              </h1>
-              <p className="text-sm text-white/60">
+            <div className="flex-1 min-w-0">
+              <div className="flex items-start justify-between gap-2">
+                <h1 className="text-base sm:text-lg font-bold text-white">
+                  Order #{order.display_id || order.id.slice(-8)}
+                </h1>
+                <span className={`flex-shrink-0 px-2.5 py-1 rounded-full text-xs font-medium ${status.cls}`}>
+                  {status.label}
+                </span>
+              </div>
+              <p className="text-xs sm:text-sm text-white/60 mt-0.5">
                 Placed {new Date(order.created_at).toLocaleDateString("en-US", {
                   year: "numeric", month: "long", day: "numeric",
                 })}
               </p>
             </div>
-            <span className={`ml-auto px-3 py-1 rounded-full text-xs font-medium ${status.cls}`}>
-              {status.label}
-            </span>
           </div>
         </div>
 
         {/* Items */}
-        <div className="p-6 space-y-4">
+        <div className="p-4 sm:p-6 space-y-4">
           <h2 className="text-sm font-semibold text-slate-900 uppercase tracking-wider">Items</h2>
-          <div className="space-y-3">
+          <div className="space-y-2 sm:space-y-3">
             {sortOrderItems(order.items || []).map((item: any) => {
               const display = getItemDisplay(item);
               return (
-                <div key={item.id} className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl">
-                  <div className="h-14 w-14 flex-shrink-0 rounded-lg bg-white overflow-hidden border border-slate-200">
+                <div key={item.id} className="flex items-center gap-2.5 sm:gap-3 p-2.5 sm:p-3 bg-slate-50 rounded-xl">
+                  <div className="h-12 w-12 sm:h-14 sm:w-14 flex-shrink-0 rounded-lg bg-white overflow-hidden border border-slate-200">
                     <OrderItemImage src={item.thumbnail} alt={display.title} size={56} />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-slate-900">{display.title}</p>
-                    <p className="text-xs text-slate-500">
+                    <p className="text-xs sm:text-sm font-medium text-slate-900 truncate">{display.title}</p>
+                    <p className="text-[10px] sm:text-xs text-slate-500">
                       {display.dimensions && <>{display.dimensions}<span className="mx-1">·</span></>}
                       {display.qtyLabel}
                     </p>
                   </div>
-                  <p className="text-sm font-semibold text-slate-900 flex-shrink-0">
+                  <p className="text-xs sm:text-sm font-semibold text-slate-900 flex-shrink-0">
                     ${(item.unit_price * item.quantity).toFixed(2)}
                   </p>
                 </div>
@@ -199,7 +201,7 @@ function OrderDetail() {
               <h2 className="text-sm font-semibold text-slate-900 uppercase tracking-wider pt-4">
                 Shipping Address
               </h2>
-              <div className="text-sm text-slate-600 bg-slate-50 p-4 rounded-xl">
+              <div className="text-xs sm:text-sm text-slate-600 bg-slate-50 p-3 sm:p-4 rounded-xl">
                 <p>{shippingAddr.first_name} {shippingAddr.last_name}</p>
                 <p>{shippingAddr.address_1}{shippingAddr.address_2 ? `, ${shippingAddr.address_2}` : ""}</p>
                 <p>{shippingAddr.city}, {shippingAddr.province} {shippingAddr.postal_code}</p>
@@ -211,7 +213,7 @@ function OrderDetail() {
           <h2 className="text-sm font-semibold text-slate-900 uppercase tracking-wider pt-4">
             Payment Summary
           </h2>
-          <div className="bg-slate-50 p-4 rounded-xl space-y-2 text-sm">
+          <div className="bg-slate-50 p-3 sm:p-4 rounded-xl space-y-2 text-xs sm:text-sm">
             <div className="flex justify-between text-slate-600">
               <span>Subtotal</span>
               <span>${(order.subtotal || 0).toFixed(2)}</span>
