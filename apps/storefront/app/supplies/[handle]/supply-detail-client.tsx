@@ -238,33 +238,33 @@ export default function SupplyDetailClient({ accessory, relatedAccessories }: Su
               )}
             </div>
 
-            {/* Title */}
-            <div>
-              <h1 className="text-3xl sm:text-4xl font-bold">{accessory.name}</h1>
-              <p className="mt-2 text-muted-foreground">{accessory.size}</p>
-            </div>
-
-            {/* Price */}
-            <div>
-              {accessory.comparePriceCents && (
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="text-base text-slate-400 line-through">
-                    {formatPrice(accessory.comparePriceCents)}
-                  </span>
-                  <span className="text-sm font-bold text-rose-600 bg-rose-50 px-2.5 py-1 rounded">
-                    {Math.round((1 - accessory.priceCents / accessory.comparePriceCents) * 100)}% OFF
+            {/* Title + Price Row */}
+            <div className="flex flex-row items-start justify-between gap-3">
+              <div>
+                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold">{accessory.name}</h1>
+                {accessory.size && <p className="mt-2 text-muted-foreground">{accessory.size}</p>}
+              </div>
+              <div className="flex-shrink-0">
+                {accessory.comparePriceCents && (
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-xs sm:text-base text-slate-400 line-through">
+                      {formatPrice(accessory.comparePriceCents)}
+                    </span>
+                    <span className="text-xs sm:text-sm font-bold text-rose-600 bg-rose-50 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded">
+                      {Math.round((1 - accessory.priceCents / accessory.comparePriceCents) * 100)}% OFF
+                    </span>
+                  </div>
+                )}
+                <div className="flex items-baseline gap-2">
+                  <span className={cn(
+                    "text-2xl sm:text-4xl font-bold",
+                    accessory.comparePriceCents
+                      ? "text-rose-600"
+                      : "text-transparent bg-clip-text bg-gradient-to-r from-primary to-emerald-600"
+                  )}>
+                    {formatPrice(accessory.priceCents)}
                   </span>
                 </div>
-              )}
-              <div className="flex items-baseline gap-2">
-                <span className={cn(
-                  "text-4xl font-bold",
-                  accessory.comparePriceCents
-                    ? "text-rose-600"
-                    : "text-transparent bg-clip-text bg-gradient-to-r from-primary to-emerald-600"
-                )}>
-                  {formatPrice(accessory.priceCents)}
-                </span>
               </div>
             </div>
 

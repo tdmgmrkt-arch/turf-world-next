@@ -480,7 +480,7 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
         {/* Product Header - Full Width */}
         <div className="mb-6 lg:mb-8">
           {/* Top Row: Title/Reviews on left, Price on right */}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="flex flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
             {/* Left: Category, Title, Reviews */}
             <div>
               <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground uppercase tracking-wider mb-1">
@@ -527,7 +527,7 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
 
             {/* Right: Pricing Card */}
             <div className={cn(
-              "border rounded-lg px-4 py-2 sm:mt-2 flex-shrink-0",
+              "border rounded-lg px-3 sm:px-4 py-2 sm:mt-2 flex-shrink-0 w-fit",
               product.comparePriceCents
                 ? "bg-rose-50 border-rose-200"
                 : "bg-slate-50 border-slate-100"
@@ -544,12 +544,12 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
               )}
               <div className="flex items-baseline gap-1 sm:text-right">
                 <span className={cn(
-                  "text-3xl lg:text-4xl font-bold",
+                  "text-2xl sm:text-3xl lg:text-4xl font-bold",
                   product.comparePriceCents ? "text-rose-600" : "text-slate-600"
                 )}>
                   {formatPrice(product.priceCents)}
                 </span>
-                <span className="text-lg text-slate-500">/sq ft</span>
+                <span className="text-sm sm:text-lg text-slate-500">/sq ft</span>
               </div>
             </div>
           </div>
