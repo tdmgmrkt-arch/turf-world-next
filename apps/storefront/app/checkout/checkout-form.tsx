@@ -28,6 +28,8 @@ import {
   Trash2,
   Minus,
   Plus,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 import { Button as ShadcnButton } from "@/components/ui/button";
 import { Input as ShadcnInput } from "@/components/ui/input";
@@ -285,6 +287,174 @@ function PaymentForm({
         </div>
       </div>
     </form>
+  );
+}
+
+/** Post-purchase account creation for guest customers */
+function PostPurchaseSignup({ email, firstName, lastName }: {
+  email: string;
+  firstName: string;
+  lastName: string;
+}) {
+  const { setCustomer, setAuthenticated } = useAuthStore();
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [status, setStatus] = useState<"idle" | "loading" | "success" | "exists" | "error">("idle");
+  const [errorMsg, setErrorMsg] = useState("");
+
+  const handleCreateAccount = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (password.length < 6) {
+      setErrorMsg("Password must be at least 6 characters");
+      return;
+    }
+
+    setStatus("loading");
+    setErrorMsg("");
+
+    try {
+      // Step 1: Register auth identity
+      await medusa.auth.register("customer", "emailpass", {
+        email,
+        password,
+      });
+
+      // Step 2: Create customer profile
+      const { customer: profile } = await medusa.store.customer.create({
+        email,
+        first_name: firstName,
+        last_name: lastName,
+      }) as any;
+
+      // Step 3: Login to get session token
+      await medusa.auth.login("customer", "emailpass", {
+        email,
+        password,
+      });
+
+      setCustomer(profile);
+      setAuthenticated(true);
+      setStatus("success");
+    } catch (err: any) {
+      const msg = err?.message || "";
+      // Medusa returns an error if the identity already exists
+      if (msg.includes("exists") || msg.includes("already") || msg.includes("Identity")) {
+        setStatus("exists");
+      } else {
+        setErrorMsg(msg || "Registration failed. Please try again.");
+        setStatus("error");
+      }
+    }
+  };
+
+  if (status === "success") {
+    return (
+      <div className="pt-4 border-t border-slate-200">
+        <div className="flex items-center gap-3 bg-emerald-50 border border-emerald-200 rounded-xl p-4">
+          <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center flex-shrink-0">
+            <Check className="w-4 h-4 text-emerald-600" />
+          </div>
+          <div>
+            <p className="font-medium text-emerald-900">Account Created!</p>
+            <p className="text-sm text-emerald-700">You can now track orders and manage your account.</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (status === "exists") {
+    return (
+      <div className="pt-4 border-t border-slate-200">
+        <div className="flex items-start gap-3 bg-blue-50 border border-blue-200 rounded-xl p-4">
+          <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
+            <User className="w-4 h-4 text-blue-600" />
+          </div>
+          <div>
+            <p className="font-medium text-blue-900">Account Already Exists</p>
+            <p className="text-sm text-blue-700">
+              An account with <span className="font-medium">{email}</span> already exists.{" "}
+              <Link href="/account/login" className="underline font-semibold text-blue-800 hover:text-blue-900">
+                Log in
+              </Link>{" "}
+              to track your orders.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="pt-4 border-t border-slate-200">
+      <form onSubmit={handleCreateAccount} className="bg-slate-50 rounded-xl border border-slate-200 p-4 space-y-3">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center flex-shrink-0">
+            <User className="w-4 h-4 text-emerald-600" />
+          </div>
+          <div>
+            <p className="font-medium text-slate-900">Create an Account</p>
+            <p className="text-sm text-slate-500">Track your order and manage future purchases</p>
+          </div>
+        </div>
+
+        <div className="space-y-1.5">
+          <Label htmlFor="signup-email" className="text-xs font-medium text-slate-500">Email</Label>
+          <Input
+            id="signup-email"
+            type="email"
+            value={email}
+            disabled
+            className="h-10 rounded-xl border-slate-200 bg-white text-sm text-slate-500"
+          />
+        </div>
+
+        <div className="space-y-1.5">
+          <Label htmlFor="signup-password" className="text-xs font-medium text-slate-700">Choose a Password</Label>
+          <div className="relative">
+            <Input
+              id="signup-password"
+              type={showPassword ? "text" : "password"}
+              value={password}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
+              placeholder="At least 6 characters"
+              required
+              minLength={6}
+              className="h-10 pr-10 rounded-xl border-slate-200 bg-white text-sm"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+            >
+              {showPassword ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+            </button>
+          </div>
+        </div>
+
+        {status === "error" && errorMsg && (
+          <div className="flex items-center gap-2 text-xs text-red-600 bg-red-50 p-3 rounded-lg border border-red-100">
+            <AlertCircle className="h-3.5 w-3.5 flex-shrink-0" />
+            {errorMsg}
+          </div>
+        )}
+
+        <Button
+          type="submit"
+          disabled={status === "loading" || password.length < 6}
+          className="w-full h-10 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-sm font-semibold"
+        >
+          {status === "loading" ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Creating Account...
+            </>
+          ) : (
+            "Create Account"
+          )}
+        </Button>
+      </form>
+    </div>
   );
 }
 
@@ -1232,6 +1402,15 @@ export function CheckoutForm() {
                   </>
                 )}
               </div>
+
+              {/* Post-purchase account creation (guest only) */}
+              {!isAuthenticated && contact.email && (
+                <PostPurchaseSignup
+                  email={contact.email}
+                  firstName={shipping.firstName}
+                  lastName={shipping.lastName}
+                />
+              )}
 
               {/* Actions */}
               <div className="pt-4 border-t border-slate-200 flex flex-col sm:flex-row gap-3">
