@@ -83,7 +83,7 @@ const stats = [
   { value: "50K+", label: "Happy Customers" },
   { value: "16yr", label: "Warranty" },
   { value: "4.9", label: "Star Rating", icon: Star },
-  { value: "Free", label: "Shipping" },
+  { value: "Nationwide", label: "Shipping" },
 ];
 
 const features = [
