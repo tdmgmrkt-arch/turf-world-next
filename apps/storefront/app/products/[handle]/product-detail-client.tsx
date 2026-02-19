@@ -480,7 +480,7 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
         {/* Product Header - Full Width */}
         <div className="mb-6 lg:mb-8">
           {/* Top Row: Title/Reviews on left, Price on right */}
-          <div className="flex flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
+          <div className="flex flex-row items-center justify-between gap-3 sm:gap-4">
             {/* Left: Category, Title, Reviews */}
             <div>
               <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground uppercase tracking-wider mb-1">
@@ -527,7 +527,7 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
 
             {/* Right: Pricing Card */}
             <div className={cn(
-              "border rounded-lg px-3 sm:px-4 py-2 mt-5 sm:mt-0 flex-shrink-0 w-fit",
+              "border rounded-lg px-3 sm:px-4 py-2 flex-shrink-0 w-fit",
               product.comparePriceCents
                 ? "bg-rose-50 border-rose-200"
                 : "bg-slate-50 border-slate-100"
