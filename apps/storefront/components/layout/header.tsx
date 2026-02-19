@@ -106,25 +106,25 @@ const turfCategories = [
 const supplyCategories = [
   {
     title: "Infill",
-    href: "/supplies#infill",
+    href: "/supplies?use=infill",
     description: "Weight/support & odor control",
     image: "/products/infill.webp",
   },
   {
     title: "Seaming",
-    href: "/supplies#seaming",
+    href: "/supplies?use=seaming",
     description: "Join turf pieces seamlessly",
     image: "/products/seamtape.webp",
   },
   {
     title: "Installation",
-    href: "/supplies#installation",
+    href: "/supplies?use=installation",
     description: "Nails, weed barrier & more",
     image: "/products/weedbarrier.webp",
   },
   {
     title: "Tools",
-    href: "/supplies#tools",
+    href: "/supplies?use=tools",
     description: "Finishing touches",
     image: "/products/nails.webp",
   },
