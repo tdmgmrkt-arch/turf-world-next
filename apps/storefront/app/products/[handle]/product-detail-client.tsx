@@ -527,7 +527,7 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
 
             {/* Right: Pricing Card */}
             <div className={cn(
-              "border rounded-lg px-3 sm:px-4 py-2 mt-5 sm:mt-2 flex-shrink-0 w-fit",
+              "border rounded-lg px-3 sm:px-4 py-2 mt-5 sm:mt-1 flex-shrink-0 w-fit",
               product.comparePriceCents
                 ? "bg-rose-50 border-rose-200"
                 : "bg-slate-50 border-slate-100"
