@@ -563,17 +563,24 @@ export function CheckoutForm() {
       // option's price from the pricing module and stores it on the method. If we update
       // after the fact, Medusa recalculates the cart total from the option price ($0) when
       // creating the payment collection, discarding any post-hoc method amount changes.
+      // The endpoint also returns the IDs of the delivery options it updated so we can
+      // pass them to addShippingMethod for exact-ID filtering (avoids name-heuristic bugs
+      // like "Standard Shipping (Will Call)" being incorrectly excluded).
+      let deliveryOptionIds: string[] | undefined;
       try {
-        await updateShippingPrice(shippingCost);
+        const result = await updateShippingPrice(shippingCost);
+        deliveryOptionIds = result.optionIds;
+        console.log(`[checkout] Step 3 done — shippingCost=${shippingCost}, deliveryOptionIds=${JSON.stringify(deliveryOptionIds)}`);
       } catch (err: any) {
         console.error("Step 3 (updateShippingPrice) failed:", err);
         setPaymentError("Failed to set shipping cost. Please try again.");
         return;
       }
 
-      // Step 3.5: Add Medusa shipping method (now picks up the correct price from the option)
+      // Step 3.5: Add Medusa shipping method (now picks up the correct price from the option).
+      // Pass deliveryOptionIds so it filters by exact IDs, not fragile name heuristics.
       try {
-        await addShippingMethod();
+        await addShippingMethod(deliveryOptionIds);
       } catch (err: any) {
         console.error("Step 3.5 (addShippingMethod) failed:", err);
         setPaymentError("Failed to set shipping method. Please try again.");

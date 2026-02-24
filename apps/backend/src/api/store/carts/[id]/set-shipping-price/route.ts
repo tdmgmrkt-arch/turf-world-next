@@ -86,7 +86,10 @@ export async function POST(
     }
 
     console.log(`[set-shipping-price] Done — updated ${updatedCount} price(s) to $${amountMajor}`);
-    res.json({ success: true, updated: updatedCount });
+    // Return optionIds so the storefront can filter addShippingMethod by exact IDs
+    // instead of relying on name-based heuristics (which incorrectly filters options
+    // like "Standard Shipping (Will Call)" that contain "will call" in the name).
+    res.json({ success: true, updated: updatedCount, optionIds });
   } catch (err: any) {
     console.error("[set-shipping-price] Error:", err);
     res.status(500).json({ error: err.message || "Failed to update shipping price" });

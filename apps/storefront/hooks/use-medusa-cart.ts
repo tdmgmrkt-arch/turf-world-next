@@ -341,8 +341,11 @@ export function useMedusaCart() {
     }
   }, [cartId]);
 
-  // Add a Medusa shipping method to the cart (REQUIRED before payment/completion)
-  const addShippingMethod = useCallback(async () => {
+  // Add a Medusa shipping method to the cart (REQUIRED before payment/completion).
+  // Pass deliveryOptionIds (from updateShippingPrice) to filter by exact option IDs
+  // instead of name heuristics, which can incorrectly exclude options like
+  // "Standard Shipping (Will Call)" that contain "will call" in the name.
+  const addShippingMethod = useCallback(async (deliveryOptionIds?: string[]) => {
     const activeCartId = getActiveCartId() || cartId;
     if (!activeCartId) throw new Error("No cart ID for shipping method");
 
@@ -375,16 +378,24 @@ export function useMedusaCart() {
         (opt: any) => opt.amount !== undefined && opt.amount !== null
       );
 
-      // Exclude pickup / will-call options (e.g. "Pomona") — Medusa's /store/shipping-options
-      // returns both "shipping" and "pickup" type options. Pickup options are always $0 and
-      // must not be used for delivery orders. We always use delivery options and control the
-      // price via the pricing module (updateShippingPrice handles $0 for will-call too).
-      const deliveryOptions = optionsWithPrices.filter(
-        (opt: any) => !/pomona|will.?call|pickup/i.test(opt.name || "")
-      );
-      const filteredOptions = deliveryOptions.length > 0 ? deliveryOptions : optionsWithPrices;
+      // Prefer filtering by the exact IDs returned from set-shipping-price — those are
+      // guaranteed to be delivery (non-pickup) options from "shipping" type fulfillment sets.
+      // Fall back to a name-based heuristic only if no IDs were provided.
+      let filteredOptions: any[];
+      if (deliveryOptionIds && deliveryOptionIds.length > 0) {
+        const byId = optionsWithPrices.filter((opt: any) => deliveryOptionIds.includes(opt.id));
+        filteredOptions = byId.length > 0 ? byId : optionsWithPrices;
+      } else {
+        // Fallback: exclude options whose name looks like a pickup/will-call location.
+        // NOTE: this can incorrectly filter "Standard Shipping (Will Call)" if a profile
+        // named "Will Call" exists — prefer passing deliveryOptionIds from updateShippingPrice.
+        const deliveryOptions = optionsWithPrices.filter(
+          (opt: any) => !/pomona|will.?call|pickup/i.test(opt.name || "")
+        );
+        filteredOptions = deliveryOptions.length > 0 ? deliveryOptions : optionsWithPrices;
+      }
 
-      console.log(`Shipping options: ${shipping_options?.length || 0} total, ${optionsWithPrices.length} with prices, ${filteredOptions.length} after pickup filter`);
+      console.log(`Shipping options: ${shipping_options?.length || 0} total, ${optionsWithPrices.length} with prices, ${filteredOptions.length} after delivery filter (ids provided: ${deliveryOptionIds ? deliveryOptionIds.length : "none"})`);
 
       if (optionsWithPrices.length === 0) {
         throw new Error(
@@ -434,8 +445,10 @@ export function useMedusaCart() {
   }, [cartId, refreshCart]);
 
   // Sync the storefront-calculated shipping cost into Medusa so Stripe charges
-  // the correct amount. Must be called after addShippingMethod.
-  const updateShippingPrice = useCallback(async (amountCents: number) => {
+  // the correct amount. Must be called BEFORE addShippingMethod.
+  // Returns the IDs of the delivery shipping options that were updated, so
+  // addShippingMethod can filter by exact IDs instead of fragile name heuristics.
+  const updateShippingPrice = useCallback(async (amountCents: number): Promise<{ optionIds: string[] }> => {
     const activeCartId = getActiveCartId() || cartId;
     if (!activeCartId) throw new Error("No cart ID for updateShippingPrice");
 
@@ -458,6 +471,9 @@ export function useMedusaCart() {
       const errBody = await res.text();
       throw new Error(`Failed to update shipping price (${res.status}): ${errBody}`);
     }
+
+    const data = await res.json();
+    return { optionIds: data.optionIds || [] };
   }, [cartId]);
 
   return {
