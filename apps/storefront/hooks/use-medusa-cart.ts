@@ -424,6 +424,33 @@ export function useMedusaCart() {
     }
   }, [cartId, refreshCart]);
 
+  // Sync the storefront-calculated shipping cost into Medusa so Stripe charges
+  // the correct amount. Must be called after addShippingMethod.
+  const updateShippingPrice = useCallback(async (amountCents: number) => {
+    const activeCartId = getActiveCartId() || cartId;
+    if (!activeCartId) throw new Error("No cart ID for updateShippingPrice");
+
+    const baseUrl = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "http://localhost:9000";
+    const pubKey = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || "";
+
+    const res = await fetch(
+      `${baseUrl}/store/carts/${activeCartId}/set-shipping-price`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-publishable-api-key": pubKey,
+        },
+        body: JSON.stringify({ amount_cents: amountCents }),
+      }
+    );
+
+    if (!res.ok) {
+      const errBody = await res.text();
+      throw new Error(`Failed to update shipping price (${res.status}): ${errBody}`);
+    }
+  }, [cartId]);
+
   return {
     cart: medusaCart,
     isLoading,
@@ -437,5 +464,6 @@ export function useMedusaCart() {
     updateShippingAddress,
     createPaymentSession,
     addShippingMethod,
+    updateShippingPrice,
   };
 }

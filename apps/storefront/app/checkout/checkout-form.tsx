@@ -419,6 +419,7 @@ export function CheckoutForm() {
     createPaymentSession,
     syncLocalCartToMedusa,
     addShippingMethod,
+    updateShippingPrice,
   } = useMedusaCart();
 
   const [currentStep, setCurrentStep] = useState<Step>("information");
@@ -559,6 +560,16 @@ export function CheckoutForm() {
       } catch (err: any) {
         console.error("Step 3 (addShippingMethod) failed:", err);
         setPaymentError("Failed to set shipping method. Please try again.");
+        return;
+      }
+
+      // Step 3.5: Sync the storefront-calculated shipping cost into Medusa
+      // so Stripe charges the correct amount (shipping options are seeded at $0)
+      try {
+        await updateShippingPrice(shippingCost);
+      } catch (err: any) {
+        console.error("Step 3.5 (updateShippingPrice) failed:", err);
+        setPaymentError("Failed to set shipping cost. Please try again.");
         return;
       }
 
