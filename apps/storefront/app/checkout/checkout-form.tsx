@@ -420,6 +420,7 @@ export function CheckoutForm() {
     syncLocalCartToMedusa,
     addShippingMethod,
     updateShippingPrice,
+    updateCartMetadata,
   } = useMedusaCart();
 
   const [currentStep, setCurrentStep] = useState<Step>("information");
@@ -537,6 +538,25 @@ export function CheckoutForm() {
         console.error("Step 1 (syncLocalCartToMedusa) failed:", err);
         setPaymentError("Failed to sync cart items. Please try again.");
         return;
+      }
+
+      // Step 1.5: Record selected shipping option in cart metadata so it shows up on the
+      // Medusa order for admin reference. Non-fatal — a failure here must not block checkout.
+      try {
+        const isWillCall = selectedShipping.startsWith("willcall-");
+        if (isWillCall) {
+          const loc = WILL_CALL_LOCATIONS.find(l => l.id === selectedShipping);
+          await updateCartMetadata({
+            shipping_type: "will-call",
+            pickup_location_id: selectedShipping,
+            pickup_location_name: loc?.name ?? selectedShipping,
+            pickup_location_address: loc ? `${loc.address}, ${loc.city}, ${loc.state} ${loc.zip}` : "",
+          });
+        } else {
+          await updateCartMetadata({ shipping_type: selectedShipping }); // "nextday" or "freight"
+        }
+      } catch (err) {
+        console.warn("Step 1.5 (updateCartMetadata) failed:", err);
       }
 
       // Step 2: Update shipping address + email (email required for order completion)

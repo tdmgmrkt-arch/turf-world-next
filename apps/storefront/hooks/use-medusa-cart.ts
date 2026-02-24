@@ -245,6 +245,12 @@ export function useMedusaCart() {
     }
   }, [cartId, setCartId]);
 
+  const updateCartMetadata = useCallback(async (metadata: Record<string, any>) => {
+    const activeCartId = getActiveCartId() || cartId;
+    if (!activeCartId) return;
+    await medusa.store.cart.update(activeCartId, { metadata });
+  }, [cartId]);
+
   const updateShippingAddress = useCallback(async (
     address: {
       first_name: string;
@@ -486,6 +492,7 @@ export function useMedusaCart() {
     syncLocalCartToMedusa,
     completeCheckout,
     refreshCart,
+    updateCartMetadata,
     updateShippingAddress,
     createPaymentSession,
     addShippingMethod,
