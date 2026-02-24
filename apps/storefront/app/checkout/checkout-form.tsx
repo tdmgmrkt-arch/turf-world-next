@@ -558,22 +558,25 @@ export function CheckoutForm() {
         return;
       }
 
-      // Step 3: Add Medusa shipping method (required for payment collection)
-      try {
-        await addShippingMethod();
-      } catch (err: any) {
-        console.error("Step 3 (addShippingMethod) failed:", err);
-        setPaymentError("Failed to set shipping method. Please try again.");
-        return;
-      }
-
-      // Step 3.5: Sync the storefront-calculated shipping cost into Medusa
-      // so Stripe charges the correct amount (shipping options are seeded at $0)
+      // Step 3: Update the Medusa shipping option price to the storefront-calculated amount.
+      // Must happen BEFORE addShippingMethod — when the method is created, Medusa reads the
+      // option's price from the pricing module and stores it on the method. If we update
+      // after the fact, Medusa recalculates the cart total from the option price ($0) when
+      // creating the payment collection, discarding any post-hoc method amount changes.
       try {
         await updateShippingPrice(shippingCost);
       } catch (err: any) {
-        console.error("Step 3.5 (updateShippingPrice) failed:", err);
+        console.error("Step 3 (updateShippingPrice) failed:", err);
         setPaymentError("Failed to set shipping cost. Please try again.");
+        return;
+      }
+
+      // Step 3.5: Add Medusa shipping method (now picks up the correct price from the option)
+      try {
+        await addShippingMethod();
+      } catch (err: any) {
+        console.error("Step 3.5 (addShippingMethod) failed:", err);
+        setPaymentError("Failed to set shipping method. Please try again.");
         return;
       }
 

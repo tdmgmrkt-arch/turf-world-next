@@ -1,25 +1,28 @@
 import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http";
-import { Modules } from "@medusajs/framework/utils";
+import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
 
 /**
  * POST /store/carts/:id/set-shipping-price
  *
- * Updates the shipping method amount on a cart so that Medusa/Stripe
- * charge the correct shipping cost calculated on the storefront.
+ * Updates the shipping option price in the pricing module so that when the
+ * storefront subsequently calls addShippingMethod, Medusa creates the cart
+ * shipping method at the correct amount.
+ *
+ * IMPORTANT: Must be called BEFORE addShippingMethod, not after. When Medusa
+ * creates a payment collection it recalculates cart totals from the shipping
+ * option's stored price — so the option price must be correct at method-creation
+ * time. Post-hoc updates to the shipping method amount are overridden.
  *
  * Body: { amount_cents: number }  — shipping cost in cents (e.g. 15000 = $150)
  *
- * The storefront calculates shipping locally (next-day $150, LTL 10% of subtotal,
- * will-call $0). This endpoint syncs that calculated price into Medusa so the
- * payment collection and Stripe charge include the correct amount.
- *
- * Medusa stores amounts in major currency units (dollars), so we divide by 100.
+ * Updates all shipping options in "shipping" type fulfillment sets (excludes
+ * will-call/pickup options). Since this is a single-vendor store with low
+ * concurrent checkout volume, shared option price updates are safe.
  */
 export async function POST(
   req: MedusaRequest,
   res: MedusaResponse
 ): Promise<void> {
-  const cartId = req.params.id;
   const { amount_cents } = req.body as { amount_cents: number };
 
   if (typeof amount_cents !== "number" || amount_cents < 0) {
@@ -28,40 +31,62 @@ export async function POST(
   }
 
   try {
-    const cartService = req.scope.resolve(Modules.CART) as any;
+    const fulfillmentModule = req.scope.resolve("fulfillment") as any;
+    const pricingModule = req.scope.resolve("pricing") as any;
+    const query = req.scope.resolve(ContainerRegistrationKeys.QUERY) as any;
 
-    // Retrieve the cart with its shipping methods
-    const [cart] = await cartService.listCarts(
-      { id: [cartId] },
-      { relations: ["shipping_methods"] }
-    );
-
-    if (!cart) {
-      res.status(404).json({ error: "Cart not found" });
-      return;
-    }
-
-    const shippingMethods = cart.shipping_methods || [];
-
-    if (shippingMethods.length === 0) {
-      res.status(400).json({ error: "No shipping methods found on cart" });
-      return;
-    }
-
-    // Medusa stores amounts in major currency units (dollars)
     const amountMajor = amount_cents / 100;
 
-    // Put the full shipping cost on the first method, $0 on the rest.
-    // Carts may have one method per shipping profile — all profiles need a method
-    // for cart completion to succeed, but only one should carry the shipping cost.
-    const updates = shippingMethods.map((sm: any, i: number) => ({
-      id: sm.id,
-      amount: i === 0 ? amountMajor : 0,
-    }));
+    // 1. Find all fulfillment sets of type "shipping" (excludes "pickup" / will-call)
+    const fulfillmentSets = await fulfillmentModule.listFulfillmentSets(
+      { type: "shipping" },
+      { relations: ["service_zones"] }
+    );
 
-    await cartService.updateShippingMethods(updates);
+    const serviceZoneIds = fulfillmentSets.flatMap(
+      (fs: any) => (fs.service_zones || []).map((sz: any) => sz.id)
+    );
 
-    res.json({ success: true });
+    if (serviceZoneIds.length === 0) {
+      console.log("[set-shipping-price] No shipping service zones found");
+      res.json({ success: true });
+      return;
+    }
+
+    // 2. Get all shipping options for those service zones
+    const shippingOptions = await fulfillmentModule.listShippingOptions({
+      service_zone_id: serviceZoneIds,
+    });
+
+    if (shippingOptions.length === 0) {
+      console.log("[set-shipping-price] No shipping options found in service zones");
+      res.json({ success: true });
+      return;
+    }
+
+    const optionIds = shippingOptions.map((o: any) => o.id);
+
+    // 3. Query the prices for these options (via the pricing module link)
+    const { data: optionsWithPrices } = await query.graph({
+      entity: "shipping_option",
+      fields: ["id", "prices.*"],
+      filters: { id: optionIds },
+    });
+
+    // 4. Update each USD price to the new amount
+    let updatedCount = 0;
+    for (const opt of optionsWithPrices) {
+      for (const price of opt.prices || []) {
+        if (price.currency_code === "usd") {
+          await pricingModule.updatePrices([{ id: price.id, amount: amountMajor }]);
+          console.log(`[set-shipping-price] Updated option "${opt.id}" price to ${amountMajor} (${amount_cents} cents)`);
+          updatedCount++;
+        }
+      }
+    }
+
+    console.log(`[set-shipping-price] Done — updated ${updatedCount} price(s) to $${amountMajor}`);
+    res.json({ success: true, updated: updatedCount });
   } catch (err: any) {
     console.error("[set-shipping-price] Error:", err);
     res.status(500).json({ error: err.message || "Failed to update shipping price" });
