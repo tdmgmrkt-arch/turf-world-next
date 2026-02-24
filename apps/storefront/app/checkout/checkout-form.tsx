@@ -497,10 +497,14 @@ export function CheckoutForm() {
   const subtotal = items.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0);
   const shippingOptions = getShippingOptions(shipping.zip, subtotal, items);
 
-  // Always auto-select cheapest (first) option when zip, cart, or subtotal changes
+  // Auto-select cheapest option on first load or when zip changes to a different region.
+  // Preserve the user's selection if it's still available in the new options list.
   useEffect(() => {
     if (shippingOptions.length > 0) {
-      setSelectedShipping(shippingOptions[0].id);
+      setSelectedShipping(prev => {
+        const stillValid = shippingOptions.some(o => o.id === prev);
+        return stillValid ? prev : shippingOptions[0].id;
+      });
     }
   }, [shipping.zip, subtotal, items]);
 
