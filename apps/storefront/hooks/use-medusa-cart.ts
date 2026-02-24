@@ -450,16 +450,20 @@ export function useMedusaCart() {
     }
   }, [cartId, refreshCart]);
 
-  // Sync the storefront-calculated shipping cost into Medusa so Stripe charges
-  // the correct amount. Must be called BEFORE addShippingMethod.
+  // Sync the storefront-calculated shipping cost (and display name) into Medusa so
+  // Stripe charges the correct amount and the Medusa order shows the right label.
+  // Must be called BEFORE addShippingMethod.
   // Returns the IDs of the delivery shipping options that were updated, so
   // addShippingMethod can filter by exact IDs instead of fragile name heuristics.
-  const updateShippingPrice = useCallback(async (amountCents: number): Promise<{ optionIds: string[] }> => {
+  const updateShippingPrice = useCallback(async (amountCents: number, methodName?: string): Promise<{ optionIds: string[] }> => {
     const activeCartId = getActiveCartId() || cartId;
     if (!activeCartId) throw new Error("No cart ID for updateShippingPrice");
 
     const baseUrl = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "http://localhost:9000";
     const pubKey = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || "";
+
+    const body: Record<string, any> = { amount_cents: amountCents };
+    if (methodName) body.method_name = methodName;
 
     const res = await fetch(
       `${baseUrl}/store/carts/${activeCartId}/set-shipping-price`,
@@ -469,7 +473,7 @@ export function useMedusaCart() {
           "Content-Type": "application/json",
           "x-publishable-api-key": pubKey,
         },
-        body: JSON.stringify({ amount_cents: amountCents }),
+        body: JSON.stringify(body),
       }
     );
 

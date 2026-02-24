@@ -4,26 +4,29 @@ import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
 /**
  * POST /store/carts/:id/set-shipping-price
  *
- * Updates the shipping option price in the pricing module so that when the
- * storefront subsequently calls addShippingMethod, Medusa creates the cart
- * shipping method at the correct amount.
+ * Updates the shipping option price (and optionally name) in the fulfillment /
+ * pricing modules so that when the storefront subsequently calls addShippingMethod,
+ * Medusa creates the cart shipping method at the correct amount and display name.
  *
  * IMPORTANT: Must be called BEFORE addShippingMethod, not after. When Medusa
  * creates a payment collection it recalculates cart totals from the shipping
  * option's stored price — so the option price must be correct at method-creation
  * time. Post-hoc updates to the shipping method amount are overridden.
  *
- * Body: { amount_cents: number }  — shipping cost in cents (e.g. 15000 = $150)
+ * Body: { amount_cents: number, method_name?: string }
+ *   amount_cents — shipping cost in cents (e.g. 15000 = $150, 0 = will-call)
+ *   method_name  — human-readable label shown on the order (e.g. "LTL Freight",
+ *                  "Will Call — Pomona"). If omitted the option name is unchanged.
  *
  * Updates all shipping options in "shipping" type fulfillment sets (excludes
  * will-call/pickup options). Since this is a single-vendor store with low
- * concurrent checkout volume, shared option price updates are safe.
+ * concurrent checkout volume, shared option updates are safe.
  */
 export async function POST(
   req: MedusaRequest,
   res: MedusaResponse
 ): Promise<void> {
-  const { amount_cents } = req.body as { amount_cents: number };
+  const { amount_cents, method_name } = req.body as { amount_cents: number; method_name?: string };
 
   if (typeof amount_cents !== "number" || amount_cents < 0) {
     res.status(400).json({ error: "amount_cents must be a non-negative number" });
@@ -81,6 +84,20 @@ export async function POST(
           await pricingModule.updatePrices([{ id: price.id, amount: amountMajor }]);
           console.log(`[set-shipping-price] Updated option "${opt.id}" price to ${amountMajor} (${amount_cents} cents)`);
           updatedCount++;
+        }
+      }
+    }
+
+    // 5. Optionally rename the options so the order in Medusa admin shows the
+    //    correct label (e.g. "LTL Freight", "Will Call — Pomona") instead of the
+    //    generic seeded name. Same low-concurrency caveat as the price update.
+    if (method_name) {
+      for (const optId of optionIds) {
+        try {
+          await fulfillmentModule.updateShippingOptions([{ id: optId, name: method_name }]);
+          console.log(`[set-shipping-price] Renamed option "${optId}" to "${method_name}"`);
+        } catch (err: any) {
+          console.warn(`[set-shipping-price] Failed to rename option "${optId}": ${err.message}`);
         }
       }
     }

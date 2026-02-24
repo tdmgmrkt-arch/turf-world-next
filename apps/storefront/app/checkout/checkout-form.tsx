@@ -586,11 +586,22 @@ export function CheckoutForm() {
       // The endpoint also returns the IDs of the delivery options it updated so we can
       // pass them to addShippingMethod for exact-ID filtering (avoids name-heuristic bugs
       // like "Standard Shipping (Will Call)" being incorrectly excluded).
+      // Resolve a human-readable label for the Medusa order's shipping method.
+      let shippingMethodName: string;
+      if (selectedShipping.startsWith("willcall-")) {
+        const loc = WILL_CALL_LOCATIONS.find(l => l.id === selectedShipping);
+        shippingMethodName = `Will Call — ${loc?.name ?? selectedShipping}`;
+      } else if (selectedShipping === "freight") {
+        shippingMethodName = "LTL Freight";
+      } else {
+        shippingMethodName = "Next Day Shipping SoCal";
+      }
+
       let deliveryOptionIds: string[] | undefined;
       try {
-        const result = await updateShippingPrice(shippingCost);
+        const result = await updateShippingPrice(shippingCost, shippingMethodName);
         deliveryOptionIds = result.optionIds;
-        console.log(`[checkout] Step 3 done — shippingCost=${shippingCost}, deliveryOptionIds=${JSON.stringify(deliveryOptionIds)}`);
+        console.log(`[checkout] Step 3 done — shippingCost=${shippingCost}, name="${shippingMethodName}", deliveryOptionIds=${JSON.stringify(deliveryOptionIds)}`);
       } catch (err: any) {
         console.error("Step 3 (updateShippingPrice) failed:", err);
         setPaymentError("Failed to set shipping cost. Please try again.");
