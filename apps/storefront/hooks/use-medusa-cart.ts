@@ -375,7 +375,16 @@ export function useMedusaCart() {
         (opt: any) => opt.amount !== undefined && opt.amount !== null
       );
 
-      console.log(`Shipping options: ${shipping_options?.length || 0} total, ${optionsWithPrices.length} with prices`);
+      // Exclude pickup / will-call options (e.g. "Pomona") — Medusa's /store/shipping-options
+      // returns both "shipping" and "pickup" type options. Pickup options are always $0 and
+      // must not be used for delivery orders. We always use delivery options and control the
+      // price via the pricing module (updateShippingPrice handles $0 for will-call too).
+      const deliveryOptions = optionsWithPrices.filter(
+        (opt: any) => !/pomona|will.?call|pickup/i.test(opt.name || "")
+      );
+      const filteredOptions = deliveryOptions.length > 0 ? deliveryOptions : optionsWithPrices;
+
+      console.log(`Shipping options: ${shipping_options?.length || 0} total, ${optionsWithPrices.length} with prices, ${filteredOptions.length} after pickup filter`);
 
       if (optionsWithPrices.length === 0) {
         throw new Error(
@@ -387,7 +396,7 @@ export function useMedusaCart() {
       // Cart items may belong to different shipping profiles, and each profile
       // needs a corresponding shipping method or cart completion will fail.
       const byProfile = new Map<string, any>();
-      for (const opt of optionsWithPrices) {
+      for (const opt of filteredOptions) {
         const profileId = opt.shipping_profile_id || "unknown";
         if (!byProfile.has(profileId)) {
           byProfile.set(profileId, opt);
