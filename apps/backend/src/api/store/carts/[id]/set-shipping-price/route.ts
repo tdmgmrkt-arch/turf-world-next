@@ -1,5 +1,6 @@
 import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http";
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
+import { updateShippingOptionsWorkflow } from "@medusajs/medusa/core-flows";
 
 /**
  * POST /store/carts/:id/set-shipping-price
@@ -88,13 +89,17 @@ export async function POST(
       }
     }
 
-    // 5. Optionally rename the options so the order in Medusa admin shows the
-    //    correct label (e.g. "LTL Freight", "Will Call — Pomona") instead of the
-    //    generic seeded name. Same low-concurrency caveat as the price update.
+    // 5. Optionally rename the options via the official updateShippingOptionsWorkflow
+    //    (same mechanism the Medusa admin API uses) so the order shows the correct
+    //    label ("LTL Freight", "Will Call — Pomona") instead of the generic seed name.
+    //    The direct fulfillmentModule.updateShippingOptions call silently ignores `name`,
+    //    so the workflow is required here.
     if (method_name) {
       for (const optId of optionIds) {
         try {
-          await fulfillmentModule.updateShippingOptions([{ id: optId, name: method_name }]);
+          await updateShippingOptionsWorkflow(req.scope).run({
+            input: [{ id: optId, name: method_name }],
+          });
           console.log(`[set-shipping-price] Renamed option "${optId}" to "${method_name}"`);
         } catch (err: any) {
           console.warn(`[set-shipping-price] Failed to rename option "${optId}": ${err.message}`);
