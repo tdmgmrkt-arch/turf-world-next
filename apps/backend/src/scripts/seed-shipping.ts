@@ -242,5 +242,21 @@ export default async function seedShipping({ container }: ExecArgs) {
     }
   }
 
+  // 8. Ensure all shipping options in this service zone are store-visible (admin_only = false).
+  // createShippingOptionsWorkflow defaults to admin_only = true, which hides options from
+  // the Store API (/store/shipping-options). This step fixes both existing and newly created options.
+  logger.info("Setting admin_only = false on all shipping options in service zone...");
+  const allOptions = await fulfillmentModule.listShippingOptions(
+    { service_zone_id: serviceZoneId },
+  );
+  for (const opt of allOptions) {
+    try {
+      await (fulfillmentModule as any).updateShippingOptions([{ id: opt.id, admin_only: false }]);
+      logger.info(`  Set admin_only=false on: ${opt.name} (${opt.id})`);
+    } catch (err: any) {
+      logger.warn(`  Failed to update admin_only for ${opt.name}: ${err.message}`);
+    }
+  }
+
   logger.info("Done!");
 }
