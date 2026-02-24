@@ -450,12 +450,14 @@ export function useMedusaCart() {
     }
   }, [cartId, refreshCart]);
 
-  // Sync the storefront-calculated shipping cost (and display name) into Medusa so
-  // Stripe charges the correct amount and the Medusa order shows the right label.
-  // Must be called BEFORE addShippingMethod.
-  // Returns the IDs of the delivery shipping options that were updated, so
-  // addShippingMethod can filter by exact IDs instead of fragile name heuristics.
-  const updateShippingPrice = useCallback(async (amountCents: number, methodName?: string): Promise<{ optionIds: string[] }> => {
+  // Sync the storefront-calculated shipping cost into Medusa so Stripe charges
+  // the correct amount. Must be called BEFORE addShippingMethod.
+  // method_type filters to only the matching delivery option so the right named
+  // option gets its price updated and is returned for addShippingMethod to add.
+  const updateShippingPrice = useCallback(async (
+    amountCents: number,
+    methodType?: "nextday" | "freight"
+  ): Promise<{ optionIds: string[] }> => {
     const activeCartId = getActiveCartId() || cartId;
     if (!activeCartId) throw new Error("No cart ID for updateShippingPrice");
 
@@ -463,7 +465,7 @@ export function useMedusaCart() {
     const pubKey = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || "";
 
     const body: Record<string, any> = { amount_cents: amountCents };
-    if (methodName) body.method_name = methodName;
+    if (methodType) body.method_type = methodType;
 
     const res = await fetch(
       `${baseUrl}/store/carts/${activeCartId}/set-shipping-price`,
@@ -486,6 +488,73 @@ export function useMedusaCart() {
     return { optionIds: data.optionIds || [] };
   }, [cartId]);
 
+  // Add the specific Medusa pickup option for a will-call order.
+  // Finds the option whose name contains locationName (e.g. "Irvine", "Pomona", "Chino")
+  // and adds it to the cart. Pickup options are always $0 so no price update is needed.
+  const addPickupMethod = useCallback(async (locationName: string) => {
+    const activeCartId = getActiveCartId() || cartId;
+    if (!activeCartId) throw new Error("No cart ID for addPickupMethod");
+
+    const baseUrl = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "http://localhost:9000";
+    const pubKey = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || "";
+
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+      "x-publishable-api-key": pubKey,
+    };
+
+    try {
+      setIsLoading(true);
+
+      const optionsRes = await fetch(
+        `${baseUrl}/store/shipping-options?cart_id=${activeCartId}`,
+        { headers }
+      );
+
+      if (!optionsRes.ok) {
+        const errBody = await optionsRes.text();
+        throw new Error(`Failed to list shipping options (${optionsRes.status}): ${errBody}`);
+      }
+
+      const { shipping_options } = await optionsRes.json();
+
+      // Find the pickup option matching the location name (case-insensitive substring)
+      const pickupOption = (shipping_options || []).find(
+        (opt: any) => opt.name?.toLowerCase().includes(locationName.toLowerCase())
+      );
+
+      if (!pickupOption) {
+        throw new Error(
+          `No pickup option found for location "${locationName}". ` +
+          `Available options: ${(shipping_options || []).map((o: any) => o.name).join(", ")}`
+        );
+      }
+
+      console.log(`[addPickupMethod] Adding pickup option "${pickupOption.name}" (${pickupOption.id}) for "${locationName}"`);
+
+      const addRes = await fetch(
+        `${baseUrl}/store/carts/${activeCartId}/shipping-methods`,
+        {
+          method: "POST",
+          headers,
+          body: JSON.stringify({ option_id: pickupOption.id }),
+        }
+      );
+
+      if (!addRes.ok) {
+        const errBody = await addRes.text();
+        throw new Error(`Failed to add pickup method (${addRes.status}): ${errBody}`);
+      }
+
+      await refreshCart(activeCartId);
+    } catch (err) {
+      console.error("Failed to add pickup method:", err);
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  }, [cartId, refreshCart]);
+
   return {
     cart: medusaCart,
     isLoading,
@@ -500,6 +569,7 @@ export function useMedusaCart() {
     updateShippingAddress,
     createPaymentSession,
     addShippingMethod,
+    addPickupMethod,
     updateShippingPrice,
   };
 }

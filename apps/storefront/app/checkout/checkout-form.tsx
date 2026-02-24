@@ -419,6 +419,7 @@ export function CheckoutForm() {
     createPaymentSession,
     syncLocalCartToMedusa,
     addShippingMethod,
+    addPickupMethod,
     updateShippingPrice,
     updateCartMetadata,
   } = useMedusaCart();
@@ -578,44 +579,42 @@ export function CheckoutForm() {
         return;
       }
 
-      // Step 3: Update the Medusa shipping option price to the storefront-calculated amount.
-      // Must happen BEFORE addShippingMethod — when the method is created, Medusa reads the
-      // option's price from the pricing module and stores it on the method. If we update
-      // after the fact, Medusa recalculates the cart total from the option price ($0) when
-      // creating the payment collection, discarding any post-hoc method amount changes.
-      // The endpoint also returns the IDs of the delivery options it updated so we can
-      // pass them to addShippingMethod for exact-ID filtering (avoids name-heuristic bugs
-      // like "Standard Shipping (Will Call)" being incorrectly excluded).
-      // Resolve a human-readable label for the Medusa order's shipping method.
-      let shippingMethodName: string;
+      // Steps 3/3.5: Add the correct Medusa shipping method.
+      // Will-call → add the named pickup option directly (always $0, no price update needed).
+      // Delivery  → update the matching option's price first, then add it.
       if (selectedShipping.startsWith("willcall-")) {
+        // Step 3 (will-call): find and add the pickup option by location name
         const loc = WILL_CALL_LOCATIONS.find(l => l.id === selectedShipping);
-        shippingMethodName = `Will Call — ${loc?.name ?? selectedShipping}`;
-      } else if (selectedShipping === "freight") {
-        shippingMethodName = "LTL Freight";
+        try {
+          await addPickupMethod(loc?.name ?? selectedShipping);
+          console.log(`[checkout] Step 3 done — pickup "${loc?.name}" added`);
+        } catch (err: any) {
+          console.error("Step 3 (addPickupMethod) failed:", err);
+          setPaymentError("Failed to set pickup method. Please try again.");
+          return;
+        }
       } else {
-        shippingMethodName = "Next Day Shipping SoCal";
-      }
+        // Step 3 (delivery): update the correct option's price based on method type
+        const methodType = selectedShipping === "nextday" ? "nextday" : "freight";
+        let deliveryOptionIds: string[] | undefined;
+        try {
+          const result = await updateShippingPrice(shippingCost, methodType);
+          deliveryOptionIds = result.optionIds;
+          console.log(`[checkout] Step 3 done — shippingCost=${shippingCost}, methodType=${methodType}, optionIds=${JSON.stringify(deliveryOptionIds)}`);
+        } catch (err: any) {
+          console.error("Step 3 (updateShippingPrice) failed:", err);
+          setPaymentError("Failed to set shipping cost. Please try again.");
+          return;
+        }
 
-      let deliveryOptionIds: string[] | undefined;
-      try {
-        const result = await updateShippingPrice(shippingCost, shippingMethodName);
-        deliveryOptionIds = result.optionIds;
-        console.log(`[checkout] Step 3 done — shippingCost=${shippingCost}, name="${shippingMethodName}", deliveryOptionIds=${JSON.stringify(deliveryOptionIds)}`);
-      } catch (err: any) {
-        console.error("Step 3 (updateShippingPrice) failed:", err);
-        setPaymentError("Failed to set shipping cost. Please try again.");
-        return;
-      }
-
-      // Step 3.5: Add Medusa shipping method (now picks up the correct price from the option).
-      // Pass deliveryOptionIds so it filters by exact IDs, not fragile name heuristics.
-      try {
-        await addShippingMethod(deliveryOptionIds);
-      } catch (err: any) {
-        console.error("Step 3.5 (addShippingMethod) failed:", err);
-        setPaymentError("Failed to set shipping method. Please try again.");
-        return;
+        // Step 3.5: add the delivery shipping method (price already set above)
+        try {
+          await addShippingMethod(deliveryOptionIds);
+        } catch (err: any) {
+          console.error("Step 3.5 (addShippingMethod) failed:", err);
+          setPaymentError("Failed to set shipping method. Please try again.");
+          return;
+        }
       }
 
       // Step 4: Create payment session
