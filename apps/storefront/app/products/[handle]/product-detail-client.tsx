@@ -188,6 +188,7 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
 
     // Determine if pet turf (will be set after product check)
     const isPet = product?.category === "pet";
+    const isPuttingGreen = product?.category === "putting";
 
     // 1. Infill - 1 bag per 50 sqft (based on input square footage)
     if (isPet) {
@@ -201,7 +202,8 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
         });
       }
     } else {
-      const infill = ACCESSORIES.find(a => a.handle === "60-grit-sand");
+      const infillHandle = isPuttingGreen ? "60-grit-sand" : "16-grit-sand";
+      const infill = ACCESSORIES.find(a => a.handle === infillHandle);
       if (infill) {
         const bagsNeeded = Math.ceil(squareFootage / 50);
         items.push({
@@ -461,9 +463,13 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
     ? ACCESSORIES.filter(
         (a) => a.handle === "zeodorizer" || a.handle === "16-grit-sand"
       )
-    : ACCESSORIES.filter(
-        (a) => a.handle === "60-grit-sand" || a.handle === "weed-barrier"
-      );
+    : isPutting
+      ? ACCESSORIES.filter(
+          (a) => a.handle === "60-grit-sand" || a.handle === "weed-barrier"
+        )
+      : ACCESSORIES.filter(
+          (a) => a.handle === "16-grit-sand" || a.handle === "weed-barrier"
+        );
 
   const turfPriceCents = product.priceCents * totalSquareFeet;
   const totalPriceCents = turfPriceCents + packageTotalCents;

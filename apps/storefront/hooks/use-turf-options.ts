@@ -16,6 +16,7 @@ export interface TurfOption {
   pricePerSqFtCents: number; // Source of truth from PRODUCTS.priceCents
   description: string;
   isPet: boolean;
+  isPutting: boolean;
   badge: string;
   color: "emerald" | "amber" | "blue";
 }
@@ -33,11 +34,12 @@ export interface UseTurfOptionsReturn {
  */
 function transformToTurfOption(product: Product): TurfOption {
   const isPet = product.category === "pet";
+  const isPutting = product.category === "putting";
 
   // Derive badge color from category
   let color: "emerald" | "amber" | "blue" = "emerald";
   if (isPet) color = "amber";
-  else if (product.category === "putting") color = "blue";
+  else if (isPutting) color = "blue";
 
   return {
     id: product.handle,
@@ -46,6 +48,7 @@ function transformToTurfOption(product: Product): TurfOption {
     pricePerSqFtCents: product.priceCents, // ← KEY: Pull from PRODUCTS
     description: `${product.weight}oz, ${product.pileHeight}" pile`,
     isPet,
+    isPutting,
     badge: product.badge || "",
     color,
   };

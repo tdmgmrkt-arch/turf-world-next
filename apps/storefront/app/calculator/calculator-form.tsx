@@ -112,7 +112,8 @@ export function CalculatorForm() {
           });
         }
       } else {
-        const infill = accessories.find(a => a.handle === "60-grit-sand");
+        const infillHandle = selectedTurf.isPutting ? "60-grit-sand" : "16-grit-sand";
+        const infill = accessories.find(a => a.handle === infillHandle);
         if (infill) {
           items.push({
             accessory: infill,
@@ -654,6 +655,7 @@ export function CalculatorForm() {
                                 pricePerSqFtCents: product.priceCents,
                                 description: `${product.weight}oz, ${product.pileHeight}" pile`,
                                 isPet: product.category === "pet",
+                                isPutting: product.category === "putting",
                                 badge: product.badge || "",
                                 color: "emerald",
                               });
