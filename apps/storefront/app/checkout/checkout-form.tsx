@@ -61,7 +61,6 @@ const STEPS: { id: Step; label: string; icon: React.ReactNode }[] = [
 ];
 
 // Shipping pricing constants (all values in cents)
-const SHIPPING_CAP = 15000; // $150 — percentage-based options hidden above this (SoCal only)
 const NEXT_DAY_FLAT_RATE = 15000; // $150 flat rate for SoCal next-day shipping
 
 type ShippingOption = {
@@ -79,7 +78,7 @@ function getShippingOptions(zip: string, subtotal: number, cartItems: CartItem[]
   const options: ShippingOption[] = [];
 
   if (socal) {
-    // Will-call pickup — free, SoCal only
+    // Will-call pickup — free, SoCal only, when eligible
     const eligibleLocations = getEligibleWillCallLocations(cartItems);
     for (const loc of eligibleLocations) {
       options.push({
@@ -93,7 +92,7 @@ function getShippingOptions(zip: string, subtotal: number, cartItems: CartItem[]
       });
     }
 
-    // SoCal: Next-day $150 flat, LTL 10%, Expedited 20%
+    // SoCal: Next-day $150 flat rate only
     options.push({
       id: "nextday",
       name: "Next Day Shipping",
@@ -103,34 +102,8 @@ function getShippingOptions(zip: string, subtotal: number, cartItems: CartItem[]
       note: "SoCal flat rate",
       icon: Zap,
     });
-
-    const ltlPrice = Math.round(subtotal * 0.10);
-    if (ltlPrice <= SHIPPING_CAP) {
-      options.push({
-        id: "freight",
-        name: "LTL Freight",
-        description: "For turf rolls — delivered to your driveway",
-        price: ltlPrice,
-        estimatedDays: "5–10 business days",
-        note: null,
-        icon: Truck,
-      });
-    }
-
-    const expeditedPrice = Math.round(subtotal * 0.20);
-    if (expeditedPrice <= SHIPPING_CAP) {
-      options.push({
-        id: "expedited",
-        name: "Expedited Freight",
-        description: "Faster delivery for urgent projects",
-        price: expeditedPrice,
-        estimatedDays: "3–5 business days",
-        note: null,
-        icon: Package,
-      });
-    }
   } else {
-    // Non-SoCal: LTL 10% (default), Expedited 25%, Next-day 40%
+    // Non-SoCal: LTL Freight only
     options.push({
       id: "freight",
       name: "LTL Freight",
@@ -140,29 +113,9 @@ function getShippingOptions(zip: string, subtotal: number, cartItems: CartItem[]
       note: null,
       icon: Truck,
     });
-
-    options.push({
-      id: "expedited",
-      name: "Expedited Freight",
-      description: "Faster delivery for urgent projects",
-      price: Math.round(subtotal * 0.25),
-      estimatedDays: "3–5 business days",
-      note: null,
-      icon: Package,
-    });
-
-    options.push({
-      id: "nextday",
-      name: "Next Day Shipping",
-      description: "Priority next business day delivery",
-      price: Math.round(subtotal * 0.40),
-      estimatedDays: "Next business day",
-      note: null,
-      icon: Zap,
-    });
   }
 
-  // Always sort cheapest first — auto-select picks [0] (cheapest)
+  // Sort cheapest first — auto-select picks [0]
   options.sort((a, b) => a.price - b.price);
   return options;
 }

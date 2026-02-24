@@ -59,7 +59,7 @@ const shippingMethods = [
   },
   {
     name: "LTL Freight",
-    time: "5-10 business days",
+    time: "2-4 business days",
     description: "Large orders requiring freight carrier",
     icon: Truck,
     color: "from-amber-500 to-orange-600",
