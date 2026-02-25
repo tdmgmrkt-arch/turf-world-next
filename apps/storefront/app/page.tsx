@@ -99,7 +99,7 @@ const features = [
   },
   {
     icon: Truck,
-    title: "Free Nationwide Shipping",
+    title: "Nationwide Shipping",
     description: "Direct to your door. No hidden fees, no surprises.",
   },
   {
@@ -511,7 +511,7 @@ export default function HomePage() {
                 </span>
                 <h2 className="mt-4 text-white">See It. Feel It. Love It.</h2>
                 <p className="mt-6 text-body-lg text-white/80">
-                  Order up to 3 free samples and experience the quality firsthand.
+                  Order free samples and experience the quality firsthand.
                   Feel the texture, see the color in your light, and make the
                   right choice for your space.
                 </p>

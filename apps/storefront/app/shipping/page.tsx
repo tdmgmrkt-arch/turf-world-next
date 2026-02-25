@@ -44,7 +44,7 @@ export const metadata: Metadata = {
 
 const shippingMethods = [
   {
-    name: "Standard Ground Shipping",
+    name: "LTL Freight Shipping",
     time: "3-7 business days",
     description: "Available for most orders nationwide",
     icon: Package,
@@ -53,7 +53,7 @@ const shippingMethods = [
   {
     name: "Next-Day Shipping",
     time: "1 business day",
-    description: "Southern California only (limited availability)",
+    description: "Available for Southern California only (limited availability)",
     icon: Clock,
     color: "from-blue-500 to-blue-700",
   },
@@ -67,7 +67,7 @@ const shippingMethods = [
   {
     name: "Will Call / Pickup",
     time: "Same day",
-    description: "Pickup at our Pomona, CA warehouse",
+    description: "Select Turf's available for at our Pomona, CA warehouse, Irvine, CA, and Chino, CA Locations.",
     icon: MapPin,
     color: "from-emerald-500 to-emerald-700",
   },
@@ -92,13 +92,13 @@ const shippingCosts = [
     region: "California (other regions)",
     standardCost: "Calculated at checkout",
     nextDay: "Not available",
-    notes: "Standard ground shipping 3-5 business days",
+    notes: "LTL Freight Shipping 3-5 business days",
   },
   {
     region: "Nationwide",
     standardCost: "Calculated at checkout",
     nextDay: "Not available",
-    notes: "Standard ground shipping 5-7 business days",
+    notes: "LTL Freight Shipping 5-7 business days",
   },
 ];
 
@@ -426,9 +426,9 @@ export default function ShippingPage() {
                         Warehouse Location:
                       </p>
                       <p className="text-sm text-muted-foreground">
-                        2370 S. Grove Ave
+                        1970 W Holt Ave
                         <br />
-                        Ontario, CA 91761
+                        Pomona, CA 91768
                       </p>
                       <p className="text-sm text-muted-foreground mt-2">
                         <strong>Hours:</strong> Monday-Friday 8:00 AM - 4:00 PM,

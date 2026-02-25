@@ -201,7 +201,7 @@ export default function ContactPage() {
                       </div>
                       <div>
                         <p className="font-semibold text-sm sm:text-base">Location</p>
-                        <p className="text-xs sm:text-sm text-muted-foreground">Los Angeles, CA</p>
+                        <p className="text-xs sm:text-sm text-muted-foreground">1970 W Holt Ave, Pomona, CA 91768</p>
                         <p className="text-xs sm:text-sm text-muted-foreground">Ships nationwide</p>
                       </div>
                     </div>

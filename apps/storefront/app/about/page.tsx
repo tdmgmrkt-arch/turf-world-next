@@ -48,7 +48,7 @@ const values = [
     icon: Truck,
     title: "Nationwide Shipping",
     description:
-      "We offer free freight shipping on all orders across the United States. Large orders ship via liftgate delivery right to your location.",
+      "We offer freight shipping on all orders across the United States. Large orders ship via liftgate delivery right to your location.",
   },
 ];
 
@@ -65,7 +65,7 @@ const stats = [
   { value: "27+", label: "Premium Products" },
   { value: "16", label: "Year Warranty" },
   { value: "100%", label: "Lead-Free" },
-  { value: "FREE", label: "Nationwide Shipping" },
+  { value: "FAST", label: "Nationwide Shipping" },
 ];
 
 export default function AboutPage() {

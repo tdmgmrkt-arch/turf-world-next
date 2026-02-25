@@ -103,7 +103,7 @@ export default async function Image() {
                 background: "#a855f7",
               }}
             />
-            Free Shipping
+            Nationwide Shipping
           </div>
         </div>
       </div>

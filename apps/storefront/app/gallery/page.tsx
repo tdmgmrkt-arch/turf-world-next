@@ -89,7 +89,7 @@ const projects = [
   {
     id: 6,
     title: "Rooftop Dog Run",
-    location: "Los Angeles, CA",
+    location: ", CA",
     size: "350 sq ft",
     product: "Pet Pro 88",
     category: "Pet",

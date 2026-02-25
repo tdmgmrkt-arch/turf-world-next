@@ -69,7 +69,7 @@ const faqCategories = [
       {
         question: "Can I get free samples?",
         answer:
-          "Yes! We offer free 8\"x8\" samples (about the size of a standard sheet of paper) so you can see and feel the quality before buying. You can order up to 3 samples per household at no cost, including free shipping. No credit card required.",
+          "Yes! We offer free 12\"x12\" samples (about the size of a standard sheet of paper) so you can see and feel the quality before buying. You can order samples at no cost, including free shipping. No credit card required.",
       },
       {
         question: "How long does it take to receive samples?",
@@ -101,7 +101,7 @@ const faqCategories = [
       {
         question: "How long does shipping take?",
         answer:
-          "Standard ground shipping takes 3-7 business days nationwide. Southern California customers may qualify for next-day delivery (extra fee applies). Orders placed before 2 PM PST ship same business day, subject to stock availability.",
+          "LTL Freight Shipping takes 3-7 business days nationwide. Southern California customers may qualify for next-day delivery (extra fee applies). Orders placed before 2 PM PST ship same business day, subject to stock availability.",
       },
       {
         question: "What are shipping costs?",
