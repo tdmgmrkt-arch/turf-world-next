@@ -35,7 +35,7 @@ export default function SamplesPage() {
     },
     {
       question: "What size are the samples?",
-      answer: 'Each sample is approximately 8" x 8" (about the size of a standard sheet of paper). Large enough to truly feel the quality.',
+      answer: 'Each sample is approximately 12" x 12" (about the size of a standard sheet of paper). Large enough to truly feel the quality.',
     },
     {
       question: "Can I order more than 3 samples?",

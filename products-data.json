@@ -89,32 +89,6 @@
       "inStock": true
     },
     {
-      "id": "florida-80",
-      "handle": "florida-80",
-      "name": "Florida 80",
-      "description": "Vibrant 80oz turf designed for warm climates. 1.5\" pile with excellent heat resistance. Perfect for sunny yards.",
-      "priceCents": 165,
-      "costCents": 106,
-      "category": "landscape",
-      "uses": [
-        "landscape"
-      ],
-      "weight": 80,
-      "pileHeight": 1.5,
-      "backing": "Double Polyurethane",
-      "warranty": "16 Year",
-      "rollSize": "15'W x 100'L",
-      "images": [
-        "/products/Hawaii80_6481_SDRT.jpg",
-        "/products/Hawaii80_6609_SDRT.jpg"
-      ],
-      "tags": [
-        "heat-resistant",
-        "residential"
-      ],
-      "inStock": true
-    },
-    {
       "id": "colorado-80",
       "handle": "colorado-80",
       "name": "Colorado 80",
