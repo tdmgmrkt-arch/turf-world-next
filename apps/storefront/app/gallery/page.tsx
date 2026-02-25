@@ -47,7 +47,7 @@ const projects = [
     size: "1,200 sq ft",
     product: "Turf World 88",
     category: "Residential",
-    image: "/projects/modernbackyardtransformation.webp",
+    image: "/Projects/modernbackyardtransformation.webp",
   },
   {
     id: 2,
@@ -56,7 +56,7 @@ const projects = [
     size: "800 sq ft",
     product: "Pet Pro 88",
     category: "Pet",
-    image: "/projects/petfriendlyparadise.webp",
+    image: "/Projects/petfriendlyparadise.webp",
   },
   {
     id: 3,
@@ -65,7 +65,7 @@ const projects = [
     size: "400 sq ft",
     product: "Pro Putt 15",
     category: "Putting Green",
-    image: "/projects/backyardputtinggreen.webp",
+    image: "/Projects/backyardputtinggreen.webp",
   },
   {
     id: 4,
@@ -74,7 +74,7 @@ const projects = [
     size: "2,500 sq ft",
     product: "Turf World 63",
     category: "Commercial",
-    image: "/projects/commercialcourtyard.webp",
+    image: "/Projects/commercialcourtyard.webp",
   },
   {
     id: 5,
@@ -83,7 +83,7 @@ const projects = [
     size: "600 sq ft",
     product: "Turf World 88",
     category: "Residential",
-    image: "/projects/droughtfreefrontlawn.webp",
+    image: "/Projects/droughtfreefrontlawn.webp",
   },
   {
     id: 6,
@@ -92,7 +92,7 @@ const projects = [
     size: "350 sq ft",
     product: "Pet Pro 88",
     category: "Pet",
-    image: "/projects/daycareplayground.webp",
+    image: "/Projects/daycareplayground.webp",
   },
   {
     id: 7,
@@ -101,7 +101,7 @@ const projects = [
     size: "900 sq ft",
     product: "Turf World 88",
     category: "Residential",
-    image: "/projects/poolsideparadise.webp",
+    image: "/Projects/poolsideparadise.webp",
     featured: true,
   },
   {
@@ -111,7 +111,7 @@ const projects = [
     size: "500 sq ft",
     product: "Pro Putt 15",
     category: "Putting Green",
-    image: "/projects/9.webp",
+    image: "/Projects/backyardgolfpractice.webp",
   },
 ];
 
