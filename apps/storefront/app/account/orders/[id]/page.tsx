@@ -219,8 +219,17 @@ function OrderDetail() {
               <span>${(order.subtotal || 0).toFixed(2)}</span>
             </div>
             <div className="flex justify-between text-slate-600">
-              <span>Shipping</span>
-              <span>${(order.shipping_total || 0).toFixed(2)}</span>
+              {order.metadata?.shipping_type === "will-call" ? (
+                <>
+                  <span>Will Call — {order.metadata.pickup_location_name || "Pickup"}</span>
+                  <span className="text-emerald-600 font-medium">Free</span>
+                </>
+              ) : (
+                <>
+                  <span>Shipping</span>
+                  <span>${(order.shipping_total || 0).toFixed(2)}</span>
+                </>
+              )}
             </div>
             <div className="flex justify-between text-slate-600">
               <span>Tax</span>
