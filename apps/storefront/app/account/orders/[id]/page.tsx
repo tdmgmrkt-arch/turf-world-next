@@ -96,6 +96,7 @@ function OrderDetail() {
   const { id } = useParams();
   const [order, setOrder] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [localShipping, setLocalShipping] = useState<{ type: string; locationName: string | null } | null>(null);
 
   useEffect(() => {
     async function fetchOrder() {
@@ -108,7 +109,13 @@ function OrderDetail() {
         setLoading(false);
       }
     }
-    if (id) fetchOrder();
+    if (id) {
+      fetchOrder();
+      try {
+        const saved = localStorage.getItem(`order_shipping_${id}`);
+        if (saved) setLocalShipping(JSON.parse(saved));
+      } catch {}
+    }
   }, [id]);
 
   if (loading) {
@@ -219,9 +226,9 @@ function OrderDetail() {
               <span>${(order.subtotal || 0).toFixed(2)}</span>
             </div>
             <div className="flex justify-between text-slate-600">
-              {order.metadata?.shipping_type === "will-call" ? (
+              {(order.metadata?.shipping_type === "will-call" || localShipping?.type === "will-call") ? (
                 <>
-                  <span>Will Call — {order.metadata.pickup_location_name || "Pickup"}</span>
+                  <span>Will Call — {order.metadata?.pickup_location_name || localShipping?.locationName || "Pickup"}</span>
                   <span className="text-emerald-600 font-medium">Free</span>
                 </>
               ) : (

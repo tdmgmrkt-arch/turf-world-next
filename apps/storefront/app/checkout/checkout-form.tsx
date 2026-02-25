@@ -623,6 +623,15 @@ export function CheckoutForm() {
   };
 
   const handlePaymentSuccess = (newOrderId: string) => {
+    // Persist shipping selection so the account order detail page can display it
+    try {
+      const isWillCall = selectedShipping.startsWith("willcall-");
+      const loc = isWillCall ? WILL_CALL_LOCATIONS.find(l => l.id === selectedShipping) : null;
+      localStorage.setItem(`order_shipping_${newOrderId}`, JSON.stringify({
+        type: isWillCall ? "will-call" : selectedShipping,
+        locationName: loc?.name ?? null,
+      }));
+    } catch {}
     // Store order data before clearing cart
     setCompletedOrder({
       items: [...items],
