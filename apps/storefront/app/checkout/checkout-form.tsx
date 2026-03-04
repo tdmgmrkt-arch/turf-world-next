@@ -84,7 +84,7 @@ function getShippingOptions(zip: string, subtotal: number, cartItems: CartItem[]
         description: `${pomona.address}, ${pomona.city}, ${pomona.state} ${pomona.zip}`,
         price: 0,
         estimatedDays: "Ready within 1 business day",
-        note: "Accessories only",
+        note: "Accessories purchased without turf are currently available for local pickup only. For large bulk infill orders, please call us and we may be able to accommodate shipping.",
         icon: MapPin,
       },
     ];
