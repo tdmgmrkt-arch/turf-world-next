@@ -67,8 +67,32 @@ export function SampleBoxBuilder() {
 
   const handleSubmit = async () => {
     setIsSubmitting(true);
-    // TODO: Submit to backend/email service
-    await new Promise((r) => setTimeout(r, 1500));
+    try {
+      const selectedProducts = PRODUCTS.filter((p) =>
+        selectedSamples.includes(p.id)
+      );
+      await fetch(
+        "https://services.leadconnectorhq.com/hooks/lBYgCVRxgw7QkJkVotLZ/webhook-trigger/3f89210c-7ad7-49a0-a9c2-6c49f868ab1a",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            firstName: formData.firstName,
+            lastName: formData.lastName,
+            address: formData.address,
+            city: formData.city,
+            state: formData.state,
+            postalCode: formData.postalCode,
+            email: formData.email,
+            phone: formData.phone,
+            samples: selectedProducts.map((p) => p.name).join(", "),
+            sampleCount: selectedProducts.length,
+          }),
+        }
+      );
+    } catch {
+      // Still show confirmation even if webhook fails
+    }
     setStep("confirm");
     setIsSubmitting(false);
   };
