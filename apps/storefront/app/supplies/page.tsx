@@ -14,6 +14,7 @@ import {
   Star,
   Wrench,
   Filter as LucideFilter,
+  MapPin,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Breadcrumb } from "@/components/ui/breadcrumb";
@@ -131,6 +132,18 @@ export default async function SuppliesPage({ searchParams }: SuppliesPageProps) 
           </div>
         </div>
       </section>
+
+      {/* Shipping notice */}
+      <div className="container px-4 sm:px-6 py-3">
+        <div className="flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2.5 text-xs sm:text-sm text-amber-800">
+          <MapPin className="w-4 h-4 text-amber-600 flex-shrink-0" />
+          <p>
+            <strong>Shipping note:</strong> Accessories ship with turf orders. Standalone accessory purchases are available for{" "}
+            <Link href="/locations" className="underline underline-offset-2 font-semibold hover:text-amber-900">will-call pickup</Link>{" "}
+            at our Pomona warehouse.
+          </p>
+        </div>
+      </div>
 
       {/* Filters Bar */}
       <section className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b">

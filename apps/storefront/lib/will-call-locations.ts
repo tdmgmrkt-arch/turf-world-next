@@ -81,10 +81,18 @@ const TURF_CATEGORIES = new Set(["landscape", "pet", "putting"]);
  * Check if a cart item is a turf product (not an accessory).
  * Accessories don't appear in the PRODUCTS array.
  */
-function isTurfCartItem(item: CartItem): boolean {
+export function isTurfCartItem(item: CartItem): boolean {
   const product = PRODUCTS.find((p) => p.id === item.productId);
   if (!product) return false;
   return TURF_CATEGORIES.has(product.category);
+}
+
+/**
+ * Returns true if the cart contains at least one turf product.
+ * Used to determine if accessories-only shipping restrictions apply.
+ */
+export function cartHasTurf(items: CartItem[]): boolean {
+  return items.some((item) => isTurfCartItem(item));
 }
 
 /**

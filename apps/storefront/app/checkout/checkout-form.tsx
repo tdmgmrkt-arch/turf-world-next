@@ -41,7 +41,7 @@ import { useCartStore } from "@/lib/store";
 import { useMedusaCart } from "@/hooks/use-medusa-cart";
 import { formatPrice, cn } from "@/lib/utils";
 import { isSoCalZipCode } from "@/lib/socal-zipcodes";
-import { getEligibleWillCallLocations, WILL_CALL_LOCATIONS } from "@/lib/will-call-locations";
+import { getEligibleWillCallLocations, WILL_CALL_LOCATIONS, cartHasTurf } from "@/lib/will-call-locations";
 import type { CartItem } from "@/types";
 
 // Cast to work around React 19 JSX type incompatibility with Radix UI / Shadcn / Next.js
@@ -74,6 +74,22 @@ type ShippingOption = {
 };
 
 function getShippingOptions(zip: string, subtotal: number, cartItems: CartItem[]): ShippingOption[] {
+  // Accessories-only cart → only Pomona will-call pickup (no shipping for standalone accessories)
+  if (cartItems.length > 0 && !cartHasTurf(cartItems)) {
+    const pomona = WILL_CALL_LOCATIONS.find((l) => l.id === "willcall-pomona")!;
+    return [
+      {
+        id: pomona.id,
+        name: `Will Call Pickup — ${pomona.name}`,
+        description: `${pomona.address}, ${pomona.city}, ${pomona.state} ${pomona.zip}`,
+        price: 0,
+        estimatedDays: "Ready within 1 business day",
+        note: "Accessories only",
+        icon: MapPin,
+      },
+    ];
+  }
+
   const socal = isSoCalZipCode(zip);
   const options: ShippingOption[] = [];
 
@@ -1054,18 +1070,32 @@ export function CheckoutForm() {
             </div>
 
             <div className="p-4 sm:p-6 space-y-3 sm:space-y-4">
-              {/* Freight notice */}
-              <div className="flex items-start gap-2 sm:gap-3 rounded-lg sm:rounded-xl border border-amber-200 bg-gradient-to-r from-amber-50 to-orange-50 p-3 sm:p-4">
-                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-md sm:rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0">
-                  <Package className="h-4 w-4 sm:h-5 sm:w-5 text-amber-600" />
+              {/* Shipping notice */}
+              {!cartHasTurf(items) ? (
+                <div className="flex items-start gap-2 sm:gap-3 rounded-lg sm:rounded-xl border border-amber-200 bg-gradient-to-r from-amber-50 to-orange-50 p-3 sm:p-4">
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-md sm:rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0">
+                    <AlertCircle className="h-4 w-4 sm:h-5 sm:w-5 text-amber-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm sm:text-base font-semibold text-amber-900">Accessories — Will Call Pickup Only</p>
+                    <p className="mt-0.5 sm:mt-1 text-xs sm:text-sm text-amber-800">
+                      Standalone accessory orders are available for will-call pickup at our Pomona warehouse. To have accessories shipped, add turf to your order.
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-sm sm:text-base font-semibold text-amber-900">Turf ships via LTL Freight</p>
-                  <p className="mt-0.5 sm:mt-1 text-xs sm:text-sm text-amber-800">
-                    Due to roll size and weight, all orders ship via freight carrier.
-                  </p>
+              ) : (
+                <div className="flex items-start gap-2 sm:gap-3 rounded-lg sm:rounded-xl border border-amber-200 bg-gradient-to-r from-amber-50 to-orange-50 p-3 sm:p-4">
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-md sm:rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0">
+                    <Package className="h-4 w-4 sm:h-5 sm:w-5 text-amber-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm sm:text-base font-semibold text-amber-900">Turf ships via LTL Freight</p>
+                    <p className="mt-0.5 sm:mt-1 text-xs sm:text-sm text-amber-800">
+                      Due to roll size and weight, all orders ship via freight carrier.
+                    </p>
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* Shipping options */}
               <div className="space-y-2 sm:space-y-3">
