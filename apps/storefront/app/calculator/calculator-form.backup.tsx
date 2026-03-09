@@ -740,7 +740,7 @@ export function CalculatorForm() {
                   </div>
                   <div className="flex items-center gap-1 sm:gap-1.5 text-[10px] sm:text-[11px] text-white/50">
                     <span className="text-amber-500">⭐</span>
-                    <span>4.9/5 Rating</span>
+                    <span>5/5 Rating</span>
                   </div>
                 </div>
               </div>

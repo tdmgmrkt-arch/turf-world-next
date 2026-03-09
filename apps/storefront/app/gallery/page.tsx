@@ -142,7 +142,7 @@ const categories = [
 const stats = [
   { value: "5,000+", label: "Projects Completed" },
   { value: "2M+", label: "Sq Ft Installed" },
-  { value: "4.9/5", label: "Customer Rating" },
+  { value: "5/5", label: "Customer Rating" },
   { value: "10+", label: "Years Experience" },
 ];
 

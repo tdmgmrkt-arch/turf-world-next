@@ -160,7 +160,7 @@ export default function SamplesPage() {
             </div>
             <div className="hidden md:block w-px h-12 bg-white/20" />
             <div className="text-center">
-              <p className="text-3xl sm:text-4xl md:text-5xl font-bold">4.9</p>
+              <p className="text-3xl sm:text-4xl md:text-5xl font-bold">5</p>
               <p className="text-xs sm:text-sm text-white/80 mt-1">Average Rating</p>
             </div>
             <div className="hidden md:block w-px h-12 bg-white/20" />

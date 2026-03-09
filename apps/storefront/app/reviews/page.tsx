@@ -158,7 +158,7 @@ const reviews = [
 ];
 
 const ratingStats = {
-  average: 4.9,
+  average: 5,
   total: 1247,
   breakdown: [
     { stars: 5, percentage: 92 },
@@ -426,7 +426,7 @@ export default function ReviewsPage() {
         <div className="container text-center">
           <h2 className="max-w-3xl mx-auto">Join Thousands of Happy Customers</h2>
           <p className="mt-6 text-body-lg text-muted-foreground max-w-xl mx-auto">
-            Get free samples and see why Turf World is rated 4.9/5 stars.
+            Get free samples and see why Turf World is rated 5/5 stars.
           </p>
           <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
             <Button size="lg" className="btn-premium text-lg px-8 h-14" asChild>

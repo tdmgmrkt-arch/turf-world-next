@@ -126,7 +126,7 @@ export default async function SuppliesPage({ searchParams }: SuppliesPageProps) 
               </div>
               <div className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-full bg-slate-800/60 backdrop-blur-sm border border-white/20">
                 <Star className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-400" />
-                <span className="text-xs sm:text-sm font-semibold text-white">4.9/5 Rating</span>
+                <span className="text-xs sm:text-sm font-semibold text-white">5/5 Rating</span>
               </div>
             </div>
           </div>
