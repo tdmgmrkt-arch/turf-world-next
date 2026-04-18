@@ -1,0 +1,54 @@
+{
+  "event": "order.placed",
+  "order_id": "order_TEST_01HXXXXXXXXXXXXXXXXX",
+  "display_id": 9001,
+  "placed_at": "2026-04-17T18:30:00.000Z",
+
+  "customer_email": "kenneth.lerch@gmail.com",
+  "customer_first_name": "Kenneth",
+  "customer_last_name": "Lerch",
+  "customer_full_name": "Kenneth Lerch",
+  "customer_phone": "5555551234",
+
+  "shipping_address_1": "123 Test Lane",
+  "shipping_address_2": "Suite 100",
+  "shipping_city": "Los Angeles",
+  "shipping_state": "CA",
+  "shipping_postal_code": "90001",
+  "shipping_address_oneline": "123 Test Lane, Suite 100, Los Angeles CA 90001",
+
+  "currency": "USD",
+  "subtotal": 622.50,
+  "shipping_total": 150.00,
+  "tax_total": 59.64,
+  "total": 832.14,
+
+  "subtotal_formatted": "$622.50",
+  "shipping_total_formatted": "$150.00",
+  "tax_total_formatted": "$59.64",
+  "total_formatted": "$832.14",
+
+  "shipping_method": "Shipping ($150.00)",
+  "items_count": 2,
+  "items_text": "250 sq ft — Super Natural 120 @ $2.49 = $622.50\n1 — Premium Turf Nails (5lb box) @ $0.00 = $0.00",
+  "items": [
+    {
+      "title": "Super Natural 120",
+      "variant_title": "",
+      "quantity": 250,
+      "unit_price": 2.49,
+      "total": 622.50,
+      "unit_price_formatted": "$2.49",
+      "total_formatted": "$622.50"
+    },
+    {
+      "title": "Premium Turf Nails (5lb box)",
+      "variant_title": "",
+      "quantity": 1,
+      "unit_price": 0.00,
+      "total": 0.00,
+      "unit_price_formatted": "$0.00",
+      "total_formatted": "$0.00"
+    }
+  ]
+}

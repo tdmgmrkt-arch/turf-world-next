@@ -1,0 +1,45 @@
+{
+  "event": "order.placed",
+  "order_id": "order_01KPEVX33WDK6S9KWNHD5GA870",
+  "display_id": 1001,
+  "placed_at": "2026-04-15T17:52:04.000Z",
+
+  "customer_email": "tikoyan007@gmail.com",
+  "customer_first_name": "Tigran",
+  "customer_last_name": "Arakelyan",
+  "customer_full_name": "Tigran Arakelyan",
+  "customer_phone": "7474774985",
+
+  "shipping_address_1": "10736 Saticoy St",
+  "shipping_address_2": "",
+  "shipping_city": "Sun Valley",
+  "shipping_state": "CA",
+  "shipping_postal_code": "91352",
+  "shipping_address_oneline": "10736 Saticoy St, Sun Valley CA 91352",
+
+  "currency": "USD",
+  "subtotal": 1345.20,
+  "shipping_total": 150.00,
+  "tax_total": 116.53,
+  "total": 1461.73,
+
+  "subtotal_formatted": "$1,345.20",
+  "shipping_total_formatted": "$150.00",
+  "tax_total_formatted": "$116.53",
+  "total_formatted": "$1,461.73",
+
+  "shipping_method": "Shipping ($150.00)",
+  "items_count": 1,
+  "items_text": "480 sq ft — Super Natural 120 @ $2.49 = $1,311.73",
+  "items": [
+    {
+      "title": "Super Natural 120",
+      "variant_title": "",
+      "quantity": 480,
+      "unit_price": 2.49,
+      "total": 1311.73,
+      "unit_price_formatted": "$2.49",
+      "total_formatted": "$1,311.73"
+    }
+  ]
+}

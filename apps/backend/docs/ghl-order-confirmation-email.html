@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Order Confirmed</title>
+</head>
+<body style="margin:0;padding:0;background-color:#f5f5f2;font-family:Georgia,serif;">
+
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f5f5f2;padding:40px 20px;">
+    <tr>
+      <td align="center">
+        <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background-color:#ffffff;border-radius:4px;overflow:hidden;">
+
+          <!-- Header -->
+          <tr>
+            <td style="background-color:#1a3a1a;padding:32px 40px;text-align:center;">
+              <p style="margin:0;font-family:Georgia,serif;font-size:22px;font-weight:bold;color:#ffffff;letter-spacing:2px;text-transform:uppercase;">TURF WORLD</p>
+              <p style="margin:8px 0 0 0;font-family:Arial,sans-serif;font-size:12px;color:#8ab88a;letter-spacing:1px;text-transform:uppercase;">Artificial Grass &amp; Synthetic Turf</p>
+            </td>
+          </tr>
+
+          <!-- Order Confirmed Badge -->
+          <tr>
+            <td style="background-color:#2d5a2d;padding:16px 40px;text-align:center;">
+              <p style="margin:0;font-family:Arial,sans-serif;font-size:13px;font-weight:bold;color:#c8e6c8;letter-spacing:1px;text-transform:uppercase;">Order Confirmed — #{{inboundWebhookRequest.display_id}}</p>
+            </td>
+          </tr>
+
+          <!-- Body -->
+          <tr>
+            <td style="padding:40px 40px 32px 40px;">
+
+              <p style="margin:0 0 24px 0;font-family:Arial,sans-serif;font-size:16px;color:#1a1a1a;line-height:1.5;">
+                Hi {{inboundWebhookRequest.customer_first_name}},
+              </p>
+
+              <p style="margin:0 0 24px 0;font-family:Arial,sans-serif;font-size:15px;color:#333333;line-height:1.6;">
+                Your order is confirmed and is being prepared for shipment. You picked quality material — we'll make sure it gets to you in perfect condition.
+              </p>
+
+              <!-- Order Summary Box -->
+              <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f9f9f7;border:1px solid #e0e0d8;border-radius:4px;margin-bottom:32px;">
+                <tr>
+                  <td style="padding:20px 24px 12px 24px;">
+                    <p style="margin:0 0 16px 0;font-family:Arial,sans-serif;font-size:11px;font-weight:bold;color:#666666;letter-spacing:1px;text-transform:uppercase;">Order Summary</p>
+
+                    <!-- Items -->
+                    <p style="margin:0 0 16px 0;font-family:'Courier New',monospace;font-size:13px;color:#1a1a1a;line-height:1.7;white-space:pre-wrap;">{{inboundWebhookRequest.items_text}}</p>
+
+                    <!-- Divider -->
+                    <table width="100%" cellpadding="0" cellspacing="0" style="border-top:1px solid #e0e0d8;margin-bottom:12px;"><tr><td style="padding:0;font-size:0;">&nbsp;</td></tr></table>
+
+                    <!-- Totals -->
+                    <table width="100%" cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td style="font-family:Arial,sans-serif;font-size:13px;color:#555555;padding:3px 0;">Subtotal</td>
+                        <td align="right" style="font-family:Arial,sans-serif;font-size:13px;color:#555555;padding:3px 0;">{{inboundWebhookRequest.subtotal_formatted}}</td>
+                      </tr>
+                      <tr>
+                        <td style="font-family:Arial,sans-serif;font-size:13px;color:#555555;padding:3px 0;">Shipping</td>
+                        <td align="right" style="font-family:Arial,sans-serif;font-size:13px;color:#555555;padding:3px 0;">{{inboundWebhookRequest.shipping_total_formatted}}</td>
+                      </tr>
+                      <tr>
+                        <td style="font-family:Arial,sans-serif;font-size:13px;color:#555555;padding:3px 0;">Tax</td>
+                        <td align="right" style="font-family:Arial,sans-serif;font-size:13px;color:#555555;padding:3px 0;">{{inboundWebhookRequest.tax_total_formatted}}</td>
+                      </tr>
+                      <tr>
+                        <td style="font-family:Arial,sans-serif;font-size:14px;font-weight:bold;color:#1a1a1a;padding:10px 0 3px 0;border-top:1px solid #cccccc;">Order Total</td>
+                        <td align="right" style="font-family:Arial,sans-serif;font-size:14px;font-weight:bold;color:#1a1a1a;padding:10px 0 3px 0;border-top:1px solid #cccccc;">{{inboundWebhookRequest.total_formatted}}</td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Shipping To Box -->
+              <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f9f9f7;border:1px solid #e0e0d8;border-radius:4px;margin-bottom:32px;">
+                <tr>
+                  <td style="padding:20px 24px;">
+                    <p style="margin:0 0 8px 0;font-family:Arial,sans-serif;font-size:11px;font-weight:bold;color:#666666;letter-spacing:1px;text-transform:uppercase;">Shipping To</p>
+                    <p style="margin:0;font-family:Arial,sans-serif;font-size:14px;color:#1a1a1a;line-height:1.5;">
+                      {{inboundWebhookRequest.customer_full_name}}<br>
+                      {{inboundWebhookRequest.shipping_address_oneline}}
+                    </p>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- What's Next -->
+              <p style="margin:0 0 12px 0;font-family:Arial,sans-serif;font-size:11px;font-weight:bold;color:#666666;letter-spacing:1px;text-transform:uppercase;">What Happens Next</p>
+
+              <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:32px;">
+                <tr>
+                  <td valign="top" style="padding:8px 0;border-bottom:1px solid #f0f0ec;">
+                    <table cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td valign="top" style="font-family:Arial,sans-serif;font-size:20px;color:#2d5a2d;font-weight:bold;padding-right:14px;line-height:1;">1</td>
+                        <td valign="top" style="font-family:Arial,sans-serif;font-size:14px;color:#333333;line-height:1.5;"><strong>Ships via LTL freight within 1–2 business days.</strong> Turf rolls ship on a pallet by freight carrier — not UPS or FedEx.</td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+                <tr>
+                  <td valign="top" style="padding:8px 0;border-bottom:1px solid #f0f0ec;">
+                    <table cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td valign="top" style="font-family:Arial,sans-serif;font-size:20px;color:#2d5a2d;font-weight:bold;padding-right:14px;line-height:1;">2</td>
+                        <td valign="top" style="font-family:Arial,sans-serif;font-size:14px;color:#333333;line-height:1.5;"><strong>The carrier will call you 24–48 hours before delivery</strong> to schedule a delivery window. Make sure the number on file is reachable.</td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+                <tr>
+                  <td valign="top" style="padding:8px 0;border-bottom:1px solid #f0f0ec;">
+                    <table cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td valign="top" style="font-family:Arial,sans-serif;font-size:20px;color:#2d5a2d;font-weight:bold;padding-right:14px;line-height:1;">3</td>
+                        <td valign="top" style="font-family:Arial,sans-serif;font-size:14px;color:#333333;line-height:1.5;"><strong>Someone 18 or older must be present to sign</strong> for the delivery. Missed deliveries may incur redelivery fees from the carrier.</td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+                <tr>
+                  <td valign="top" style="padding:8px 0;">
+                    <table cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td valign="top" style="font-family:Arial,sans-serif;font-size:20px;color:#2d5a2d;font-weight:bold;padding-right:14px;line-height:1;">4</td>
+                        <td valign="top" style="font-family:Arial,sans-serif;font-size:14px;color:#333333;line-height:1.5;"><strong>Inspect every roll before signing the delivery receipt.</strong> Note any visible damage on the driver's paperwork before they leave. Claims made after the driver departs are difficult to process.</td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Questions -->
+              <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f0f4f0;border-left:3px solid #2d5a2d;border-radius:0 4px 4px 0;margin-bottom:32px;">
+                <tr>
+                  <td style="padding:20px 24px;">
+                    <p style="margin:0 0 8px 0;font-family:Arial,sans-serif;font-size:14px;font-weight:bold;color:#1a1a1a;">Questions about your order?</p>
+                    <p style="margin:0;font-family:Arial,sans-serif;font-size:13px;color:#333333;line-height:1.6;">
+                      Call or text us at <a href="tel:9094912203" style="color:#2d5a2d;text-decoration:none;font-weight:bold;">(909) 491-2203</a><br>
+                      Email: <a href="mailto:support@turf-world.com" style="color:#2d5a2d;text-decoration:none;">support@turf-world.com</a><br>
+                      <span style="color:#888888;font-size:12px;">Reference your order number: #{{inboundWebhookRequest.display_id}}</span>
+                    </p>
+                  </td>
+                </tr>
+              </table>
+
+              <p style="margin:0;font-family:Arial,sans-serif;font-size:14px;color:#333333;line-height:1.6;">
+                Thanks for choosing Turf World. We'll be in touch as soon as your order ships.
+              </p>
+
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="background-color:#1a3a1a;padding:24px 40px;text-align:center;">
+              <p style="margin:0 0 4px 0;font-family:Arial,sans-serif;font-size:12px;color:#8ab88a;">Turf World — Southern California's Artificial Grass Supplier</p>
+              <p style="margin:0;font-family:Arial,sans-serif;font-size:11px;color:#4a6a4a;">
+                <a href="tel:9094912203" style="color:#8ab88a;text-decoration:none;">(909) 491-2203</a>
+                &nbsp;|&nbsp;
+                <a href="mailto:support@turf-world.com" style="color:#8ab88a;text-decoration:none;">support@turf-world.com</a>
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+
+</body>
+</html>
