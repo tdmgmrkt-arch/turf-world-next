@@ -6,6 +6,7 @@ import Image from "next/image";
 import { AuthGuard } from "@/components/account/auth-guard";
 import { medusa } from "@/lib/medusa";
 import { normalizeImageUrl } from "@/lib/medusa-adapters";
+import { formatOrderNumber } from "@/lib/utils";
 import { ArrowLeft, Package, Loader2 } from "lucide-react";
 import Link from "next/link";
 
@@ -161,7 +162,7 @@ function OrderDetail() {
             <div className="flex-1 min-w-0">
               <div className="flex items-start justify-between gap-2">
                 <h1 className="text-base sm:text-lg font-bold text-white">
-                  Order #{order.display_id || order.id.slice(-8)}
+                  {order.display_id ? formatOrderNumber(order.display_id) : `Order #${order.id.slice(-8)}`}
                 </h1>
                 <span className={`flex-shrink-0 px-2.5 py-1 rounded-full text-xs font-medium ${status.cls}`}>
                   {status.label}

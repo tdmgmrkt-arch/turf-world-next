@@ -39,7 +39,7 @@ import { Label as ShadcnLabel } from "@/components/ui/label";
 import { StripeProvider } from "@/components/stripe-provider";
 import { useCartStore } from "@/lib/store";
 import { useMedusaCart } from "@/hooks/use-medusa-cart";
-import { formatPrice, cn } from "@/lib/utils";
+import { formatPrice, cn, formatOrderNumber } from "@/lib/utils";
 import { isSoCalZipCode } from "@/lib/socal-zipcodes";
 import { getEligibleWillCallLocations, WILL_CALL_LOCATIONS, cartHasTurf } from "@/lib/will-call-locations";
 import type { CartItem } from "@/types";
@@ -144,7 +144,7 @@ function PaymentForm({
   isProcessing,
   setIsProcessing,
 }: {
-  onSuccess: (orderId: string) => void;
+  onSuccess: (orderId: string, displayId: number) => void;
   onBack: () => void;
   total: number;
   isProcessing: boolean;
@@ -183,7 +183,7 @@ function PaymentForm({
       if (paymentIntent && paymentIntent.status === "succeeded") {
         try {
           const order = await completeCheckout();
-          onSuccess(order.id);
+          onSuccess(order.id, Number(order.display_id));
         } catch (completeErr: any) {
           console.error("Order completion failed:", completeErr);
           const msg = completeErr?.message || "Unknown error";
@@ -445,6 +445,7 @@ export function CheckoutForm() {
   const [isInitializingPayment, setIsInitializingPayment] = useState(false);
   const [paymentError, setPaymentError] = useState<string | null>(null);
   const [orderId, setOrderId] = useState<string | null>(null);
+  const [orderDisplayId, setOrderDisplayId] = useState<number | null>(null);
   const [completedOrder, setCompletedOrder] = useState<{
     items: typeof items;
     subtotal: number;
@@ -638,7 +639,7 @@ export function CheckoutForm() {
     }
   };
 
-  const handlePaymentSuccess = (newOrderId: string) => {
+  const handlePaymentSuccess = (newOrderId: string, newDisplayId: number) => {
     // Persist shipping selection so the account order detail page can display it
     try {
       const isWillCall = selectedShipping.startsWith("willcall-");
@@ -658,6 +659,7 @@ export function CheckoutForm() {
       selectedShipping,
     });
     setOrderId(newOrderId);
+    setOrderDisplayId(newDisplayId);
     setCurrentStep("confirmation");
     clearCart();
   };
@@ -1291,7 +1293,7 @@ export function CheckoutForm() {
                         setIsProcessing(true);
                         await new Promise((resolve) => setTimeout(resolve, 2000));
                         const demoOrderId = `demo-${Date.now()}`;
-                        handlePaymentSuccess(demoOrderId);
+                        handlePaymentSuccess(demoOrderId, 0);
                       }}
                     >
                       {isProcessing ? (
@@ -1323,10 +1325,12 @@ export function CheckoutForm() {
               </div>
               <h2 className="text-2xl font-bold text-white">Order Confirmed!</h2>
               <p className="text-emerald-100 mt-2">Thank you for your purchase</p>
-              <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/20">
-                <span className="text-sm text-white/80">Order number:</span>
-                <span className="font-mono font-bold text-white">{orderId}</span>
-              </div>
+              {orderDisplayId ? (
+                <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/20">
+                  <span className="text-sm text-white/80">Order number:</span>
+                  <span className="font-mono font-bold text-white">{formatOrderNumber(orderDisplayId)}</span>
+                </div>
+              ) : null}
             </div>
 
             <div className="p-6 space-y-6">

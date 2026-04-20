@@ -5,6 +5,7 @@ import { AuthGuard } from "@/components/account/auth-guard";
 import { useAuth } from "@/hooks/use-auth";
 import { medusa } from "@/lib/medusa";
 import { normalizeImageUrl } from "@/lib/medusa-adapters";
+import { formatOrderNumber } from "@/lib/utils";
 import Image from "next/image";
 import {
   User, MapPin, Package, Save, Plus, Trash2, Loader2, CheckCircle, AlertCircle, Pencil,
@@ -618,7 +619,7 @@ function OrdersTab() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-slate-900">
-                    Order #{order.display_id || order.id.slice(-8)}
+                    {order.display_id ? formatOrderNumber(order.display_id) : `Order #${order.id.slice(-8)}`}
                   </p>
                   <p className="text-xs text-slate-500 mt-1">
                     {new Date(order.created_at).toLocaleDateString("en-US", {
