@@ -168,7 +168,7 @@ export default async function OrderConfirmationPage({
                 <div>
                   <h2 className="text-xl md:text-2xl font-bold text-white">Need Installation Help?</h2>
                   <p className="text-emerald-100 mt-1">
-                    Find a certified installer in your area for professional installation.
+                    We'll connect you with one of our partnered installers in your area.
                   </p>
                 </div>
               </div>
@@ -178,7 +178,7 @@ export default async function OrderConfirmationPage({
                 asChild
               >
                 <Link href="/installers">
-                  Find Installers
+                  Request Installation
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
               </Button>

@@ -157,9 +157,16 @@ const aboutCategories = [
   },
 ];
 
-// Desktop navigation links (simple list)
+// Desktop navigation links (simple list) — primary browsing + conversion items only.
+// Locations and Wholesale live in the top utility bar.
 const desktopNavLinks = [
   { name: "Calculator", href: "/calculator" },
+  { name: "Financing", href: "/financing" },
+  { name: "Installation", href: "/installers" },
+];
+
+// Top utility bar links (desktop only, secondary/utility)
+const topBarLinks = [
   { name: "Locations", href: "/locations" },
   { name: "Wholesale", href: "/broker" },
 ];
@@ -167,6 +174,8 @@ const desktopNavLinks = [
 // Mobile-only resource links (full list including legal/policy pages)
 const mobileResourceLinks = [
   { name: "Calculator", href: "/calculator" },
+  { name: "Financing", href: "/financing" },
+  { name: "Installation", href: "/installers" },
   { name: "Locations", href: "/locations" },
   { name: "Wholesale", href: "/broker" },
   { name: "Installation Guide", href: "/installation" },
@@ -237,6 +246,34 @@ export function Header() {
 
   return (
     <>
+      {/* Top utility bar — desktop only, not sticky (scrolls away) */}
+      <div className="hidden lg:block bg-slate-900 text-white/80">
+        <div className="container">
+          <div className="flex h-9 items-center justify-between text-xs">
+            <div className="flex items-center gap-2">
+              <span className="text-white/60">Southern California's premier artificial grass supplier</span>
+            </div>
+            <div className="flex items-center divide-x divide-white/10">
+              <a
+                href="tel:(909) 491-2203"
+                className="flex items-center gap-1.5 pr-4 hover:text-[#34CE95] transition-colors"
+              >
+                <Phone className="h-3 w-3" /> (909) 491-2203
+              </a>
+              {topBarLinks.map((link) => (
+                <Link
+                  key={link.name}
+                  href={link.href}
+                  className="px-4 hover:text-[#34CE95] transition-colors"
+                >
+                  {link.name}
+                </Link>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
       <header className="sticky top-0 z-50 w-full bg-white border-b">
         <div className="container">
           <div className="flex h-16 items-center justify-between">
@@ -329,10 +366,6 @@ export function Header() {
 
             {/* Right Side */}
             <div className="flex items-center gap-3">
-              <a href="tel:(909) 491-2203" className="hidden xl:flex items-center gap-2 text-sm font-medium hover:text-primary transition-colors">
-                <Phone className="h-4 w-4" /> (909) 491-2203
-              </a>
-
               <AccountButton />
 
               <Button

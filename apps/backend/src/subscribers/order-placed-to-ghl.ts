@@ -35,6 +35,7 @@ export default async function orderPlacedToGhl({
       "email",
       "currency_code",
       "created_at",
+      "metadata",
       "summary.*",
       "items.title",
       "items.variant_title",
@@ -131,12 +132,33 @@ export function buildGhlPayload(order: any, emailOverride?: string) {
   const displayId = order.display_id ?? 0;
   const displayIdFormatted = `TW-${10000 + Number(displayId)}`;
 
+  // Fulfillment classification from cart metadata (set at checkout).
+  // shipping_type values: "will-call" | "nextday" | "freight" (or unset for legacy orders).
+  const md = order.metadata ?? {};
+  const rawShippingType: string = typeof md.shipping_type === "string" ? md.shipping_type : "";
+  const fulfillmentType = rawShippingType === "will-call" ? "will-call" : "ship";
+  const fulfillmentLabel = ((): string => {
+    if (fulfillmentType === "will-call") return "Will Call Pickup";
+    if (rawShippingType === "nextday") return "Next-Day Shipping";
+    if (rawShippingType === "freight") return "LTL Freight Shipping";
+    return "Shipping";
+  })();
+  const pickupLocationName: string = typeof md.pickup_location_name === "string" ? md.pickup_location_name : "";
+  const pickupLocationAddress: string = typeof md.pickup_location_address === "string" ? md.pickup_location_address : "";
+
   return {
     event: "order.placed",
     order_id: order.id,
     display_id: displayId,
     display_id_formatted: displayIdFormatted,
     placed_at: order.created_at,
+
+    fulfillment_type: fulfillmentType,
+    fulfillment_label: fulfillmentLabel,
+    shipping_type_raw: rawShippingType,
+    pickup_location_name: pickupLocationName,
+    pickup_location_address: pickupLocationAddress,
+    is_will_call: fulfillmentType === "will-call",
 
     customer_email: emailOverride ?? order.email,
     customer_first_name: firstName,

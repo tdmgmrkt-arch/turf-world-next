@@ -48,9 +48,10 @@ const footerLinks = {
     title: "Resources",
     links: [
       { name: "Project Calculator", href: "/calculator" },
+      { name: "Financing", href: "/financing" },
       { name: "Free Samples", href: "/samples" },
       { name: "Installation Guide", href: "/installation" },
-      { name: "Find Installers", href: "/installers" },
+      { name: "Request Installation", href: "/installers" },
       { name: "FAQ", href: "/faq" },
     ],
   },

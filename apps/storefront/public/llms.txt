@@ -31,7 +31,7 @@ Turf World is a direct-to-consumer supplier of professional-grade artificial gra
 - `/calculator` - Standalone project estimator
 - `/samples` - Order free swatch kits (3 samples)
 - `/supplies` - Infill, seam tape, adhesive
-- `/installers` - Directory of certified installation pros
+- `/installers` - Request installation — form to connect customers with partnered installers
 - `/locations/[city]` - Local SEO landing pages
 
 ## Calculator Logic

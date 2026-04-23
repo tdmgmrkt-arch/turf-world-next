@@ -966,11 +966,10 @@ export function CheckoutForm() {
                       <Input
                         id="state"
                         value={shipping.state}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setShipping({ ...shipping, state: e.target.value })}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setShipping({ ...shipping, state: e.target.value.toUpperCase() })}
                         maxLength={2}
-                        placeholder="CA"
                         required
-                        className="h-10 sm:h-12 rounded-lg sm:rounded-xl border-slate-200"
+                        className="h-10 sm:h-12 rounded-lg sm:rounded-xl border-slate-200 uppercase"
                       />
                     </div>
                     <div className="space-y-1 sm:space-y-2">

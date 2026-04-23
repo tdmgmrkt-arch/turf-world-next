@@ -17,6 +17,11 @@ const WEBHOOK_URL =
   "https://services.leadconnectorhq.com/hooks/lBYgCVRxgw7QkJkVotLZ/webhook-trigger/c5fe0399-c4b7-41e5-979b-e9822fd4e86f";
 const DRY_RUN = true;
 
+// Force the fulfillment classification for testing the will-call branch against
+// an order that was actually a shipping order. Options: "" | "will-call" | "nextday" | "freight".
+// Empty string = use whatever the order's real metadata says.
+const FORCE_FULFILLMENT_TYPE: "" | "will-call" | "nextday" | "freight" = "";
+
 export default async function testOrderPlaced({ container }: ExecArgs) {
   const logger = container.resolve(ContainerRegistrationKeys.LOGGER);
   const query = container.resolve(ContainerRegistrationKeys.QUERY);
@@ -29,6 +34,7 @@ export default async function testOrderPlaced({ container }: ExecArgs) {
       "email",
       "currency_code",
       "created_at",
+      "metadata",
       "summary.*",
       "items.title",
       "items.variant_title",
@@ -58,6 +64,21 @@ export default async function testOrderPlaced({ container }: ExecArgs) {
 
   logger.info(`--- order.summary ---`);
   logger.info(JSON.stringify(order.summary, null, 2));
+
+  // Optionally override fulfillment metadata so we can preview the will-call branch
+  // against an order that was actually a shipping order.
+  if (FORCE_FULFILLMENT_TYPE) {
+    const mockedMetadata: Record<string, string> = {
+      ...(order.metadata ?? {}),
+      shipping_type: FORCE_FULFILLMENT_TYPE,
+    };
+    if (FORCE_FULFILLMENT_TYPE === "will-call") {
+      mockedMetadata.pickup_location_name = "Pomona Warehouse";
+      mockedMetadata.pickup_location_address = "1970 W Holt Ave, Pomona, CA 91768";
+    }
+    order.metadata = mockedMetadata;
+    logger.warn(`[FORCE_FULFILLMENT_TYPE=${FORCE_FULFILLMENT_TYPE}] overrode order.metadata for testing`);
+  }
 
   const payload = buildGhlPayload(order, TEST_EMAIL_OVERRIDE);
 
