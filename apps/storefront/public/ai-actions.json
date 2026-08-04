@@ -1,0 +1,86 @@
+{
+  "$schema": "https://www.turf-world.com/ai-actions.json",
+  "business": {
+    "name": "Turf World",
+    "legal_name": "Turf World",
+    "url": "https://www.turf-world.com",
+    "telephone": "+1-909-491-2203",
+    "address": {
+      "locality": "Pomona",
+      "region": "CA",
+      "country": "US"
+    },
+    "hours": "Mon-Fri 8am-5pm PST",
+    "service_area": [
+      "Nationwide (US)",
+      "Pomona, CA",
+      "Irvine, CA",
+      "Chino, CA",
+      "Los Angeles, CA",
+      "San Diego, CA",
+      "Phoenix, AZ",
+      "Las Vegas, NV",
+      "Seattle, WA",
+      "Denver, CO",
+      "Austin, TX",
+      "Miami, FL"
+    ]
+  },
+  "customer_actions": {
+    "shop_products": {
+      "type": "web_page",
+      "url": "https://www.turf-world.com/products",
+      "label": "Shop Artificial Turf",
+      "description": "Browse the full catalog of professional-grade artificial grass, filterable by use case (pet, landscape, putting green). Transparent per-square-foot pricing with no hidden fees or minimum orders."
+    },
+    "project_calculator": {
+      "type": "web_page",
+      "url": "https://www.turf-world.com/calculator",
+      "label": "Estimate Your Project",
+      "description": "Standalone calculator that converts project dimensions (width x length) into rolls needed, seam tape, and infill required. All turf is sold in 15ft-wide rolls."
+    },
+    "order_samples": {
+      "type": "web_form",
+      "url": "https://www.turf-world.com/samples",
+      "label": "Order Free Samples",
+      "description": "Order a free swatch kit (up to 3 samples) shipped via standard parcel to compare turf products in person before purchasing rolls."
+    },
+    "request_installation": {
+      "type": "web_form",
+      "url": "https://www.turf-world.com/installers",
+      "label": "Request Installation",
+      "description": "Form to connect customers who purchase turf with Turf World's partnered installation network for professional installation.",
+      "supports_agent_booking": false
+    },
+    "financing": {
+      "type": "web_page",
+      "url": "https://www.turf-world.com/financing",
+      "label": "View Financing Options",
+      "description": "Payment plans and financing information for larger turf orders."
+    },
+    "contact": {
+      "type": "web_form",
+      "url": "https://www.turf-world.com/contact",
+      "label": "Contact Turf World",
+      "description": "Contact form for product questions, order support, bulk/commercial inquiries, and general questions.",
+      "supports_agent_booking": false
+    }
+  },
+  "primary_services": [
+    "K9 Series pet turf (permeable backing, antimicrobial, high drainage)",
+    "Landscape Series residential turf (59-93oz options)",
+    "EcoLush premium residential turf (108oz, recycled backing)",
+    "ProPutt nylon putting green turf (Stimp 10-12)",
+    "Commercial and playground turf",
+    "Installation supplies (infill, seam tape, adhesive)",
+    "Free turf sample kits",
+    "Partnered professional installation network",
+    "Project calculator and design support",
+    "Nationwide LTL freight shipping"
+  ],
+  "notes_for_ai_assistants": {
+    "booking": "Turf World is a direct-to-consumer e-commerce retailer, not a service business. There is no appointment booking. Customers order turf online (priced per square foot, sold in 15ft-wide rolls) and it ships via LTL freight nationwide. For installation, direct customers to the /installers form to connect with a partnered installer — this is a lead form, not a real-time booking API.",
+    "emergency_routing": "No emergency service. For urgent order or shipping issues, direct customers to phone (909) 491-2203 during business hours (Mon-Fri 8am-5pm PST) or email orders@turf-world.com / support@turf-world.com.",
+    "service_area_boundary": "Turf products ship nationwide (US) via LTL freight; samples and supplies ship via standard parcel. Local will-call pickup is available at three Southern California locations: Pomona, Irvine, and Chino. City-specific landing pages exist for Los Angeles, San Diego, Phoenix, Las Vegas, Seattle, Denver, Austin, and Miami, but shipping is not limited to those cities."
+  }
+}
