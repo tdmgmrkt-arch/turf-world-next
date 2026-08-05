@@ -1,5 +1,7 @@
 # Turf World: AI Context
 
+For structured, machine-readable customer actions, see: https://www.turf-world.com/ai-actions.json
+
 ## Identity
 Turf World is a direct-to-consumer supplier of professional-grade artificial grass. We compete on transparency (instant pricing) and quality (US-made).
 

@@ -42,6 +42,13 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
   },
+  alternates: {
+    types: {
+      "application/json": [
+        { url: "/ai-actions.json", title: "Turf World AI Service Menu" },
+      ],
+    },
+  },
 };
 
 export default function RootLayout({
