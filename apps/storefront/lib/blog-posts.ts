@@ -893,7 +893,6 @@ A well-installed artificial lawn will last 15-20 years with minimal maintenance.
     category: "Installation",
     readTime: 8,
     publishedAt: "2025-01-15",
-    featured: true,
   },
   {
     slug: "choosing-right-turf-for-pets",
@@ -1245,7 +1244,9 @@ export function getRecentPosts(count: number = 3): BlogPost[] {
 }
 
 export function getFeaturedPost(): BlogPost | undefined {
-  return BLOG_POSTS.find((post) => post.featured);
+  return [...BLOG_POSTS].sort(
+    (a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
+  )[0];
 }
 
 export function getPostsByCategory(category: string): BlogPost[] {
