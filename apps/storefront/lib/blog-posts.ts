@@ -206,7 +206,7 @@ For soft landings, artificial turf on the right shock pad significantly outperfo
 
 ## The One Metric That Matters: Fall Height
 
-Playground safety is rated by **critical fall height** — the maximum drop from which a child can fall without a serious head injury. It's measured under [ASTM F1292](https://www.astm.org/f1292.html) and certified by the [International Play Equipment Manufacturers Association (IPEMA)](https://www.ipema.org/).
+Playground safety is rated by **critical fall height** — the maximum drop from which a child can fall without a serious head injury. It's measured under [ASTM F1292](https://store.astm.org/f1292-22.html) and certified by the [International Play Equipment Manufacturers Association (IPEMA)](https://www.ipema.org/).
 
 Fall height is a function of:
 - Impact-attenuating surface (the shock pad)
@@ -509,7 +509,7 @@ Two options:
 
 **Shovel + labor:** Works for small yards (under 300 sq ft). Cut into 12" squares and pry up with a flat shovel.
 
-Compost the sod, use it as fill in a garden bed, or arrange bulk pickup. Natural sod is biodegradable — the [USDA NRCS](https://www.nrcs.usda.gov/) has excellent guidance on soil health and reuse.
+Compost the sod, use it as fill in a garden bed, or arrange bulk pickup. Natural sod is biodegradable — the [EPA home composting guide](https://www.epa.gov/recycle/composting-home) covers soil health and yard-waste reuse.
 
 ## Step 4: Grade and Prep the Base
 
