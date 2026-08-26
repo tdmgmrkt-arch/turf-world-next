@@ -44,6 +44,9 @@ function YelpIcon({ className }: { className?: string }) {
   );
 }
 
+const WEBHOOK_URL =
+  "https://services.leadconnectorhq.com/hooks/lBYgCVRxgw7QkJkVotLZ/webhook-trigger/73da146e-320d-437e-9163-1674a0afac0c";
+
 const faqs = [
   {
     question: "What are your shipping options?",
@@ -74,16 +77,56 @@ export default function ContactPage() {
     phone: "",
     subject: "",
     message: "",
+    hp_field: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (formData.hp_field) {
+      setIsSubmitted(true);
+      return;
+    }
+
     setIsSubmitting(true);
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    setIsSubmitting(false);
-    setIsSubmitted(true);
+    setErrorMsg("");
+
+    try {
+      const [firstName, ...rest] = formData.name.trim().split(/\s+/);
+      const lastName = rest.join(" ");
+
+      const res = await fetch(WEBHOOK_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          event: "contact.form",
+          firstName: firstName || "",
+          lastName: lastName || "",
+          fullName: formData.name,
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          subject: formData.subject,
+          message: formData.message,
+          submittedAt: new Date().toISOString(),
+        }),
+      });
+
+      if (!res.ok) {
+        throw new Error(`Submission failed (${res.status})`);
+      }
+
+      setIsSubmitted(true);
+    } catch (err: any) {
+      setErrorMsg(
+        err?.message ?? "Something went wrong. Please try again or call us."
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -289,6 +332,28 @@ export default function ContactPage() {
                     </div>
                   ) : (
                     <form onSubmit={handleSubmit} className="space-y-5">
+                      <div
+                        aria-hidden="true"
+                        style={{
+                          position: "absolute",
+                          left: "-9999px",
+                          top: "-9999px",
+                          width: "1px",
+                          height: "1px",
+                          overflow: "hidden",
+                        }}
+                      >
+                        <label htmlFor="hp_field">Leave this field empty</label>
+                        <input
+                          type="text"
+                          id="hp_field"
+                          name="hp_field"
+                          tabIndex={-1}
+                          autoComplete="off"
+                          value={formData.hp_field}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, hp_field: e.target.value })}
+                        />
+                      </div>
                       <div className="grid gap-5 sm:grid-cols-2">
                         <div className="space-y-2">
                           <Label htmlFor="name">Name</Label>
@@ -350,6 +415,11 @@ export default function ContactPage() {
                           className="rounded-xl resize-none"
                         />
                       </div>
+                      {errorMsg && (
+                        <div className="rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-800">
+                          {errorMsg}
+                        </div>
+                      )}
                       <Button
                         type="submit"
                         size="lg"
