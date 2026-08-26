@@ -46,6 +46,7 @@ export function SampleBoxBuilder() {
     postalCode: "",
     email: "",
     phone: "",
+    hp_field: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -66,6 +67,11 @@ export function SampleBoxBuilder() {
   };
 
   const handleSubmit = async () => {
+    if (formData.hp_field) {
+      setStep("confirm");
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       const selectedProducts = PRODUCTS.filter((p) =>
@@ -361,6 +367,28 @@ export function SampleBoxBuilder() {
 
             {/* Form Content */}
             <div className="p-6 space-y-5">
+              <div
+                aria-hidden="true"
+                style={{
+                  position: "absolute",
+                  left: "-9999px",
+                  top: "-9999px",
+                  width: "1px",
+                  height: "1px",
+                  overflow: "hidden",
+                }}
+              >
+                <label htmlFor="hp_field">Leave this field empty</label>
+                <input
+                  type="text"
+                  id="hp_field"
+                  name="hp_field"
+                  tabIndex={-1}
+                  autoComplete="off"
+                  value={formData.hp_field}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, hp_field: e.target.value })}
+                />
+              </div>
               {/* Name Row */}
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">

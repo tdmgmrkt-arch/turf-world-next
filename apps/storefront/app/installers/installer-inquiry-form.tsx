@@ -44,6 +44,7 @@ type FormState = {
   state: string;
   zip: string;
   notes: string;
+  hp_field: string;
 };
 
 const initialForm: FormState = {
@@ -56,6 +57,7 @@ const initialForm: FormState = {
   state: "",
   zip: "",
   notes: "",
+  hp_field: "",
 };
 
 export function InstallerInquiryForm() {
@@ -72,6 +74,12 @@ export function InstallerInquiryForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (form.hp_field) {
+      setStatus("success");
+      return;
+    }
+
     setStatus("submitting");
     setErrorMsg("");
 
@@ -183,6 +191,28 @@ export function InstallerInquiryForm() {
                   </div>
 
                   <form onSubmit={handleSubmit} className="space-y-4">
+                    <div
+                      aria-hidden="true"
+                      style={{
+                        position: "absolute",
+                        left: "-9999px",
+                        top: "-9999px",
+                        width: "1px",
+                        height: "1px",
+                        overflow: "hidden",
+                      }}
+                    >
+                      <label htmlFor="hp_field">Leave this field empty</label>
+                      <input
+                        type="text"
+                        id="hp_field"
+                        name="hp_field"
+                        tabIndex={-1}
+                        autoComplete="off"
+                        value={form.hp_field}
+                        onChange={updateField("hp_field")}
+                      />
+                    </div>
                     <div className="grid gap-4 sm:grid-cols-2">
                       <div className="space-y-1.5">
                         <Label htmlFor="firstName" className="text-sm font-medium">First Name</Label>
