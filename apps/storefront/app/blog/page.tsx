@@ -11,11 +11,15 @@ import {
 import { Button as ShadcnButton } from "@/components/ui/button";
 import { Breadcrumb } from "@/components/ui/breadcrumb";
 import {
-  BLOG_POSTS,
+  getPublishedPosts,
   getFeaturedPost,
   getAllCategories,
   POSTS_PER_PAGE,
 } from "@/lib/blog-posts";
+
+// ISR: re-generate the blog index at most once per hour so future-dated posts
+// appear on the site as their publishedAt date arrives.
+export const revalidate = 3600;
 
 // Cast to work around React 19 JSX type incompatibility
 const Link = NextLink as any;
@@ -51,11 +55,12 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
 
   const featuredPost = getFeaturedPost();
   const categories = getAllCategories();
+  const PUBLISHED_POSTS = getPublishedPosts();
 
   // Filter posts by category if selected
   let filteredPosts = selectedCategory
-    ? BLOG_POSTS.filter((post) => post.category === selectedCategory)
-    : BLOG_POSTS;
+    ? PUBLISHED_POSTS.filter((post) => post.category === selectedCategory)
+    : PUBLISHED_POSTS;
 
   // Remove featured post from regular listing
   if (!selectedCategory && featuredPost) {

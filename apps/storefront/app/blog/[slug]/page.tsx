@@ -13,11 +13,15 @@ import {
 import { Button as ShadcnButton } from "@/components/ui/button";
 import { Breadcrumb } from "@/components/ui/breadcrumb";
 import {
-  BLOG_POSTS,
+  getPublishedPosts,
   getBlogPostBySlug,
   getRecentPosts,
 } from "@/lib/blog-posts";
 import { BlogContent } from './blog-content';
+
+// ISR: re-generate at most once per hour so scheduled posts appear as their
+// publishedAt date arrives, without needing a redeploy.
+export const revalidate = 3600;
 
 // Cast to work around React 19 JSX type incompatibility
 const Link = NextLink as any;
@@ -35,7 +39,7 @@ interface BlogPostPageProps {
 }
 
 export async function generateStaticParams() {
-  return BLOG_POSTS.map((post) => ({
+  return getPublishedPosts().map((post) => ({
     slug: post.slug,
   }));
 }
@@ -81,11 +85,15 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
     });
   };
 
-  // Find previous and next posts
-  const currentIndex = BLOG_POSTS.findIndex((p) => p.slug === slug);
-  const prevPost = currentIndex > 0 ? BLOG_POSTS[currentIndex - 1] : null;
+  // Find previous and next posts (published only, so scheduled posts don't leak
+  // through the prev/next navigation)
+  const publishedPosts = getPublishedPosts();
+  const currentIndex = publishedPosts.findIndex((p) => p.slug === slug);
+  const prevPost = currentIndex > 0 ? publishedPosts[currentIndex - 1] : null;
   const nextPost =
-    currentIndex < BLOG_POSTS.length - 1 ? BLOG_POSTS[currentIndex + 1] : null;
+    currentIndex < publishedPosts.length - 1
+      ? publishedPosts[currentIndex + 1]
+      : null;
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-muted/50 to-background">
