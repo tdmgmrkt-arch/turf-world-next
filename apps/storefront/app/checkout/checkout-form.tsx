@@ -38,6 +38,7 @@ import { medusa } from "@/lib/medusa";
 import { Label as ShadcnLabel } from "@/components/ui/label";
 import { StripeProvider } from "@/components/stripe-provider";
 import { useCartStore } from "@/lib/store";
+import { pushPurchase } from "@/lib/analytics";
 import { useMedusaCart } from "@/hooks/use-medusa-cart";
 import { formatPrice, cn, formatOrderNumber } from "@/lib/utils";
 import { isSoCalZipCode } from "@/lib/socal-zipcodes";
@@ -657,6 +658,20 @@ export function CheckoutForm() {
       tax,
       total,
       selectedShipping,
+    });
+    // GA4 purchase event -> GTM dataLayer. Fired here (once, after Stripe has
+    // confirmed and the Medusa order exists) rather than on the cart page.
+    pushPurchase({
+      transactionId: newOrderId,
+      totalCents: total,
+      shippingCents: shippingCost,
+      taxCents: tax,
+      items: items.map((item) => ({
+        item_id: item.variantId || item.productId,
+        item_name: item.title,
+        price: Number((item.unitPrice / 100).toFixed(2)),
+        quantity: item.quantity,
+      })),
     });
     setOrderId(newOrderId);
     setOrderDisplayId(newDisplayId);
