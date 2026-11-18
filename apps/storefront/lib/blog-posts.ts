@@ -16,6 +16,658 @@ export interface BlogPost {
 
 export const BLOG_POSTS: BlogPost[] = [
   {
+    slug: "installing-artificial-turf-in-winter",
+    title: "Can You Install Artificial Turf in Winter? What Changes Below 50°F",
+    excerpt:
+      "Yes — and in most of the country winter is the cheapest, fastest time to get it done. What changes is the base work, how long the turf needs to relax, and how the adhesives cure.",
+    content: `
+## The Short Answer
+
+Yes. Artificial turf is a dry-install product. Nothing in it has to root, germinate, or grow, which is the entire reason sod and seed have a planting season and turf does not. Installers in [Phoenix](/locations/phoenix), [Las Vegas](/locations/las-vegas), and across the Sun Belt work straight through December without changing a single step.
+
+What stops a winter install is not cold air. It is **frozen ground**, and only for the days it is actually frozen.
+
+Everything else — stiffer rolls, slower adhesive cure, infill that does not spread the same — is a scheduling adjustment, not a blocker. Here is what actually changes and how to work around each one.
+
+## Frozen Ground Is the Only Hard Stop
+
+The base is the whole job. You are excavating 3–4 inches of soil, laying and compacting crushed rock, and grading it flat. Every one of those steps assumes the soil will move when you ask it to.
+
+Frozen soil does not. It breaks in chunks instead of cutting cleanly, it will not compact to a stable density, and worst of all it hides what happens next: you compact a frozen base, it looks perfect, then the frost leaves the ground in March and the whole thing settles unevenly. Now you have low spots and birdbaths under finished turf, which is one of the more expensive items in our [installation mistakes roundup](/blog/common-artificial-turf-mistakes).
+
+**The test is simple.** Drive a garden spade into the soil in the install area with normal body weight. If it goes in four inches, you are fine. If it stops dead at an inch and rings, the ground is frozen and the base work waits.
+
+Check the forecast rather than guessing — [National Weather Service](https://www.weather.gov/) point forecasts give you the overnight lows that matter, and the [NOAA Climate Prediction Center](https://www.cpc.ncep.noaa.gov/) 8–14 day outlooks are good enough to schedule a crew around.
+
+## Three Climate Scenarios
+
+| Your climate | Winter install? | What to plan for |
+|---|---|---|
+| Sun Belt (SoCal, AZ, NV, TX, FL) | Yes, no changes | Peak season for installers — book early |
+| Transition zone (Pacific NW, mid-Atlantic, Southeast) | Yes, in weather windows | Rain delays matter more than cold; watch base moisture |
+| Hard-freeze zone ([Denver](/locations/denver), Mountain West, Northeast, Midwest) | Yes, between freezes | Base work needs unfrozen soil; aim for thaw windows |
+
+In the hard-freeze zone the practical approach is to split the job. Do the demolition, excavation, and base compaction in a thaw window — late fall or an early-winter warm stretch — then set and seam the turf any time after. Laying turf on a finished, frozen base is fine. The base has already been compacted correctly.
+
+## What Changes Below 50°F
+
+### Turf Needs Much Longer to Relax
+
+Turf ships rolled, and polyethylene has memory. In summer you unroll it, leave it in the sun two to four hours, and the backing flattens and the roll curl disappears on its own.
+
+At 40°F that same relaxation can take a full day. Skip it and you fight the material all afternoon — edges lift, seams want to peak, cut lines wander. Unroll everything the day before you plan to seam, green side up, and let it sit. If you get sun, point the rolls so they catch it.
+
+This one step accounts for most of the difference between a good and a bad cold-weather install.
+
+### Seam Adhesive and Tape Cure Slower
+
+Most turf adhesives are moisture-cure or solvent-based, and both slow down substantially as temperature drops. A seam that sets in two hours at 75°F may need six or more at 45°F, and many products print a minimum application temperature right on the pail — commonly around 40°F.
+
+Three things help:
+
+- **Read the label for the minimum temperature.** Do not guess, and do not assume last summer's product is rated for today.
+- **Keep adhesive pails warm until the moment you use them.** Indoors or in a heated cab, not in the truck bed overnight.
+- **Weight the seams longer.** Sandbags or planks along the seam line, left overnight rather than a few hours.
+
+Nails and staples are unaffected by temperature, so perimeter fastening goes exactly as it does in July.
+
+### Infill Does Not Spread the Same
+
+Silica sand that has been sitting in a cold, damp garage clumps, and clumped infill does not fall through the fiber canopy. It bridges on top and brushes into stripes. Store bags somewhere dry, and if a bag feels heavy and solid, break it up before it goes in the spreader.
+
+Zeolite infills matter here too. Zeolite captures ammonia ions whether it is cold or not, but it has to actually reach the fiber base to do it. Spread it properly or you lose the benefit you paid for. Our [infill guide](/blog/artificial-turf-infill-guide) covers the material differences.
+
+### Base Moisture Needs Watching
+
+Crushed rock compacts best slightly damp — enough moisture for the fines to lock the aggregate together, not enough to make mud. Summer installs often need water added. Winter installs in a wet climate usually have the opposite problem: a saturated base pumps under a plate compactor instead of densifying, and you feel it later as sponginess underfoot.
+
+If the base pumps, stop and let it drain. Compacting saturated rock is wasted effort, and it is the root cause of a surprising share of the drainage complaints we cover in [turf drainage 101](/blog/artificial-turf-drainage-heavy-rain).
+
+## Why Winter Is Actually the Best Time to Buy
+
+The install logistics get slightly harder. Everything else gets easier.
+
+- **Installer availability.** Spring and early summer are when every landscape crew in the country is booked three to six weeks out. In January you can often get a crew next week — our [installer network](/installers) is noticeably less congested in Q1.
+- **Fewer scheduling collisions.** You are not competing with your own summer plans, the kids' activities, or a pool opening.
+- **Material lead times.** Freight lanes are quieter after the holiday retail peak. Most Southern California orders still qualify for next-day delivery and the rest move on LTL freight — the [shipping page](/shipping) has the current transit map.
+- **You are ready for spring.** The real payoff. Installing in February means the yard is finished and settled before the first warm weekend instead of being a construction site during it. Compare that against our [spring install timeline](/blog/spring-turf-installation-timeline) and the math is obvious.
+
+## If You Cannot Install Until Spring
+
+Sometimes the ground is simply frozen for the next ten weeks. If the material is already bought, store it properly:
+
+- **Flat or standing on end, never folded.** A fold in cold backing can set a permanent crease.
+- **Out of direct sun.** UV exposure on a stored roll is pointless wear, and our [warranty](/warranty) covers normal installed use, not a roll left in a driveway for three months.
+- **Off bare ground.** Pallets or 2x4s underneath so the bottom of the roll is not sitting in meltwater.
+- **Covered but not wrapped airtight.** A tarp with airflow. Sealed plastic traps condensation against the backing.
+
+Stored that way, turf holds indefinitely. It is inert plastic.
+
+## Common Questions
+
+### Is there a minimum temperature for installing artificial turf?
+Not for the turf itself. The limits come from the adhesive — commonly rated to about 40°F — and from the soil being workable. If the ground takes a spade and your adhesive is in its rated range, you can install.
+
+### Will seams installed in cold weather fail later?
+No, provided the adhesive cured within its rated temperature range and the seam was weighted long enough. A seam that cures correctly at 45°F is as strong as one cured at 85°F. Failures trace back to applying adhesive below the rated minimum or pulling the weights too early.
+
+### Does turf expand and contract with temperature?
+Slightly, yes. Polyethylene expands in heat and contracts in cold, which is why perimeter fastening matters. Turf installed on a cold day is at its most contracted, so stretch it snug but do not over-tension it — it will tighten further as it warms in spring. Leaving a little slack on a cold install is the correct instinct.
+
+### Can I install over frozen ground if I am not excavating — say on a patio or deck?
+Yes, easily. Hard-surface installs skip base work entirely, so cold ground is irrelevant. That makes them one of the better winter projects — see our [small-space patio guide](/blog/small-space-artificial-turf-patios) and the [rooftop and balcony guide](/blog/rooftop-balcony-artificial-turf-guide).
+
+### What about snow on a finished install?
+Not a problem, and it needs almost nothing from you. Plastic shovels, no rock salt, no power broom while the fibers are cold and stiff. Full detail in our [winter care guide](/blog/artificial-turf-winter-care).
+
+## The Short Version
+
+Cold air is not the obstacle. Frozen ground is, and only while it is frozen. Unroll the turf a day early so it relaxes, keep the adhesive warm and weight the seams overnight, keep the infill dry, and never compact a saturated or frozen base. Do that and a January install is indistinguishable from a June one — except you got a crew next week instead of next month, and the yard is finished before spring rather than during it.
+
+Want to know whether your climate window is open right now? [Get in touch](/contact) with your zip code and we will tell you what the realistic install window looks like, or [order free samples](/samples) while you plan the layout. For the full step-by-step, start with our [complete installation guide](/blog/complete-guide-artificial-turf-installation) and the [checklist for vetting an installer](/blog/hiring-artificial-turf-installer).
+    `,
+    image: "/blog/winter-turf-installation.webp",
+    author: { name: "The Experts @", avatar: "/team/twlogo2.png" },
+    category: "Installation",
+    readTime: 7,
+    publishedAt: "2026-11-16",
+  },
+  {
+    slug: "turf-backing-polyurethane-vs-latex",
+    title: "Turf Backing Explained: Polyurethane vs. Latex, and Why the Drainage Holes Matter",
+    excerpt:
+      "The backing is the half of the product you never look at, and the half that decides whether your turf lasts five years or twenty. Here is how to read it on a spec sheet and check it on a sample.",
+    content: `
+## The Part of the Spec Sheet Nobody Reads
+
+Shoppers compare face weight, pile height, and color. Almost nobody compares backing — and backing is where turf actually fails.
+
+Fibers wear slowly and visibly. You can watch a yard flatten over a decade. Backing fails suddenly and invisibly: tufts pull loose, seams let go, the sheet delaminates, or water stops passing through and the surface starts holding odor. By the time you notice, the fix is replacement, not repair.
+
+We have covered the [fiber material](/blog/turf-fiber-materials-explained) and the [blade shape and color](/blog/turf-blade-shapes-and-colors-guide). This is the third leg: the structure underneath.
+
+## How Backing Is Built
+
+Turf is a tufted textile. Two distinct layers do two distinct jobs.
+
+### Primary Backing
+
+A woven polypropylene fabric. The yarn is stitched through it, exactly like carpet, and it sets the geometry of the product — stitch rate, gauge, and how straight the rows run. At this stage the tufts are mechanically held but not locked. You could pull one out with your fingers.
+
+Polypropylene here is standard and correct. It is structural fabric you never touch, not the face fiber, so "polypropylene primary backing" on a datasheet is not the red flag that polypropylene *face fiber* would be.
+
+### Secondary Backing
+
+This is the coating applied to the underside, and it is the whole ballgame. It flows around the base of every tuft and cures, locking the yarn into the primary backing. Pull strength, dimensional stability, delamination resistance, and the lifespan of the product are all set here.
+
+Two chemistries dominate: latex and polyurethane.
+
+## Polyurethane vs. Latex
+
+| | Latex (SBR) | Polyurethane |
+|---|---|---|
+| Relative cost | Lower | Higher |
+| Tuft bind strength | Adequate when new | Higher, and holds longer |
+| Water resistance | Absorbs over time | Effectively non-absorbent |
+| Freeze-thaw tolerance | Poor — cracks and crumbles | Good |
+| UV and heat stability | Degrades faster | More stable |
+| Weight | Heavier | Lighter |
+| Typical service life | 5–10 years | 15–20+ years |
+| Common failure mode | Crumbling, delamination | Rare; usually mechanical damage |
+
+The practical difference is water. Latex is a styrene-butadiene emulsion that cures into a flexible film, and over years of wet-dry cycling it takes on water, then stiffens, cracks, and releases tufts. Add freeze-thaw and the timeline compresses sharply — latex-backed turf in a cold climate can start shedding fibers in under a decade.
+
+Polyurethane cures into a tougher, more closed polymer with far less water uptake. It stays flexible through cold cycles and holds its grip on the yarn. The [Society of Plastics Engineers](https://www.4spe.org/) publishes good background on how these two polymer families behave under thermal and moisture cycling if you want the chemistry.
+
+Latex is not fraud. It is a cost decision, and for a low-traffic decorative install in a mild climate it can be a defensible one. For a pet area, a kids' zone, anywhere that freezes, or anything you expect to outlive your mortgage, it is the wrong call.
+
+## Why "Double Polyurethane" Is on Every Spec We Sell
+
+Every SKU in our [product catalog](/products) lists **Double Polyurethane** backing — two coats rather than one.
+
+The second pass does two things. It raises tuft bind, because more polymer around the base of each tuft means more force required to extract it. And it adds redundancy, so a thin spot or pinhole in the first coat is covered by the second. It costs more to manufacture, and it is the main reason we can put a [16-year warranty](/warranty) on the product: eight years manufacturer plus eight years extended. You cannot write that warranty over latex and expect to honor it.
+
+## Drainage: Holes, Spacing, and Flow Rate
+
+Backing has to shed water, and how it does that is a design choice.
+
+### Punched Holes vs. Fully Permeable
+
+**Punched (perforated) backing** is the standard for landscape turf. Small holes — typically around a quarter inch, usually spaced roughly four inches on center in a grid — are punched through the cured secondary coat. Water finds a hole and drops. Drainage rates on perforated polyurethane backing are commonly rated well above any rainfall event a residential yard will see, which is why a correctly installed yard sheds a downpour as fast as the base can take it.
+
+**Fully permeable backing** uses a porous coating that passes water across the entire sheet rather than at discrete points. It drains faster per square foot and exists for cases where liquid volume is extreme and concentrated — heavy-use dog runs, kennels, some sports applications. It costs more and is overkill for a normal lawn.
+
+The practical point: for a pet zone, hole pattern matters more than headline flow rate. Urine does not fall as sheet rain across the yard — it lands in one spot. If the nearest hole is three inches away, the liquid travels laterally through infill before it can drain, and that is exactly how the uric acid problem in our [dog urine odor post](/blog/remove-dog-urine-smell-artificial-turf) gets established. Tighter hole spacing in the pet area is worth paying for, and our [guide to choosing turf for pets](/blog/choosing-right-turf-for-pets) goes further on it.
+
+### What Flow Rate Numbers Mean
+
+Datasheets express permeability in inches per hour or gallons per hour per square yard, measured under standardized conditions using test methods published through [ASTM](https://www.astm.org/). Treat the number as a ceiling, not a promise. The backing is almost never the bottleneck in a real yard — your base is. A backing rated at thirty inches per hour sitting on compacted clay with no aggregate drains at the speed of the clay. We walk through how to test your actual field drainage in [turf drainage 101](/blog/artificial-turf-drainage-heavy-rain).
+
+## How Backing Actually Fails
+
+Four modes, in rough order of frequency:
+
+- **Tuft loss.** Fibers pull out in clumps, usually first at gates, dog runs, and under play equipment. Almost always a secondary-backing problem — the polymer has lost its grip.
+- **Delamination.** Secondary backing separates from primary. Shows up as bubbling or a soft, shifting feel underfoot. Common in latex-backed product after repeated wet-dry cycling.
+- **Blocked perforations.** Fines, silt, or compacted infill plug the holes from above or below. Water starts sheeting instead of draining. Frequently misdiagnosed as a base failure.
+- **Mechanical damage.** Cuts, burns, punctures. Not a product defect, and usually repairable — see our [turf repair guide](/blog/repair-artificial-turf-damage).
+
+Tuft loss across a whole yard is the signal that you are at end of life rather than looking at a patch job. Our post on [when to replace artificial turf](/blog/when-to-replace-artificial-turf) covers that decision.
+
+## What to Check on a Physical Sample
+
+Spec sheets can be optimistic. A swatch in your hand cannot. When you [order free samples](/samples), flip each one over and do these four things:
+
+1. **Bend it backward hard.** Fold the sample face-to-face and crease it. Polyurethane flexes and recovers. Latex often shows a white stress line, feels chalky at the fold, or sheds a little powder.
+2. **Tug a single tuft.** Grip a few blades close to the backing and pull steadily. On good double-polyurethane the fibers stretch before they release. If a tuft slides out clean, walk away.
+3. **Look at the hole grid.** Count the spacing. Hold it up to a light and confirm the holes are actually open, not glazed shut with cured polymer — it happens on cheap product.
+4. **Weigh it in your hand.** Latex backing is noticeably heavier for the same face weight. Two samples with identical specs where one is distinctly heavier usually means latex underneath.
+
+Two minutes per sample, and it tells you more than any datasheet.
+
+## Backing, Weight, and Rooftops
+
+Backing choice has one more consequence worth knowing: polyurethane is lighter than latex for equivalent strength. On a rooftop, balcony, or deck where you are working against a structural load limit, that difference is not academic — it feeds directly into the load calculation in our [rooftop and balcony guide](/blog/rooftop-balcony-artificial-turf-guide).
+
+At end of life, backing also affects recyclability. Polyurethane-backed turf is easier to process through the specialty recyclers that handle synthetic turf; the [EPA Sustainable Materials Management](https://www.epa.gov/smm) program covers the polymer recovery pathways.
+
+## Common Questions
+
+### Is latex backing ever the right choice?
+For a low-traffic decorative install in a mild climate on a tight budget, it can be. Anywhere with freeze-thaw cycling, pets, kids, or a twenty-year expectation, no.
+
+### Do more drainage holes always mean better turf?
+No. More holes means faster point drainage, which matters for pet zones. It also means marginally less secondary backing holding tufts, and the limiting factor in a normal yard is the base, not the backing. Tight spacing is worth paying for in a dog run and largely irrelevant in a decorative front lawn.
+
+### Can backing be repaired?
+Punctures and cuts, yes — patched with seam tape and adhesive. Widespread tuft loss or delamination, no. That is end of life.
+
+### How do I tell what backing I already have?
+Pull back an edge, or look where the turf meets a hard border. Latex reads matte, chalky, and often grey-white, and may flake at the edge. Polyurethane reads smoother, denser, more rubbery. If an edge crumbles under a fingernail, it is aging latex.
+
+### Does infill protect the backing?
+Yes, meaningfully. Infill holds fibers upright, which keeps traffic load on the fiber instead of transmitting it straight into the tuft base, and it shields the backing from UV. Running turf underfilled shortens backing life — one more reason to keep up with the top-offs in our [infill guide](/blog/artificial-turf-infill-guide).
+
+## The Short Version
+
+Primary backing sets the geometry. Secondary backing decides the lifespan. Polyurethane beats latex on tuft bind, water resistance, freeze-thaw tolerance, and weight, and double polyurethane adds strength plus redundancy — which is why it is on every product we sell and why a 16-year warranty is possible at all. Hole spacing matters most where liquid lands in one place, meaning pet zones. And when a sample arrives, bend it and tug a tuft before you believe the datasheet.
+
+Compare backings yourself: [order free samples](/samples) and run the bend-and-tug test on each, or browse the [full catalog](/products) where the backing spec is listed on every SKU. Questions about a specific application? [Get in touch](/contact).
+    `,
+    image: "/blog/turf-backing-explained.webp",
+    author: { name: "The Experts @", avatar: "/team/twlogo2.png" },
+    category: "Product Selection",
+    readTime: 7,
+    publishedAt: "2026-11-12",
+  },
+  {
+    slug: "how-much-artificial-turf-do-i-need",
+    title: "How Much Artificial Turf Do I Need? Roll Widths, Seams, and Waste Factor",
+    excerpt:
+      "Square footage is the easy part. The number that decides your order is how your yard maps onto a 15-foot roll — and that is where most people under-order or massively over-order.",
+    content: `
+## Why Square Footage Is Not Your Order Quantity
+
+You measure the yard, multiply, and get 600 square feet. Then you place the order, and depending on how you lay it out you buy 600 square feet or 900 square feet of the exact same turf for the exact same yard.
+
+That is not a markup. It is roll geometry. Turf comes off a tufting machine as a continuous sheet of fixed width, and what you buy is a length of that sheet — not an area. Every cut you take is 15 feet wide whether you need 15 feet or 5.
+
+Get the layout right and the overage is nearly zero. Get it wrong and you pay for 50% more turf than your yard holds. Here is how to get it right before you order.
+
+## The 15-Foot Rule
+
+Three numbers govern every turf order:
+
+- **Roll width: 15 feet.** Industry standard, and it is not negotiable — it is set by the tufting machine. All cuts are 15 feet wide.
+- **Roll length: up to 100 feet.** A single continuous cut can be any length up to 100 feet.
+- **Minimum cut: 10 feet.** Shorter pieces are not practical to cut, roll, and ship.
+
+So an order is really a list of cuts: "two pieces at 30 feet," "one at 42 feet and one at 18 feet." Our [project calculator](/calculator) does this math for you, and the cut builder on every [product page](/products) lets you adjust the individual pieces by hand.
+
+## Step 1: Break the Yard Into Rectangles
+
+Turf gets cut to shape on site, so curves and odd angles do not need to be measured precisely. What you need is the **bounding rectangle** of each area — the smallest rectangle that contains it.
+
+Draw the yard on paper. Split it into the fewest rectangles that cover everything, and measure each one at its widest and longest point. A kidney-shaped lawn is a rectangle for ordering purposes. An L-shaped yard is two rectangles.
+
+Then **add 3 to 6 inches on every side you can**. You want to trim material away at the edges, never discover you are a half inch short against a concrete border. Trimming excess takes thirty seconds. Being short means a seam where you did not want one, or a second order.
+
+## Step 2: Decide Which Way the Grain Runs
+
+Turf is directional. The blades lean, and the yard looks noticeably different depending on your viewing angle — lighter and shinier looking with the grain, darker and richer looking into it. We get into this in the [blade shapes and colors guide](/blog/turf-blade-shapes-and-colors-guide).
+
+Two rules:
+
+1. **Every piece in one continuous area must run the same direction.** Mix them and the seam reads as a color change, and no amount of brushing fixes it. This is one of the most common self-inflicted install problems in our [mistakes roundup](/blog/common-artificial-turf-mistakes).
+2. **Point the grain at the primary viewing position.** Usually the back door, patio, or kitchen window. Blades leaning toward the viewer read darkest and most natural.
+
+Grain direction constrains the layout, which is why this decision comes before the cut plan rather than after.
+
+## Step 3: Lay Out the Cuts
+
+Now you fit 15-foot strips into each rectangle. Two options per rectangle: strips running along the length, or strips running along the width. They give different totals.
+
+Count: how many 15-foot strips does it take to cover the short dimension, and how long is each strip?
+
+The guiding principle: **you want the dimension you are covering with strips to land close to a multiple of 15.** Twenty feet is a terrible width (two strips, five feet wasted on every strip). Thirty feet is perfect (two strips, nothing wasted).
+
+## Worked Example: A 30 × 20 Backyard
+
+Same yard, 600 square feet, two layouts.
+
+**Layout A — strips run the 30-foot direction.**
+Covering the 20-foot width needs 2 strips (15 + 5). Each strip is 30 feet long.
+2 cuts × 30 ft = 60 linear feet × 15 ft wide = **900 sq ft purchased.** One seam. 300 square feet of overage.
+
+**Layout B — strips run the 20-foot direction.**
+Covering the 30-foot width needs exactly 2 strips (15 + 15). Each strip is 20 feet long.
+2 cuts × 20 ft = 40 linear feet × 15 ft wide = **600 sq ft purchased.** One seam. Zero overage.
+
+Identical yard. Identical seam count. A 300-square-foot difference, which at mid-range turf pricing is real money — and the only thing that changed was which direction the strips ran.
+
+Then check it against the grain decision. If Layout B points the grain the wrong way for your patio view, you have a genuine trade-off to weigh: the visual result against the material cost. Sometimes Layout A is worth it. The point is to make that choice deliberately instead of discovering it on the invoice.
+
+And if you do end up with Layout A, the leftover 5-foot strip is not garbage — it is the dog run, the side yard strip, the patch under the trampoline, or your repair stock. Keep it.
+
+## Step 4: Add a Waste Factor
+
+The cut plan handles roll geometry. The waste factor handles your yard's specific awkwardness.
+
+| Yard type | Add |
+|---|---|
+| Simple rectangle, dimension near a multiple of 15 ft | 0–5% |
+| Simple rectangle, awkward dimension | 5–10% |
+| L-shaped or two separate zones | 10% |
+| Curved beds and flowing borders | 10–15% |
+| Sloped or terraced ground | 15% |
+| Many obstacles — trees, pavers, AC pads, posts | 15–20% |
+
+Each obstacle costs you more than its own footprint, because you cut around it and the offcut is usually unusable. A yard with three mature trees and a utility pad is a 15–20% yard, not a 5% yard.
+
+Slopes add material because you are covering a surface longer than its flat-map measurement, and because anchoring at the top and bottom eats extra. Our [sloped yards and hillsides guide](/blog/turf-sloped-yards-hillsides) covers that layout problem specifically.
+
+## Seams: How Many You Actually Want
+
+Fewer seams is better, but not at any price.
+
+A seam done right is invisible and permanent. A seam done wrong is the single most visible defect on an install. So the real objective is not minimizing seam count — it is **putting the seams you need in places that are easy to execute and hard to see.**
+
+Good seam placement:
+
+- **Straight runs across open ground.** Easy to align, easy to weight while it cures.
+- **Under or behind permanent features.** Beneath a play structure, along a planter edge, under the trampoline.
+- **Away from the main viewing line.** Perpendicular to your sightline from the patio, not running straight at you.
+
+Bad seam placement:
+
+- **Through a gate or walkway.** Highest traffic and the most stress the install will see.
+- **Along a curve.** Hard to match, and it will telegraph.
+- **In the middle of the primary view.** Even a good seam catches the eye in direct afternoon light.
+
+Taking one extra seam to save 200 square feet of turf is usually a good trade. Taking three extra seams to save 50 is not.
+
+## What Else to Order With It
+
+Order the consumables with the turf — they are sized off your square footage and cut count, and nobody wants to pause an install for a hardware run. The rates we use on the [supplies page](/supplies) and in the cut builder:
+
+- **Infill:** 1 bag per 50 sq ft. Silica for landscape, [zeolite](/blog/artificial-turf-infill-guide) for pet areas, 60-grit for putting greens.
+- **Seam tape:** one 8 in × 50 ft roll per seam.
+- **Landscape nails:** 1 box per 800 sq ft, for perimeter and seams.
+- **Weed barrier:** 1 roll per 800 sq ft. See [preventing weeds under turf](/blog/preventing-weeds-under-artificial-turf).
+- **Gopher wire:** 1 roll per 400 sq ft, if you have rodent pressure.
+
+Base aggregate is the other big quantity, and it is sourced locally rather than shipped — figure roughly one cubic yard of crushed rock per 100 square feet at a 3-inch depth, then confirm with your supplier.
+
+## Four Mistakes That Cause a Second Order
+
+1. **Measuring the lawn instead of the install area.** If you are extending to the fence line or squaring off a curve, measure what you are building, not what is there now.
+2. **Forgetting the trim allowance.** Measure to the widest point and add inches. Exact-fit orders arrive short.
+3. **Ignoring grain on a multi-zone yard.** Side yard and back yard look like separate projects until they meet at the gate and the mismatch is obvious.
+4. **Ordering by square footage and letting software pick the cuts.** Automatic cut generation is a sane default, but it does not know where your patio is or which direction you want the grain. Open the cut builder and set the pieces yourself.
+
+A second order means paying freight twice, and on a dye-sensitive product it means a small risk of a visible lot difference between batches. Order once, with the overage.
+
+## Common Questions
+
+### Can I get turf in a width other than 15 feet?
+No. The roll width is set by the tufting equipment and is a true industry standard. What varies is the length you buy.
+
+### What is the smallest order you can place?
+Our minimum cut is 10 feet, so 10 feet × 15 feet — 150 square feet. For smaller patios and balconies, buy a 10-foot cut and trim it down, keeping the remainder for repairs. See the [small-space patio guide](/blog/small-space-artificial-turf-patios).
+
+### Should I round up to a whole roll?
+Only if you have a use for the remainder. A 100-foot roll is not cheaper per square foot than the cuts that come out of it, so round up only when you want repair stock or have a second area in mind.
+
+### How accurate does my measurement need to be?
+Within about 6 inches on each dimension is plenty — you are trimming to fit on site anyway. What has to be right is the cut plan, which is why the bounding-rectangle method matters more than a precise perimeter survey.
+
+### Does more turf arrive as one piece or several?
+Several, as the cuts you specified. They are seamed on site. A 600-square-foot yard typically arrives as two cuts with one seam between them.
+
+### How does it ship?
+Most Southern California orders qualify for next-day delivery; everything else moves by LTL freight, and will-call pickup is available. Full detail on the [shipping page](/shipping) — worth reading before you order, because freight needs a plan for getting 300-pound rolls off a truck.
+
+## The Short Version
+
+Your yard's square footage is not your order quantity. Turf is 15 feet wide, up to 100 feet long, 10-foot minimum cut, and you buy length. Break the yard into bounding rectangles, add inches for trim, decide your grain direction, then test both strip orientations — the difference can be 50% of the order on the same yard. Add 5% for a clean rectangle and up to 20% for a yard full of obstacles. Place the seams where they are easy to build and hard to see, and order the infill, tape, and nails in the same shipment.
+
+Run your numbers through the [project calculator](/calculator), then open the cut builder on any [product page](/products) to set the pieces yourself. Want a second set of eyes on the layout before you commit? [Send us your dimensions](/contact) and we will sanity-check the cut plan, or [order free samples](/samples) first so you can confirm the grain direction against your actual light.
+    `,
+    image: "/blog/measuring-turf-yard.webp",
+    author: { name: "The Experts @", avatar: "/team/twlogo2.png" },
+    category: "Installation",
+    readTime: 8,
+    publishedAt: "2026-11-09",
+  },
+  {
+    slug: "is-artificial-turf-safe-lead-pfas",
+    title: "Is Artificial Turf Safe? Lead, PFAS, and What the Certifications Actually Mean",
+    excerpt:
+      "Most of what you will read about turf safety is about crumb rubber sports fields, not residential landscape turf. Here is what separates the two, which concerns have substance, and the five questions to ask a supplier.",
+    content: `
+## Where the Question Comes From
+
+Search "is artificial turf safe" and you will land in a twenty-year argument about sports fields: crumb rubber infill, cancer clusters among goalkeepers, lead in old nylon fiber, and more recently PFAS.
+
+Almost none of that literature is about the product going in a backyard. That does not make the question invalid — there are real things worth asking about — but the answers get a lot clearer once you separate two products that share a name and very little else.
+
+## First, Separate the Two Products
+
+| | Sports field turf | Residential landscape turf |
+|---|---|---|
+| Typical infill | Crumb rubber from recycled tires | Silica sand or zeolite |
+| Fiber | Often nylon, high durability | Polyethylene, soft |
+| Pile height | Short, dense, for ball roll | 1.25–2 in, for appearance |
+| Use pattern | Hours of contact, sliding, falls | Walking, lounging, pets |
+| Most research is about | This column | Not this column |
+
+Virtually all of the health research — and all of the serious controversy — concerns the left column, and specifically the crumb rubber infill rather than the turf itself. Recycled tire rubber contains a long list of chemical constituents, which is why it drew the attention it did.
+
+Our [products](/products) ship with silica sand or zeolite infill, and we do not stock crumb rubber at all. The [infill options](/supplies) are 16-grit and 60-grit silica, CamoFill, and zeolite for pet areas. If you read a study about crumb rubber exposure, it is not describing a yard built the way we build them. Our [infill guide](/blog/artificial-turf-infill-guide) covers why those materials get chosen on performance grounds, independent of the safety question.
+
+## Lead: A Real Historical Problem, Largely Solved
+
+This one was legitimate, and it is worth understanding because it explains a lot of the lingering unease.
+
+Lead chromate was historically used as a pigment to produce durable yellows and greens in synthetic fibers. Older fields — particularly nylon and nylon-blend fields from the 1990s and early 2000s — tested with meaningful lead content in the fiber itself. As those fields weathered and the fiber broke down, the lead became more available.
+
+Regulators engaged. The [Consumer Product Safety Commission](https://www.cpsc.gov/) evaluated synthetic turf fields in service and concluded that the newer fields it tested presented little risk to young children, while noting that older and heavily worn fields warranted more attention. The industry moved away from lead-based pigments, and modern polyethylene landscape turf is manufactured with lead-free colorants as a matter of course.
+
+**What this means for you:** new residential turf from a reputable supplier is not a lead exposure concern. What you should still do is *ask for it in writing* — see the supplier questions below. And if you have an old installation of unknown origin, particularly one that is weathering and shedding fiber, that is a reason to look at our [when to replace artificial turf](/blog/when-to-replace-artificial-turf) guide rather than to keep maintaining it.
+
+## PFAS: The Current Live Question
+
+This is the one that is genuinely unresolved, and it deserves a straight answer rather than reassurance.
+
+PFAS — per- and polyfluoroalkyl substances, the "forever chemicals" — have been used across manufacturing as polymer processing aids, including in the extrusion of plastic fibers. Testing by various groups has detected PFAS in some synthetic turf products. The [EPA's PFAS program](https://www.epa.gov/pfas) tracks the regulatory picture, which is moving quickly: several states have passed or proposed restrictions on PFAS in consumer products, and turf has been named explicitly in some of them.
+
+Three honest points:
+
+1. **Detection is not the same as exposure.** PFAS present in a solid polymer matrix is not the same exposure pathway as PFAS in drinking water. How much migrates out of intact turf fiber under normal use is not well characterized.
+2. **It varies by manufacturer and production line.** This is a processing-aid question, not an inherent property of polyethylene. Some manufacturers have reformulated and will issue PFAS-free declarations; others have not.
+3. **The regulatory direction is one-way.** Restrictions are tightening, not loosening. A supplier who cannot speak to this at all in 2026 is not keeping up.
+
+**What this means for you:** ask the question, ask for documentation rather than reassurance, and weight the answer. A supplier who says "we have third-party testing, here it is" is in a different category from one who says "it is perfectly safe."
+
+## Crumb Rubber: What the Federal Research Found
+
+If you are considering crumb rubber anyway — for a sport court, or because an installer proposed it — here is the state of play.
+
+A multi-agency federal effort involving the EPA, the [CDC's ATSDR](https://www.atsdr.cdc.gov/), and the CPSC studied recycled tire crumb used on playing fields. The resulting characterization work catalogued the chemical constituents present in crumb rubber and described how people come into contact with them. It was explicitly a characterization effort rather than a full risk assessment, and it stopped short of declaring the material either hazardous or safe.
+
+Separate epidemiological reviews of cancer incidence among athletes who played on crumb rubber fields have not established a causal link, though researchers have generally noted that study designs to date have limited statistical power.
+
+So: not proven harmful, not proven harmless, and the research community has been saying "we need better studies" for a decade. For a residential yard, this is an easy decision — silica and zeolite perform better for landscape use anyway, so there is no reason to accept an open question you do not have to.
+
+## Heat: The Risk That Is Actually Measurable in Your Yard
+
+Here is the uncomfortable part of the safety conversation: the hazard most likely to affect your family is not chemical. It is thermal.
+
+Turf gets substantially hotter than air temperature in direct sun — hot enough to be genuinely uncomfortable barefoot, and hot enough to matter for dogs' paw pads, which have no option to put shoes on. This is not disputed by anyone, it does not require a study to detect, and you can confirm it with your hand on an August afternoon.
+
+It is also entirely manageable: a thirty-second hose misting drops surface temperature dramatically, shade structures work, and cool-yarn formulations help. Our [summer heat playbook](/blog/keep-artificial-turf-cool-summer) covers the full set of mitigations, and it is the single most practically useful safety reading on this site.
+
+If you have a dog, read it alongside [choosing the right turf for pets](/blog/choosing-right-turf-for-pets).
+
+## The Other Two Real Considerations
+
+**Falls, for kids.** Turf over a compacted aggregate base is a firm surface. For a play area under equipment, the relevant engineering is impact attenuation, which comes from a shock pad underneath — not from the turf. [IPEMA](https://www.ipema.org/) certifies playground surfacing systems against the ASTM impact-attenuation standard, and the certification applies to the *system* — pad plus turf at a stated fall height — not to a turf SKU on its own. Full detail in our [kid-safe playground turf guide](/blog/kid-safe-artificial-turf-playgrounds).
+
+**Allergens and microbes.** This one lands in turf's favor. No pollen production, no mold-hosting thatch layer, no pesticide or herbicide applications. That is a measurable improvement for allergy and asthma households, which we cover in [artificial turf and allergies](/blog/artificial-turf-allergies-asthma). Bacteria in pet zones is a real maintenance item and a solved one — it is a cleaning-protocol question, handled in our [dog urine odor post](/blog/remove-dog-urine-smell-artificial-turf).
+
+## Five Questions to Ask Any Supplier
+
+Do not ask "is it safe." Everyone says yes. Ask these:
+
+1. **"Can you send me the lead content test results for this specific product?"** A real supplier has a document. The answer should be a PDF, not a sentence.
+2. **"Has this product been tested for PFAS, and can I see the report?"** The honest answers are "yes, here it is," or "not yet, and here is what we do know." Both are workable. "It is PFAS-free, trust us," without paper, is not.
+3. **"What infill are you quoting, by name?"** You want to hear silica, zeolite, or a named coated product — not "rubber" or "standard infill."
+4. **"Is this product Prop 65 compliant, and what warnings apply?"** California's [Proposition 65](https://oehha.ca.gov/proposition-65) requires warnings for listed chemicals above threshold levels. Suppliers selling into California have had to engage with this, and the answer tells you how seriously they take documentation. Useful even if you are not in California.
+5. **"What is the fiber material and the backing?"** Polyethylene face fiber and polyurethane backing is the answer you want for residential use. Our [fiber materials post](/blog/turf-fiber-materials-explained) and [backing guide](/blog/turf-backing-polyurethane-vs-latex) explain why.
+
+## What the Certifications Actually Cover
+
+This is where a lot of marketing gets away with things. Each of these means something specific and narrow:
+
+| Credential | What it actually covers | What it does not |
+|---|---|---|
+| Prop 65 compliance | Warning obligations for listed chemicals in California | Not a safety certification; a disclosure rule |
+| Lead content test report | Lead in the tested sample, against a stated limit | Other chemicals; other production lots |
+| PFAS test report | PFAS detection in the tested sample | Migration or exposure under use |
+| IPEMA certification | Impact attenuation of a surfacing system at a stated fall height | Chemistry of any kind |
+| ASTM test reports | Specific physical properties — tuft bind, permeability, UV resistance | Health or chemical safety |
+| Synthetic Turf Council membership | Industry association membership | Nothing about product testing |
+
+The last row matters. [Synthetic Turf Council](https://www.syntheticturfcouncil.org/) membership is a reasonable signal that a company is an established industry participant, and their technical guidance is genuinely useful. It is not a product safety certification, and a supplier who presents it as one is telling you something.
+
+## What We Specify, and Why
+
+For transparency, here is what is on our shelf and the reasoning:
+
+- **Polyethylene face fiber** — soft, UV-stable, lead-free pigments, and the standard for residential use. Not nylon, which is where the historical lead issue concentrated.
+- **Double polyurethane backing** — longevity and tuft retention, and it supports the [16-year warranty](/warranty). Also the easier backing to recycle at end of life.
+- **Silica and zeolite infill** — no crumb rubber stocked. Zeolite in pet zones because it chemically captures ammonia rather than just sitting there.
+- **Shock pad as a separate component** for play areas, so fall attenuation is engineered to a specified height instead of hoped for.
+
+## Common Questions
+
+### Is artificial turf safe for dogs?
+Yes, with two caveats that are both about management rather than materials: surface heat in direct sun, and keeping the pet zone clean so bacteria does not establish. Use zeolite infill, mist before hot-afternoon use, and run the cleaning routine. Dogs cannot choose to wear shoes, so the heat point is more important for them than for you.
+
+### Is it safe for toddlers and babies crawling on it?
+For chemical exposure, modern lead-free polyethylene turf with silica infill is not a meaningful concern, and it eliminates the pesticide and herbicide exposure a treated natural lawn carries. The two things to actually engineer for are fall attenuation under play equipment and surface temperature.
+
+### Does artificial turf off-gas?
+New turf can have a faint plastic smell for the first days to weeks, strongest in hot sun, and it dissipates. It is the same class of new-plastic odor as a new car interior. If it persists for months, something is unusual and worth raising with your supplier.
+
+### Is artificial turf a wildfire risk?
+Polyethylene melts rather than sustaining flame, but it will melt and deform from radiant heat and embers, and that behavior matters in a defensible-space plan. We cover it properly in [fire-safe landscaping with artificial turf](/blog/fire-safe-landscaping-artificial-turf).
+
+### What about microplastics?
+Turf fiber does abrade over its life, and that shedding is a legitimate environmental question — distinct from a personal health question. It is one more argument for buying product with strong tuft bind and a long service life rather than cheap turf you will replace three times in twenty years.
+
+### Should I be worried if my existing turf is old and I do not know what it is?
+Worth attention rather than alarm. Pigment-era lead concerns attach to older nylon product, and a weathering surface that sheds fiber is the condition where exposure would be highest. If the turf is visibly degrading, you are at replacement anyway.
+
+## The Short Version
+
+Most turf safety literature is about crumb rubber sports fields, not residential landscape turf with silica or zeolite infill. Lead was a real problem in older nylon fiber, regulators engaged, and modern polyethylene uses lead-free pigments. PFAS is the open question worth asking about, by name, with documentation. Crumb rubber remains unresolved, which is a good reason to simply not use it in a yard. And the risk you will actually notice is heat, which is fully manageable.
+
+Ask for the test reports, insist on named infill, and buy fiber and backing you can identify. [Order free samples](/samples) and read the spec card on each, browse the [catalog](/products) where materials are listed per SKU, or [get in touch](/contact) with the documentation questions above and we will send what we have.
+    `,
+    image: "/blog/turf-safety-certifications.webp",
+    author: { name: "The Experts @", avatar: "/team/twlogo2.png" },
+    category: "Safety",
+    readTime: 9,
+    publishedAt: "2026-11-05",
+  },
+  {
+    slug: "remove-dog-urine-smell-artificial-turf",
+    title: "Why Your Artificial Turf Smells Like Dog Urine (and the Fix)",
+    excerpt:
+      "The odor is uric acid dried into the infill, not on the blades — which is why hosing it down makes it briefly worse. Here is the routine that actually removes it.",
+    content: `
+## Why It Smells (It Is Not the Blades)
+
+The odor is not on the grass. It is uric acid crystals that soaked past the fibers and dried into the infill underneath, and plain water just re-wets them — which is why the smell often gets briefly **worse** after you hose the yard down on a warm day.
+
+Here is the mechanism. Artificial turf backing is perforated so liquid drains straight through. The water in dog urine does exactly that and disappears. The dissolved solids do not. Uric acid salts stay behind, bind to the infill and the backing, and go dormant when dry. Add heat or humidity and they reactivate, releasing ammonia.
+
+That is the whole problem in one sentence: you are not cleaning a surface, you are breaking down a salt that has settled below it.
+
+## What Does Not Work
+
+- **Water alone.** Rinses the surface and rehydrates the crystals underneath. Temporary at best.
+- **Bleach.** Will not touch uric acid, and it can damage the backing and the antimicrobial treatment.
+- **Ammonia-based cleaners.** Ammonia is what the odor already is. To a dog it reads as another dog's marking spot, so you are actively encouraging repeat use of the same patch.
+- **Dish soap and laundry detergent.** Leaves a residue that traps dirt and attracts more of it.
+- **Pressure washing up close.** Blasts infill out of the zone that needs it most and can split fibers from the backing. If you use a pressure washer at all, keep it wide-fan and well back.
+- **Covering it with fragrance.** Masks for a day, and the underlying salt is still there.
+
+## The Fix That Actually Works
+
+Enzyme cleaners are the only household approach that breaks uric acid down rather than diluting it. The enzymes digest the compound, so the odor source is removed instead of relocated.
+
+### Step 1: Pick Up Solids First
+Obvious, but it has to happen before anything gets wet. Wet solids work down into the infill and make the job harder.
+
+### Step 2: Rinse the Zone
+A normal hose rinse, enough to wet the area thoroughly. You are pre-wetting so the cleaner can travel down rather than sitting on top.
+
+### Step 3: Apply a Turf-Safe Enzyme Cleaner
+Soak it. This is where most people under-apply. The cleaner has to reach the same depth the urine did, which means the infill, not just the blade tips. For a dog-run area, that is considerably more product than feels reasonable.
+
+### Step 4: Let It Dwell
+Ten to thirty minutes, and do not let it dry out. Enzymes need contact time and moisture to work. On a hot afternoon, mist the area or do this in the evening instead.
+
+### Step 5: Rinse Again
+Flush the broken-down residue down through the backing and out.
+
+### Step 6: Brush the Fibers Back Up
+A stiff bristle brush, against the grain. Pet traffic mats fibers flat, which traps more of everything next time. Brushing is what keeps the zone draining and self-clearing.
+
+For a yard with a dog that uses one spot, running this monthly is usually enough. Multiple dogs, or a small pet-relief area getting heavy use, closer to every two weeks.
+
+## Infill Is the Variable Most People Ignore
+
+If your turf is holding odor badly, the infill underneath is frequently the reason. Plain silica sand is inert — it does not absorb ammonia, it just hosts the crystals.
+
+Zeolite infill is the common upgrade for pet areas. It is a naturally porous mineral that captures ammonia ions as they form and releases them when flushed, which means the odor is neutralized between cleanings rather than accumulating. Antimicrobial-coated infills are another option.
+
+If your turf was installed with standard silica and you have a dog, swapping the infill in the pet zone is often cheaper and more effective than any cleaning routine. Our [infill guide](/blog/artificial-turf-infill-guide) covers the differences in detail, and [choosing the right turf for pets](/blog/choosing-right-turf-for-pets) covers backing perforation and pile height, which matter just as much.
+
+## When It Is Not a Cleaning Problem
+
+Some odor problems do not respond to any amount of enzyme cleaner, because the issue is underneath.
+
+- **Drainage failure.** If the pet zone stays damp after a rinse, liquid is not clearing the base and you have a sub-base or compaction issue. Our post on [drainage in heavy rain](/blog/artificial-turf-drainage-heavy-rain) covers how to test it.
+- **Compacted infill.** Years of traffic pack the infill into a dense layer that water sheets over instead of passing through.
+- **A low spot.** Settling creates a basin that collects and holds everything.
+- **Backing without pet perforation.** Some older or lower-grade turf has limited drainage holes. No cleaning routine fixes that.
+
+In those cases the answer is a professional deep extraction, or re-working the base in that zone. Both are a lot cheaper than replacing a lawn — see [when it is actually time to replace](/blog/when-to-replace-artificial-turf) for where that line sits.
+
+## Prevention, Which Is Mostly Free
+
+- Rinse pet zones weekly, more often in summer heat
+- Enzyme treatment monthly, on a schedule rather than when you notice a smell
+- Brush high-traffic and pet areas to keep fibers upright and the base draining
+- Train to one zone if you can — concentrating use makes the maintenance routine much smaller
+- Keep infill topped up; thin infill means less material holding the fibers up and more exposed backing
+- Run a deeper clean before hosting season rather than after
+
+This slots into the seasonal plan in our [year-round maintenance calendar](/blog/year-round-turf-maintenance-calendar), and the basics are in [5 essential maintenance tips](/blog/turf-maintenance-tips).
+
+## Common Questions
+
+### Does artificial turf hold dog urine smell more than real grass?
+It can, and for a specific reason. Soil contains microbes that digest uric acid continuously. Infill does not, so without an enzyme treatment nothing is breaking the compound down. Properly specified and maintained pet turf does not smell; neglected pet turf smells worse than a lawn would.
+
+### Will vinegar work instead of an enzyme cleaner?
+A diluted vinegar rinse helps with mild, recent odor and it will not harm the fibers or backing. It neutralizes rather than digests, so for established odor in the infill it underperforms a real enzyme product. Reasonable as a stopgap, not as the routine.
+
+### Can I use baking soda?
+Yes, as a supplement. Sprinkle it over the dry area, leave it twenty minutes or so, then brush and rinse. It absorbs surface odor. It does not break down uric acid, so use it alongside an enzyme treatment rather than instead of one.
+
+### How often should a dog owner be cleaning turf?
+Weekly rinse, monthly enzyme treatment for a single dog. Every two weeks for multiple dogs or a concentrated relief area. Solids get picked up daily, same as on grass.
+
+### Is pet urine going to void my warranty?
+No. Pet use is normal use and does not affect our 16-year warranty — see the [warranty page](/warranty) for what is actually covered. Damage from harsh chemicals like bleach is a different matter, which is one more reason to stay with turf-safe products.
+
+## The Short Version
+
+The smell lives in the infill, not on the blades. Water moves it, enzymes remove it. Rinse, soak with a turf-safe enzyme cleaner, let it dwell, rinse again, brush the fibers up — monthly for one dog, fortnightly for more. If the odor survives that, the problem is drainage or infill, not cleaning.
+
+Planning a pet area and want to get the specification right the first time? [Order samples](/samples) to compare backing perforation and pile height in person, or [get in touch](/contact) and we will walk through infill options for a dog run.
+`,
+    image: "/blog/dog-urine-odor-turf.webp",
+    author: { name: "The Experts @", avatar: "/team/twlogo2.png" },
+    category: "Pet Care",
+    readTime: 7,
+    publishedAt: "2026-11-02",
+  },
+  {
     slug: "year-round-turf-maintenance-calendar",
     title: "The Year-Round Artificial Turf Maintenance Calendar",
     excerpt: "Artificial turf is low-maintenance, not no-maintenance. This month-by-month calendar covers everything you need to do (and when) for a 20-year lifespan.",
